@@ -82,7 +82,7 @@ function NodeIcon({ ruleKey, className = 'h-6 w-6' }: { ruleKey: string; classNa
 }
 
 // ---------- المكوّن ----------
-export default function SkillTree() {
+export default function SkillTree({ onStart }: { onStart?: (nodeId: string) => void }) {
   const [stageFilter, setStageFilter] = useState<Stage | 'ALL'>('ALL');
   const [selectedId, setSelectedId] = useState<string>('n-idgham');
   const [startedIds, setStartedIds] = useState<string[]>([]);
@@ -253,7 +253,7 @@ export default function SkillTree() {
                   <button disabled className="mt-5 w-full cursor-not-allowed rounded-xl bg-white/5 py-3 text-sm font-bold text-slate-500">🔒 مغلق — أتقن المتطلبات أولاً</button>
                 ) : (
                   <motion.button whileTap={{ scale: 0.97 }}
-                    onClick={() => setStartedIds((s) => (s.includes(selected.id) ? s : [...s, selected.id]))}
+                    onClick={() => { setStartedIds((s) => (s.includes(selected.id) ? s : [...s, selected.id])); onStart?.(selected.id); }}
                     className="mt-5 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-400">
                     {selected.status === 'completed' ? '↻ مراجعة الدرس' : selected.status === 'in-progress' ? '▶ إكمال من حيث توقفت' : '▶ ابدأ التحدي — +'} 
                     {selected.status === 'available' ? `${selected.xpReward} XP` : ''}

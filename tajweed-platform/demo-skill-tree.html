@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>شجرة الأحكام التفاعلية — عرض عملي</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="assets/app.css">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body{font-family:'IBM Plex Sans Arabic',sans-serif}
@@ -35,6 +35,7 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif}
     <aside class="lg:sticky lg:top-4 h-fit rounded-2xl border border-white/10 bg-white/[.04] p-5"><div id="detail"></div></aside>
   </div>
 </div>
+<script src="assets/xp.js"></script>
 <script>
 const N=[
 {id:'n-noon-intro',t:'مدخل النون الساكنة',s:'الفرق بين السكون والتنوين',st:'MIDDLE',tier:0,xp:50,l:3,m:1,st2:'completed',req:[],min:10},
@@ -55,7 +56,7 @@ const cls=s=>s==='completed'?'border-emerald-500/60 bg-emerald-500/10':s==='in-p
 const badge=s=>s==='completed'?'<span class="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">✓ مكتمل</span>':s==='in-progress'?'<span class="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold text-sky-300">جارٍ</span>':s==='available'?'<span class="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">متاح الآن</span>':'<span class="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold">مغلق</span>';
 function render(){
   const done=N.filter(n=>n.st2==='completed'),xp=done.reduce((a,n)=>a+n.xp,0),pc=Math.round(done.length/N.length*100);
-  document.getElementById('xp').textContent='⚡ '+xp+' XP';
+  document.getElementById('xp').textContent='⚡ '+xp+' XP • رصيدك: '+XP.get();
   document.getElementById('sub').textContent=`أتقن حكماً لتفتح التالي — ${done.length} من ${N.length} مكتملة`;
   document.getElementById('bar').style.width=pc+'%';
   document.getElementById('filters').innerHTML=['ALL','MIDDLE','HIGH','UNIVERSITY'].map(s=>`<button onclick="F='${s}';render()" class="rounded-full px-4 py-1.5 text-xs font-bold ${F===s?'bg-emerald-500 text-white':'bg-white/5 hover:bg-white/10'}">${s==='ALL'?'الكل':SL[s]}</button>`).join('');

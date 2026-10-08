@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>منصة التجويد التفاعلية — عروض حية</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="assets/app.css">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>body{font-family:'IBM Plex Sans Arabic',sans-serif}.card{transition:all .25s ease}.card:hover{transform:translateY(-5px)}</style>
 </head>
@@ -31,5 +31,8 @@
 كود المصدر الكامل (مكونات React + Prisma Schema + API Routes) متوفر في مستودع GitHub.<br>الأكواد: <code class="text-slate-400">components/</code> • <code class="text-slate-400">prisma/schema.prisma</code> • <code class="text-slate-400">app/api/</code>
 </footer>
 </div>
+<p class="mt-3 text-xs text-slate-400">رصيدك المحفوظ على هذا الجهاز: <b id="totalXp" class="text-amber-300">0 XP</b> • رتبتك: <b id="myRank" class="text-emerald-300"></b></p>
+<script src="assets/xp.js"></script>
+<script>try{document.getElementById('totalXp').textContent=XP.get()+' XP';document.getElementById('myRank').textContent=XP.rank()+' • سلسلة '+XP.streak()+' يوم';}catch(e){}</script>
 </body>
 </html>
