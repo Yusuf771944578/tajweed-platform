@@ -36,6 +36,7 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif}
   </div>
 </div>
 <script src="assets/xp.js"></script>
+<script src="assets/site.js"></script>
 <script>
 const N=[
 {id:'n-noon-intro',t:'مدخل النون الساكنة',s:'الفرق بين السكون والتنوين',st:'MIDDLE',tier:0,xp:50,l:3,m:1,st2:'completed',req:[],min:10},
@@ -86,7 +87,7 @@ function render(){
     <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l from-emerald-400 to-sky-400" style="width:${d.m*100}%"></div></div></div>
     ${d.req.length?`<div class="mt-4 text-xs"><b>المتطلبات: </b>`+d.req.map(r=>{const p=N.find(x=>x.id===r);return `<span class="inline-block rounded-full px-2 py-0.5 font-bold mr-1 ${p.st2==='completed'?'bg-emerald-500/15 text-emerald-300':'bg-white/5 text-slate-400'}">${p.st2==='completed'?'✓ ':''}${p.t}</span>`}).join('')+`</div>`:''}
     ${d.st2==='locked'?`<button disabled class="mt-5 w-full rounded-xl bg-white/5 py-3 text-sm font-bold text-slate-500 cursor-not-allowed">🔒 مغلق — أتقن المتطلبات أولاً</button>`
-    :`<button class="mt-5 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white hover:bg-emerald-400">${d.st2==='completed'?'↻ مراجعة الدرس':d.st2==='in-progress'?'▶ إكمال من حيث توقفت':'▶ ابدأ التحدي — +'+d.xp+' XP'}</button>`}
+    :`<button onclick="location.href='demo-lesson.html'" class="mt-5 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white hover:bg-emerald-400">${d.st2==='completed'?'↻ مراجعة الدرس':d.st2==='in-progress'?'▶ إكمال من حيث توقفت':'▶ ابدأ التحدي — +'+d.xp+' XP'}</button>`}
   </div>`;
 }
 render();

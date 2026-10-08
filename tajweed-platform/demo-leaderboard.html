@@ -14,12 +14,17 @@ const B=[
 {n:'عبدالله م.',xp:4850,r:'متمكن',s:21},{n:'يوسف ن.',xp:4620,r:'متمكن',s:18,y:1},
 {n:'حمزة س.',xp:4310,r:'مجوّد',s:15},{n:'مريم خ.',xp:3980,r:'مجوّد',s:12},
 {n:'أنس ر.',xp:3540,r:'مجوّد',s:9},{n:'ليان ع.',xp:3100,r:'مبتدئ',s:7}];
+try{var _nm='';try{_nm=localStorage.getItem('tajweed_name')||''}catch(e){}
+var _mx=0;try{_mx=XP.get()}catch(e){}
+if(_nm||_mx>0){B.push({n:_nm||'أنت (زائر)',xp:_mx,r:_mx>=500?'مجوّد':'مبتدئ',s:0,y:1});B.sort(function(a,b){return b.xp-a.xp})}}catch(e){}
 const M=[['🥇',1],['🥈',2],['🥉',3]];
 document.getElementById('app').innerHTML=`
 <h1 class="text-2xl font-extrabold">المواسم <span class="text-amber-300">والبطولات</span></h1>
-<p class="text-xs text-slate-400 mt-1">دوري المدارس — رمضان 1448 • تُحسب من XpEvent داخل فترة الموسم (GET /api/leaderboard) — المعروض هنا ترتيب تجريبي، والنسخة الإنتاجية تعرض بيانات الموسم الحقيقية</p>
+<p class="text-xs text-slate-400 mt-1">دوري المدارس — رمضان 1448 • سجّل اسمك ليظهر رصيدك الحقيقي في الترتيب:</p>
+<div class="mt-2 flex gap-2"><input id="nm" placeholder="اكتب اسمك…" class="flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none"><button onclick="saveName()" class="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-bold">حفظ</button></div>
+<script>function saveName(){var v=document.getElementById('nm').value.trim();if(!v)return;try{localStorage.setItem('tajweed_name',v)}catch(e){}location.reload()}</script>
 <div class="mt-6 flex items-end justify-center gap-3">
-${[B[1],B[0],B[2]].map((e,i)=>`<div class="w-28 rounded-2xl border p-3 text-center ${e.n==='عبدالله م.'?'border-amber-300/60 bg-amber-400/10 pb-6':'border-white/10 bg-white/[.04]'} ${e.y?'ring-2 ring-emerald-400':''}">
+${[B[1],B[0],B[2]].map((e,i)=>`<div class="w-28 rounded-2xl border p-3 text-center ${i===1?'border-amber-300/60 bg-amber-400/10 pb-6':'border-white/10 bg-white/[.04]'} ${e.y?'ring-2 ring-emerald-400':''}">
 <div class="text-2xl">${['🥈','🥇','🥉'][i]}</div><div class="text-sm font-extrabold truncate mt-1">${e.n}</div>
 <div class="text-[11px] text-slate-400">${e.r} • 🔥${e.s}</div><div class="text-amber-300 font-extrabold mt-1">${e.xp} XP</div></div>`).join('')}
 </div>
@@ -36,5 +41,7 @@ ${[B[1],B[0],B[2]].map((e,i)=>`<div class="w-28 rounded-2xl border p-3 text-cent
 <div class="rounded-2xl border border-amber-300/50 bg-amber-400/5 p-4 text-sm"><div class="text-[11px] font-bold text-amber-300">النهائي — الجمعة ● قادمة</div><div class="font-bold mt-2">عبدالله م.</div><div class="text-center text-slate-500">ضد</div><div class="font-bold">يوسف ن. (أنت)</div></div>
 </div>`;
 </script>
+<script src="assets/xp.js"></script>
+<script src="assets/site.js"></script>
 </body>
 </html>

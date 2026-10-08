@@ -58,12 +58,18 @@ const RULES = {
   izhar: { title:'الإظهار الحلقي', cls:'noon', tcls:'trigger', hint:'النون واضحة + حرف حلقي — لاحظ التباعد بين المخرجين' },
   ikhfa: { title:'الإخفاء الحقيقي', cls:'noon', tcls:'ikhf', hint:'حالة بين الإظهار والإدغام مع غنة حركتين' },
   qalqalah: { title:'القلقلة', cls:'', tcls:'qalq', hint:'اهتزاز حرف قطب جد الساكن' },
+  idgham: { title:'الإدغام', cls:'noon', tcls:'ikhf', hint:'النون تدخل في حرف يرملون مع الغنة' },
+  iqlab: { title:'الإقلاب', cls:'noon', tcls:'ikhf', hint:'نون + باء ← ميم مخفاة بغنة' },
 };
 const EX = [
   { id:'ex1', rule:'izhar', ref:'البقرة 74 — ﴿مِنْ خَشْيَةِ﴾', trig:'خ', words:[{t:'مِنْ',k:'noon',n:'نون ساكنة'},{t:'خَشْيَةِ',k:'trigger',n:'حرف الإظهار: خ'},{t:'ٱللَّهِ',k:''}], exp:'نون ساكنة + خ (من حروف الحلق ء هـ ع ح غ خ) ← إظهار حلقي: تُنطق النون واضحة من مخرجها لتباعد المخرجين.' },
   { id:'ex2', rule:'izhar', ref:'النساء 57 — تنوين + ح', trig:'ح', words:[{t:'عَلِيمًا',k:''},{t:'حَكِيمًا',k:'trigger',n:'حرف الإظهار: ح'}], exp:'تنوين (نون ساكنة لفظاً) + ح ← إظهار حلقي.' },
   { id:'ex3', rule:'ikhfa', ref:'البقرة 3 — ﴿مِن فَضْلِ﴾', trig:'ف', words:[{t:'مِن',k:'noon',n:'نون ساكنة'},{t:'فَضْلِ',k:'trigger',n:'حرف الإخفاء: ف'},{t:'ٱللَّهِ',k:''}], exp:'نون ساكنة + ف ← إخفاء حقيقي بغنة مرققة حركتين.' },
   { id:'ex4', rule:'qalqalah', ref:'الإخلاص 1 — ﴿قُلْ﴾', trig:'ق', words:[{t:'قُلْ',k:'trigger',n:'قاف مقلقلة'},{t:'هُوَ',k:''},{t:'ٱللَّهُ',k:''},{t:'أَحَدٌ',k:''}], exp:'القاف من (قطب جد) ساكنة ← قلقلة صغرى: اهتزاز المخرج دون ميل لحركة.' },
+  { id:'ex5', rule:'idgham', ref:'مثال — ﴿مَن يَقُولُ﴾', trig:'ي', words:[{t:'مَن',k:'noon',n:'نون ساكنة'},{t:'يَقُولُ',k:'trigger',n:'حرف الإدغام: ي'}], exp:'نون ساكنة + ي (من يرملون) ← إدغام بغنة: تدخل النون في الياء مع غنة حركتين.' },
+  { id:'ex6', rule:'iqlab', ref:'مثال — ﴿مِن بَعْدِ﴾', trig:'ب', words:[{t:'مِن',k:'noon',n:'نون ساكنة'},{t:'بَعْدِ',k:'trigger',n:'حرف الإقلاب: ب'}], exp:'نون ساكنة + ب ← إقلاب: تُقلب النون ميماً مخفاة مع غنة حركتين.' },
+  { id:'ex7', rule:'izhar', ref:'مثال — ﴿مِنْ غَاسِقٍ﴾', trig:'غ', words:[{t:'مِنْ',k:'noon',n:'نون ساكنة'},{t:'غَاسِقٍ',k:'trigger',n:'حرف الإظهار: غ'}], exp:'نون ساكنة + غ ← إظهار حلقي: الغين من أقصى الحلق بعيدة عن مخرج النون.' },
+  { id:'ex8', rule:'ikhfa', ref:'مثال — ﴿كُنتُمْ﴾', trig:'ت', words:[{t:'كُنتُمْ',k:'trigger',n:'نون ساكنة + ت داخل الكلمة'}], exp:'نون ساكنة + ت في كلمة واحدة ← إخفاء حقيقي بغنة مرققة.' },
 ];
 let activeRule='izhar', activeId='ex1';
 function renderBtns(){
@@ -93,12 +99,13 @@ function renderBoard(){
   document.getElementById('isoBox').innerHTML = (iso && noon && trig) ? `
     <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 fade-in">
       <div class="rounded-2xl p-5 text-center bg-emerald-500/10 outline outline-2 outline-emerald-400/60"><div class="font-quran text-5xl">${noon.t}</div><div class="text-xs font-bold mt-2">نون ساكنة — طرف اللسان</div></div>
-      <div class="text-center"><div class="text-2xl arrow">↔</div><div class="text-[11px] font-bold text-slate-400">تباعد<br>= إظهار</div></div>
+      <div class="text-center"><div class="text-2xl arrow">↔</div><div class="text-[11px] font-bold text-slate-400">${({izhar:'تباعد<br>= إظهار',ikhfa:'لا قرب ولا بعد<br>= إخفاء',idgham:'اندماج<br>= إدغام',iqlab:'قلب<br>+ إخفاء'})[e.rule]||''}</div></div>
       <div class="rounded-2xl p-5 text-center bg-amber-500/10 outline outline-2 outline-amber-400/60"><div class="font-quran text-5xl">${trig.t}</div><div class="text-xs font-bold mt-2">حرف الحلق (${e.trig})</div></div>
     </div>` : (iso && trig ? `<div class="rounded-2xl p-5 text-center bg-rose-500/10 outline outline-2 outline-rose-400/60 fade-in"><div class="font-quran text-5xl">${trig.t}</div><div class="text-xs font-bold mt-2">الحرف المقلقَل (${e.trig}) — اسمع الارتداد</div></div>` : '');
   document.getElementById('exp').innerHTML = '<b class="text-emerald-300">التعليل: </b>'+e.exp;
 }
 render();
 </script>
+<script src="assets/site.js"></script>
 </body>
 </html>

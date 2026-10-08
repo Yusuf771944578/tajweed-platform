@@ -128,3 +128,37 @@ button:disabled{cursor:not-allowed}
 .lg\:grid-cols-\[280px_1fr\]{grid-template-columns:280px 1fr}
 .lg\:sticky{position:sticky}.lg\:top-4{top:1rem}}
 @media (min-width:1280px){.xl\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* ---------- روابط وأزرار عامة ---------- */
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+.btn-primary{display:inline-block;border-radius:.9rem;background:#10b981;color:#fff;font-weight:800;padding:.9rem 2.2rem;box-shadow:0 10px 24px -8px rgba(16,185,129,.5)}
+.btn-primary:hover{background:#34d399}
+.btn-gold{display:inline-block;border-radius:.9rem;background:#fbbf24;color:#000;font-weight:800;padding:.9rem 2.2rem;box-shadow:0 10px 24px -8px rgba(251,191,36,.4)}
+.btn-rose{display:inline-block;border-radius:.9rem;background:#f43f5e;color:#fff;font-weight:800;padding:.9rem 2.2rem}
+.hero-grad{background:linear-gradient(135deg,#34d399,#38bdf8 60%,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ico{width:52px;height:52px;border-radius:1rem;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.ico svg{width:28px;height:28px}
+
+/* ---------- شريط التنقل السفلي الموحد ---------- */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;gap:2px;justify-content:space-around;align-items:stretch;background:rgba(11,16,32,.92);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.12);padding:.4rem .3rem calc(.4rem + env(safe-area-inset-bottom))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:#94a3b8;border-radius:.7rem;padding:.35rem 0}
+.tab .ti{font-size:17px;line-height:1}
+.tab.on{color:#34d399;background:rgba(16,185,129,.12)}
+.tab.theme{color:#fcd34d}
+body{padding-bottom:70px}
+
+/* ---------- الوضع النهاري ---------- */
+[data-theme="light"] body{background:#eef2f7;color:#0f172a}
+[data-theme="light"] .bg-\[\#0B1020\]{background-color:#eef2f7}
+[data-theme="light"] [class*="bg-white/"]{background-color:#ffffff}
+[data-theme="light"] .bg-black\/20,[data-theme="light"] .bg-black\/30,[data-theme="light"] .bg-black\/40{background-color:#f1f5f9}
+[data-theme="light"] [class*="border-white/"]{border-color:#e2e8f0}
+[data-theme="light"] .text-slate-100{color:#0f172a}
+[data-theme="light"] .text-slate-200{color:#1e293b}
+[data-theme="light"] .text-slate-400{color:#475569}
+[data-theme="light"] .text-slate-500{color:#64748b}
+[data-theme="light"] .tabbar{background:rgba(255,255,255,.94);border-top-color:#e2e8f0}
+[data-theme="light"] .tab{color:#64748b}
+[data-theme="light"] .tab.on{color:#059669;background:rgba(16,185,129,.12)}
+[data-theme="light"] .ring-offset-2.ring-2{box-shadow:0 0 0 2px #ffffff,0 0 0 4px var(--tw-ring-color,#34d399)}

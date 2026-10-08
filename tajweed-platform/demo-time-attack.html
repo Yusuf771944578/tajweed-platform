@@ -10,14 +10,18 @@
 <body class="bg-[#0B1020] text-slate-100 min-h-screen">
 <div class="max-w-3xl mx-auto p-4 md:p-8" id="app"></div>
 <script src="assets/xp.js"></script>
+<script src="assets/site.js"></script>
 <script>
 const QS=[
 {p:'انقر كلمة الإظهار الحلقي',r:'البقرة 74',w:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]]},
 {p:'انقر الحرف المقلقَل',r:'الإخلاص 1',w:[['قُلْ',1],['هُوَ',0],['أَحَدٌ',0]]},
 {p:'انقر كلمة الإخفاء',r:'البقرة 3',w:[['مِن',0],['فَضْلِ',1],['ٱللَّهِ',0]]},
 {p:'أين الإظهار؟ (تنوين + ح)',r:'النساء 57',w:[['عَلِيمًا',0],['حَكِيمًا',1]]},
-{p:'انقر كلمة الإدغام بغنة',r:'مثال',w:[['مَن',0],['يَقُولُ',1]]}];
-const T=12;let ph='intro',qi=0,tl=T,xp=0,combo=0,mx=0,ok=0,fl=null,timer=null,last=0;
+{p:'انقر كلمة الإدغام بغنة',r:'مثال',w:[['مَن',0],['يَقُولُ',1]]},
+{p:'انقر كلمة الإقلاب (نون + ب)',r:'مثال',w:[['مِن',0],['بَعْدِ',1],['مَا',0]]},
+{p:'أين الغنة؟ (نون + ف)',r:'البقرة 3',w:[['مِن',0],['فَضْلِ',1]]},
+{p:'انقر الكلمة ذات التنوين المظهر',r:'النساء 57',w:[['عَلِيمًا',0],['حَكِيمًا',1]]}];
+let T=12;let ph='intro',qi=0,tl=T,xp=0,combo=0,mx=0,ok=0,fl=null,timer=null,last=0;
 function render(){
 const el=document.getElementById('app');
 let head=`<div class="mb-4 flex justify-between items-center"><span class="text-xs font-bold text-slate-400">⚡ تحدي السرعة والإتقان</span>
@@ -25,7 +29,7 @@ ${ph==='play'?`<div class="flex gap-2 text-xs font-bold"><span class="rounded-fu
 let body='';
 if(ph==='intro')body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center"><div class="text-5xl">⚡</div>
 <h1 class="text-3xl font-extrabold mt-2">تحدي السرعة <span class="text-amber-300">والإتقان</span></h1>
-<p class="text-sm text-slate-400 mt-2">${QS.length} آيات • ${T} ثوانٍ للسؤال • مكافأة سرعة + سلسلة حتى ×2</p>
+<p class="text-sm text-slate-400 mt-2">${QS.length} آيات • ${T} ثوانٍ للسؤال • مكافأة سرعة + سلسلة حتى ×2</p>'+'<div class="mt-4 flex justify-center items-center gap-2 text-xs font-bold"><span class="text-slate-400">زمن السؤال:</span>'+[8,12,15].map(function(s){return '<button onclick="setT('+s+')" class="rounded-full px-4 py-2 '+(T===s?'bg-amber-400 text-black':'bg-white/5')+'">'+s+' ث</button>'}).join('')+'</div>'+`
 <button onclick="start()" class="mt-6 rounded-xl bg-amber-400 px-10 py-3.5 text-sm font-extrabold text-black">▶ ابدأ التحدي</button></div>`;
 if(ph==='play'){const q=QS[qi];
 body=`<div class="h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full ${tl<4?'bg-rose-500':'bg-gradient-to-l from-amber-300 to-emerald-400'}" style="width:${tl/T*100}%"></div></div>
@@ -41,6 +45,7 @@ body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 tex
 <div class="rounded-xl bg-black/30 p-3"><div class="text-xl font-extrabold text-violet-300">×${mx}</div><div class="text-[11px] text-slate-400">أطول سلسلة</div></div></div>
 <p class="text-xs text-slate-400 mt-3">رصيدك الكلي على هذا الجهاز: ${XP.get()} XP • رتبتك: ${XP.rank()}</p><div class="mx-auto mt-4 flex max-w-md gap-2"><button onclick="restart()" class="flex-1 rounded-xl bg-amber-400 py-3 text-sm font-extrabold text-black">↻ إعادة</button></div></div>`}
 el.innerHTML=head+body}
+function setT(v){T=v;render()}
 function start(){ph='play';qi=0;xp=0;combo=0;mx=0;ok=0;tick()}
 function restart(){start()}
 function tick(){fl=null;tl=T;render();clearInterval(timer);timer=setInterval(()=>{tl=Math.round((tl-.1)*10)/10;

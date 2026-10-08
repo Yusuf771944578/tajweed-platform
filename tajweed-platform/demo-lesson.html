@@ -10,26 +10,36 @@
 <body class="bg-[#0B1020] text-slate-100 min-h-screen">
 <div class="max-w-4xl mx-auto p-4 md:p-8" id="app"></div>
 <script src="assets/xp.js"></script>
+<script src="assets/site.js"></script>
 <script>
 let step=0, answers=[-1,-1], rec='idle', sec=0, timer=null, voice=null, stream=null, done=null, micBlocked=false;
-const QUIZ=[
+var LDEF={
+izhar:{title:'الإظهار الحلقي',ref:'البقرة 74 — ﴿مِنْ خَشْيَةِ﴾',xp:80,words:[['مِنْ','noon'],['خَشْيَةِ','trigger'],['ٱللَّهِ','']],exp:'نون ساكنة + خ (من حروف الحلق ء هـ ع ح غ خ) ← إظهار حلقي لتباعد المخرجين.',quiz:[
 {q:'ما حكم النون الساكنة في ﴿مِنْ خَشْيَةِ﴾؟',o:['إظهار حلقي','إدغام بغنة','إخفاء حقيقي'],c:0},
-{q:'لماذا سُمّي إظهاراً حلقياً؟',o:['لتباعد مخرج النون عن حروف الحلق','لقرب المخرجين','لاختفاء الغنة'],c:0}];
+{q:'لماذا سُمّي إظهاراً حلقياً؟',o:['لتباعد مخرج النون عن حروف الحلق','لقرب المخرجين','لاختفاء الغنة'],c:0}]},
+ikhfa:{title:'الإخفاء الحقيقي',ref:'البقرة 3 — ﴿مِن فَضْلِ﴾',xp:120,words:[['مِن','noon'],['فَضْلِ','trigger'],['ٱللَّهِ','']],exp:'نون ساكنة + ف ← إخفاء حقيقي بغنة مرققة بمقدار حركتين.',quiz:[
+{q:'ما حكم النون في ﴿مِن فَضْلِ﴾؟',o:['إخفاء حقيقي','إظهار حلقي','إدغام بغنة'],c:0},
+{q:'كم مقدار الغنة في الإخفاء؟',o:['حركتان','أربع حركات','بدون غنة'],c:0}]},
+qalqalah:{title:'القلقلة',ref:'الإخلاص 1 — ﴿قُلْ﴾',xp:150,words:[['قُلْ','trigger'],['هُوَ',''],['ٱللَّهُ',''],['أَحَدٌ','']],exp:'القاف من حروف (قطب جد) ساكنة ← قلقلة صغرى: اهتزاز المخرج دون ميل لحركة.',quiz:[
+{q:'ما حروف القلقلة؟',o:['قطب جد','يرملون','ء هـ ع ح غ خ'],c:0},
+{q:'ما حكم القاف في ﴿قُلْ﴾؟',o:['قلقلة صغرى','قلقلة كبرى','إظهار حلقي'],c:0}]}
+};
+var _lk='izhar';try{_lk=new URLSearchParams(location.search).get('l')||'izhar'}catch(e){}
+var L=LDEF[_lk]||LDEF.izhar;
+var QUIZ=L.quiz;
 function bar(){return ['الشرح','مختبر الصوت','التثبيت','النتيجة'].map((s,i)=>`<div class="flex-1"><div class="h-1.5 rounded-full ${i<=step?'bg-emerald-400':'bg-white/10'}"></div><div class="mt-1 text-[11px] font-bold ${i===step?'text-emerald-300':'text-slate-500'}">${s}</div></div>`).join('')}
 function render(){
   const el=document.getElementById('app');
   let body='';
   if(step===0) body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-5 md:p-8">
-    <h1 class="text-2xl font-extrabold">الإظهار الحلقي <span class="text-sm text-slate-400">البقرة 74 — ﴿مِنْ خَشْيَةِ﴾</span></h1>
-    <div class="fq mt-5 rounded-2xl bg-black/30 p-6 text-center text-4xl md:text-5xl leading-[2.2]">
-      <span class="inline-block mx-2 px-3 rounded-xl bg-emerald-500/15 text-emerald-300 outline outline-2 outline-emerald-400/60">مِنْ</span>
-      <span class="inline-block mx-2 px-3 rounded-xl bg-amber-500/15 text-amber-300 outline outline-2 outline-amber-400/60">خَشْيَةِ</span>
-      <span class="inline-block mx-2 px-3">ٱللَّهِ</span></div>
-    <div class="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm leading-7"><b class="text-emerald-300">التعليل: </b>نون ساكنة + خ (من حروف الحلق ء هـ ع ح غ خ) ← إظهار حلقي لتباعد المخرجين.</div>
+    <h1 class="text-2xl font-extrabold">${L.title} <span class="text-sm text-slate-400">${L.ref}</span></h1>
+    <div class="fq mt-5 rounded-2xl bg-black/30 p-6 text-center text-4xl md:text-5xl leading-[2.2]">${L.words.map(function(w){return '<span class="inline-block mx-2 px-3 rounded-xl '+(w[1]==='noon'?'bg-emerald-500/15 text-emerald-300 outline outline-2 outline-emerald-400/60':w[1]==='trigger'?'bg-amber-500/15 text-amber-300 outline outline-2 outline-amber-400/60':'')+'">'+w[0]+'</span>'}).join('')}</div>
+    <div class="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-sm leading-7"><b class="text-emerald-300">التعليل: </b>${L.exp}</div>
+    <div class="mt-4 flex items-center gap-2 text-xs font-bold"><span class="text-slate-400">دروس أخرى:</span>'+[['izhar','الإظهار'],['ikhfa','الإخفاء'],['qalqalah','القلقلة']].map(function(x){return '<a href="demo-lesson.html?l='+x[0]+'" class="rounded-full bg-white/5 px-3 py-2">'+x[1]+'</a>'}).join('')+'</div>'+`
     <button onclick="step=1;render()" class="mt-5 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold hover:bg-emerald-400">التالي: مختبر الصوت ←</button></div>`;
   if(step===1) body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-5 md:p-8">
     <h2 class="text-xl font-extrabold">🎙️ مختبر الصوت — اقرأ الآية وسنحلل نطقك</h2>
-    <p class="text-xs text-slate-400 mt-1">اقرأ: <b class="fq text-base text-slate-200">مِنْ خَشْيَةِ ٱللَّهِ</b> — سجّل 4 ثوانٍ على الأقل (يعمل بالميكروفون فعلاً + رسم الموجة)</p>
+    <p class="text-xs text-slate-400 mt-1">اقرأ: <b class="fq text-base text-slate-200">${L.words.map(function(w){return w[0]}).join(' ')}</b> — سجّل 4 ثوانٍ على الأقل (يعمل بالميكروفون فعلاً + رسم الموجة)</p>
     <canvas id="cv" width="600" height="110" class="mt-4 w-full rounded-xl bg-black/40"></canvas>
     <div class="mt-3 flex justify-between text-sm"><span class="font-bold">${sec} ث</span>
     ${rec==='rec'?'<span class="text-rose-300">🔴 جارٍ التسجيل…</span>':rec==='an'?'<span class="text-sky-300">⏳ نحلل الغنة والمد…</span>':''}</div>
@@ -41,7 +51,7 @@ function demoMic(){micBlocked=false;rec='an';render();setTimeout(()=>{voice=0.78
     <div class="mt-4 flex gap-2"><button onclick="step=0;render()" class="rounded-xl bg-white/5 px-5 py-3 text-sm font-bold">→ السابق</button>
     <button ${voice===null?'disabled':''} onclick="step=2;render()" class="flex-1 rounded-xl py-3 text-sm font-extrabold ${voice===null?'bg-white/10 text-slate-500':'bg-emerald-500 hover:bg-emerald-400'}">${voice===null?'سجّل أولاً للمتابعة':'التالي: التثبيت السريع ←'}</button></div></div>`;
   if(step===2){const qs=answers.filter((a,i)=>a===QUIZ[i].c).length/QUIZ.length, fs=Math.round(((qs*.6)+(voice??qs)*.4)*100)/100;
-    body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-5 md:p-8"><h2 class="text-xl font-extrabold">اختبار سريع — سؤالان</h2>
+    body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-5 md:p-8"><h2 class="text-xl font-extrabold">اختبار سريع — ${QUIZ.length} أسئلة</h2>
     ${QUIZ.map((q,qi)=>`<div class="mt-4 rounded-xl bg-black/20 p-4"><p class="text-sm font-bold">${q.q}</p><div class="mt-2 space-y-2">${q.o.map((o,oi)=>`<button onclick="answers[${qi}]=${oi};render()" class="w-full rounded-xl border px-3 py-2.5 text-right text-sm ${answers[qi]===oi?'border-emerald-400 bg-emerald-500/15 text-emerald-200':'border-white/10 bg-white/5'}">${o}</button>`).join('')}</div></div>`).join('')}
     <div class="mt-4 flex gap-2"><button onclick="step=1;render()" class="rounded-xl bg-white/5 px-5 py-3 text-sm font-bold">→ السابق</button>
     <button ${answers.includes(-1)?'disabled':''} onclick="finish()" class="flex-1 rounded-xl py-3 text-sm font-extrabold ${answers.includes(-1)?'bg-white/10 text-slate-500':'bg-emerald-500 hover:bg-emerald-400'}">✓ إنهاء الدرس — الدرجة ${Math.round(fs*100)}%</button></div></div>`;}
@@ -54,7 +64,7 @@ function demoMic(){micBlocked=false;rec='an';render();setTimeout(()=>{voice=0.78
       <div class="rounded-xl bg-orange-500/10 border border-orange-500/30 p-4"><div class="text-2xl font-extrabold text-orange-300">🔥 8</div><div class="text-xs text-slate-400">سلسلة الأيام</div></div></div>
     <p class="text-xs text-slate-400 mt-3">رصيدك الكلي على هذا الجهاز: ${XP.get()} XP • رتبتك: ${XP.rank()}</p>
     <button onclick="step=0;answers=[-1,-1];voice=null;done=null;rec='idle';sec=0;render()" class="mt-4 rounded-xl bg-emerald-500 px-8 py-3 text-sm font-extrabold">↻ إعادة الدرس</button></div>`;
-  el.innerHTML=`<div class="mb-4 flex justify-between items-center"><span class="rounded-full bg-white/5 px-4 py-2 text-xs font-bold">→ شجرة الأحكام / الإظهار الحلقي</span><span class="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 text-xs font-bold text-amber-300">⚡ +80 XP عند الإتقان</span></div>
+  el.innerHTML=`<div class="mb-4 flex justify-between items-center"><span class="rounded-full bg-white/5 px-4 py-2 text-xs font-bold">→ شجرة الأحكام / الإظهار الحلقي</span><span class="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 text-xs font-bold text-amber-300">⚡ +${L.xp} XP عند الإتقان</span></div>
   <div class="mb-6 flex gap-2">${bar()}</div>`+body;
   if(step===1&&rec==='rec') sizeCanvas();
 }
@@ -71,7 +81,7 @@ function sizeCanvas(){}
 function stopRec(){clearInterval(timer);stream&&stream.getTracks().forEach(t=>t.stop());window._ac&&window._ac.close();rec='an';render();
   setTimeout(()=>{voice=Math.min(1,Math.round((.55+Math.min(1,sec/4)*.4+Math.random()*.08)*100)/100);rec='done';render()},1800)}
 function finish(){const qs=answers.filter((a,i)=>a===QUIZ[i].c).length/QUIZ.length,fs=Math.round(((qs*.6)+(voice??qs)*.4)*100)/100,ok=fs>=.7;
-  done={xp:ok?80:Math.round(80*.1*fs),completed:ok};try{XP.add(done.xp)}catch(e){}step=3;render()}
+  done={xp:ok?L.xp:Math.round(L.xp*.1*fs),completed:ok};try{XP.add(done.xp)}catch(e){}step=3;render()}
 render();
 </script>
 </body>
