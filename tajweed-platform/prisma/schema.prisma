@@ -1,0 +1,315 @@
+// ============================================================
+// 1) Tech Stack المقترح لمنصة التجويد التفاعلية
+// ============================================================
+// Frontend : Next.js 14 (App Router) + TypeScript + Tailwind CSS + Framer Motion + Zustand
+// Quran Text: Tanzil.net Uthmani Text (Unicode) + خط KFGQPC Uthman Taha Naskh عبر CDN
+// Backend  : Node.js (NestJS أو Next.js Server Actions) + PostgreSQL 15 + Prisma + Redis + Supabase Storage
+// Realtime : Socket.io أو Supabase Realtime لغرف Duels + Leaderboards
+// Audio AI: Whisper-large-v3 (fine-tuned Quran) + XLSR Wav2Vec2 Arabic phoneme aligner + Meyda.js client-side
+// Auth/Gamification: NextAuth.js + نظام XP/Seasons مخصص (وليس نقاط Supabase فقط)
+//
+// لماذا هذا الـ Stack للنص العثماني والتحريك؟
+// - النص العثماني يُخزَّن كنص Unicode (وليس صور) → قابل للبحث + التظليل + النسخ
+// - التقسيم يكون على مستوى الكلمة (word-level tokens) وليس الحرف → يحافظ على
+//   تشكيل الحروف العربية المتصلة (Ligatures) ولا يكسر رسم المصحف
+// - Framer Motion بـ layoutId يحرّك الكلمات/البطاقات دون إعادة رسم النص
+// - الخط يُحمَّل عبر @font-face مع font-display: swap + preload لتفادي FOUT
+// - البحث عن الأحكام يستخدم pg_trgm + GIN index على جدول quran_words
+
+// ============================================================
+// 2) Database Schema (PostgreSQL + Prisma)
+// ============================================================
+// انسخ هذا الملف إلى prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- المستخدمون ----------
+model User {
+  id            String         @id @default(cuid())
+  role          Role           @default(STUDENT) // STUDENT | TEACHER | SHEIKH | ADMIN
+  stage         StudyStage     @default(MIDDLE) // MIDDLE | HIGH | UNIVERSITY
+  name          String
+  email         String         @unique
+  avatarUrl     String?
+  xp            Int            @default(0)
+  rank          Rank           @default(MOBTADE2)
+  streakDays    Int            @default(0)
+  lastActiveAt  DateTime?
+  createdAt     DateTime       @default(now())
+  enrollments   Enrollment[]
+  xpEvents      XpEvent[]
+  badges        UserBadge[]
+  recordings    Recording[]
+  duelPlayers   DuelPlayer[]
+  progress      UserProgress[]
+  flashcards    UserFlashcard[]
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  SHEIKH
+  ADMIN
+}
+
+enum StudyStage {
+  MIDDLE // إعدادية
+  HIGH // ثانوية
+  UNIVERSITY // جامعية
+}
+
+enum Rank {
+  MOBTADE2 // مبتدئ
+  MOJAWWID // مجوّد
+  MOTAMAKKEN // متمكن
+  MUQRI // مقرئ
+}
+
+// ---------- الفصول والحلقات ----------
+model Classroom {
+  id          String       @id @default(cuid())
+  title       String
+  code        String       @unique // كود الانضمام
+  teacherId   String
+  seasonId    String?
+  createdAt   DateTime     @default(now())
+  enrollments Enrollment[]
+  assignments Assignment[]
+  season      Season?      @relation(fields: [seasonId], references: [id])
+}
+
+model Enrollment {
+  id          String    @id @default(cuid())
+  userId      String
+  classroomId String
+  joinedAt    DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
+
+  @@unique([userId, classroomId])
+}
+
+model Assignment {
+  id          String    @id @default(cuid())
+  classroomId String
+  title       String
+  ruleId      String?
+  dueAt       DateTime?
+  payload     Json // { ayahs: [2:255], task: "extract_ikhfa", timeLimitSec: 30 }
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  rule        TajweedRule? @relation(fields: [ruleId], references: [id])
+}
+
+// ---------- المصحف العثماني (Tanzil Uthmani) ----------
+// التخزين على 3 مستويات: آية → كلمة → حكم. لا نخزن حروفاً منفصلة.
+model Surah {
+  id           Int    @id // 1..114
+  nameAr       String
+  nameEn       String
+  ayahsCount   Int
+  ayahs        Ayah[]
+}
+
+model Ayah {
+  id         Int    @id @default(autoincrement())
+  surahId    Int
+  ayahNumber Int
+  uthmaniText String  @db.Text // النص العثماني الكامل Unicode
+  plainText   String? @db.Text // بدون تشكيل للبحث
+  surah       Surah   @relation(fields: [surahId], references: [id])
+  words       QuranWord[]
+
+  @@unique([surahId, ayahNumber])
+  @@index([uthmaniText(ops: raw("gin_trgm_ops"))], map: "ayah_uthmani_trgm", type: Gin)
+}
+
+model QuranWord {
+  id        Int    @id @default(autoincrement())
+  ayahId    Int
+  position  Int // ترتيب الكلمة في الآية
+  uthmani   String // الكلمة بالرسم العثماني
+  plain     String? // للبحث
+  ayah      Ayah   @relation(fields: [ayahId], references: [id], onDelete: Cascade)
+  tags      WordTajweedTag[]
+
+  @@unique([ayahId, position])
+}
+
+// ---------- الأحكام ----------
+model TajweedRule {
+  id          String   @id @default(cuid()) // izhar_halqi, idgham, ikhfa...
+  category    String // noon_sakinah | meem_sakinah | madd | qalqalah | tafkheem...
+  titleAr     String // "الإظهار الحلقي"
+  description String   @db.Text
+  letters     String[] // ["ء","هـ","ع","ح","غ","خ"]
+  animations  Json? // { noonColor, letterColor, explainTemplate }
+  words       WordTajweedTag[]
+  assignments Assignment[]
+  skillNodes  SkillNode[]
+}
+
+model WordTajweedTag {
+  id       String      @id @default(cuid())
+  wordId   Int
+  ruleId   String
+  // موضع الحكم داخل الكلمة أو بين كلمتين (لا نفكك الحروف، نوصف فقط)
+  spanType String // WORD | CROSS_WORD (مثل: تنوين آخر كلمة + أول التالية)
+  meta     Json? // { noonLetter: "ن", triggerLetter: "خ", surah:2, ayah:74 }
+  word     QuranWord   @relation(fields: [wordId], references: [id], onDelete: Cascade)
+  rule     TajweedRule @relation(fields: [ruleId], references: [id])
+
+  @@index([ruleId, wordId])
+}
+
+// ---------- شجرة المهارات Gamified Skill Tree ----------
+model SkillNode {
+  id          String   @id @default(cuid())
+  ruleId      String?
+  titleAr     String
+  stage       StudyStage // أي مرحلة يُفتح لها
+  order       Int
+  unlockAfter String[] // ids العقد السابقة
+  xpReward    Int      @default(50)
+  rule        TajweedRule? @relation(fields: [ruleId], references: [id])
+  progress    UserProgress[]
+}
+
+model UserProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  nodeId    String
+  mastery   Float    @default(0) // 0..1
+  unlocked  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  node      SkillNode @relation(fields: [nodeId], references: [id])
+
+  @@unique([userId, nodeId])
+}
+
+// ---------- Gamification: نقاط / أوسمة / مواسم ----------
+model XpEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  source    String // time_attack | duel_win | lesson | streak_bonus | assignment
+  meta      Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+model Badge {
+  id          String @id @default(cuid())
+  slug        String @unique // sari3_al_badiha, saheb_ghunna...
+  titleAr     String
+  iconUrl     String?
+  condition   Json // { rule: "qalqalah", minAccuracy: 0.9, count: 20 }
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id         String   @id @default(cuid())
+  userId     String
+  badgeId    String
+  awardedAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  badge      Badge    @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+}
+
+model Season {
+  id        String      @id @default(cuid())
+  titleAr   String // "دوري المدارس - رمضان 1448"
+  startsAt  DateTime
+  endsAt    DateTime
+  classrooms Classroom[]
+  tournaments Tournament[]
+}
+
+model Tournament {
+  id       String   @id @default(cuid())
+  seasonId String
+  titleAr  String
+  bracket  Json // { rounds: [...], participants: [...] }
+  season   Season   @relation(fields: [seasonId], references: [id])
+  duels    Duel[]
+}
+
+// ---------- تنافس مباشر ----------
+model Duel {
+  id           String       @id @default(cuid())
+  tournamentId String?
+  mode         String       @default("1v1") // 1v1 | team
+  status       String       @default("waiting")
+  questions    Json // [{ ayahRef, targetRule, timeLimitSec }]
+  createdAt    DateTime     @default(now())
+  tournament   Tournament?  @relation(fields: [tournamentId], references: [id])
+  players      DuelPlayer[]
+}
+
+model DuelPlayer {
+  id     String @id @default(cuid())
+  duelId String
+  userId String
+  score  Int    @default(0)
+  duel   Duel   @relation(fields: [duelId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+// ---------- مراجعة / بطاقات ----------
+model Flashcard {
+  id        String   @id @default(cuid())
+  ruleId    String?
+  front     String   @db.Text
+  back      String   @db.Text
+  ayahRef   String? // "2:74"
+  stage     StudyStage @default(HIGH)
+  users     UserFlashcard[]
+}
+
+model UserFlashcard {
+  id          String    @id @default(cuid())
+  userId      String
+  flashcardId String
+  ease        Float     @default(2.5) // SM-2
+  intervalDay Int       @default(1)
+  nextReview  DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  flashcard   Flashcard @relation(fields: [flashcardId], references: [id])
+
+  @@unique([userId, flashcardId])
+}
+
+// ---------- مختبر الصوت ----------
+model Recording {
+  id         String    @id @default(cuid())
+  userId     String
+  ayahRef    String // "112:1"
+  audioUrl   String // Supabase Storage (wav 16kHz mono)
+  durationMs Int
+  createdAt  DateTime  @default(now())
+  analysis   Analysis?
+  user       User      @relation(fields: [userId], references: [id])
+}
+
+model Analysis {
+  id             String   @id @default(cuid())
+  recordingId    String   @unique
+  maddScore      Float? // 0..1 + أزمنة المدود
+  ghunnaMs       Int? // زمن الغنة المقاس (المثالي ~ 2 حركة ≈ 400-600ms)
+  qalqalahScore  Float?
+  makharijScore  Float?
+  phonemes       Json? // [{ p:"ن", start:1.2, end:1.6, conf:0.93 }]
+  feedbackAr     String?  @db.Text
+  recording      Recording @relation(fields: [recordingId], references: [id])
+}

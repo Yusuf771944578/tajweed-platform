@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شجرة الأحكام التفاعلية — عرض عملي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'IBM Plex Sans Arabic',sans-serif}
+.node{transition:all .25s ease}
+.node:not(.locked):hover{transform:translateY(-4px)}
+.pulse{animation:pl 2s infinite}
+@keyframes pl{0%,100%{opacity:.4}50%{opacity:1}}
+.fade{animation:fd .25s ease both}
+@keyframes fd{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div class="max-w-6xl mx-auto p-4 md:p-8">
+  <header class="mb-6 rounded-2xl border border-white/10 bg-white/[.04] p-4 md:p-5">
+    <div class="flex flex-wrap justify-between items-center gap-3">
+      <div><h1 class="text-xl md:text-2xl font-extrabold">شجرة الأحكام <span class="text-emerald-400">— مسار الإتقان</span></h1>
+      <p id="sub" class="text-xs text-slate-400 mt-1"></p></div>
+      <div class="flex gap-2 text-sm">
+        <span id="xp" class="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 font-bold text-amber-300"></span>
+        <span class="rounded-full bg-orange-500/10 border border-orange-500/30 px-3 py-1 font-bold text-orange-300">🔥 سلسلة 7 أيام</span>
+        <span class="rounded-full bg-violet-500/10 border border-violet-500/30 px-3 py-1 font-bold text-violet-300">مجوّد</span>
+      </div>
+    </div>
+    <div class="mt-3 h-2 rounded-full bg-white/10 overflow-hidden"><div id="bar" class="h-full rounded-full bg-gradient-to-l from-emerald-400 to-sky-400" style="width:0;transition:width .8s"></div></div>
+    <div class="mt-3 flex gap-2" id="filters"></div>
+  </header>
+  <div class="grid gap-4 lg:grid-cols-[1fr_320px]">
+    <main id="tree" class="rounded-2xl border border-white/10 bg-white/[.02] p-4 md:p-6"></main>
+    <aside class="lg:sticky lg:top-4 h-fit rounded-2xl border border-white/10 bg-white/[.04] p-5"><div id="detail"></div></aside>
+  </div>
+</div>
+<script>
+const N=[
+{id:'n-noon-intro',t:'مدخل النون الساكنة',s:'الفرق بين السكون والتنوين',st:'MIDDLE',tier:0,xp:50,l:3,m:1,st2:'completed',req:[],min:10},
+{id:'n-makharij',t:'مخارج الحروف',s:'الحلق واللسان والشفتان',st:'MIDDLE',tier:0,xp:50,l:4,m:1,st2:'completed',req:[],min:12},
+{id:'n-izhar',t:'الإظهار الحلقي',s:'ء هـ ع ح غ خ',st:'MIDDLE',tier:1,xp:80,l:5,m:.85,st2:'completed',req:['n-noon-intro'],min:15},
+{id:'n-idgham',t:'الإدغام',s:'بغنة وبغير غنة — يرملون',st:'MIDDLE',tier:1,xp:100,l:6,m:.45,st2:'in-progress',req:['n-noon-intro'],min:20},
+{id:'n-iqlab',t:'الإقلاب',s:'النون + الباء ← ميم مخفاة',st:'HIGH',tier:1,xp:100,l:4,m:0,st2:'available',req:['n-noon-intro'],min:15},
+{id:'n-ikhfa',t:'الإخفاء الحقيقي',s:'15 حرفاً + غنة حركتين',st:'HIGH',tier:2,xp:120,l:6,m:0,st2:'available',req:['n-idgham','n-iqlab'],min:25},
+{id:'n-ghunna',t:'أزمنة الغنة',s:'مختبر الصوت: قِس غنتك',st:'HIGH',tier:2,xp:150,l:4,m:0,st2:'locked',req:['n-ikhfa'],min:20},
+{id:'n-meem',t:'أحكام الميم الساكنة',s:'إخفاء شفوي • إدغام • إظهار',st:'HIGH',tier:2,xp:120,l:5,m:0,st2:'locked',req:['n-izhar'],min:20},
+{id:'n-madd',t:'المدود',s:'طبيعي • متصل • منفصل • عارض',st:'UNIVERSITY',tier:3,xp:180,l:8,m:0,st2:'locked',req:['n-ikhfa','n-meem'],min:30},
+{id:'n-qalqalah',t:'القلقلة',s:'قطب جد — صغرى وكبرى',st:'UNIVERSITY',tier:3,xp:150,l:4,m:0,st2:'locked',req:['n-meem'],min:15},
+{id:'n-itqan',t:'الإتقان الشامل',s:'تطبيق على جزء عم كاملاً',st:'UNIVERSITY',tier:4,xp:300,l:10,m:0,st2:'locked',req:['n-madd','n-qalqalah'],min:45},
+];
+const SL={MIDDLE:'الإعدادية',HIGH:'الثانوية',UNIVERSITY:'الجامعية'};
+let F='ALL',SEL='n-idgham';
+const cls=s=>s==='completed'?'border-emerald-500/60 bg-emerald-500/10':s==='in-progress'?'border-sky-500/60 bg-sky-500/10':s==='available'?'border-amber-400/50 bg-amber-400/5':'border-white/10 bg-white/[.03] text-slate-500';
+const badge=s=>s==='completed'?'<span class="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">✓ مكتمل</span>':s==='in-progress'?'<span class="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold text-sky-300">جارٍ</span>':s==='available'?'<span class="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">متاح الآن</span>':'<span class="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold">مغلق</span>';
+function render(){
+  const done=N.filter(n=>n.st2==='completed'),xp=done.reduce((a,n)=>a+n.xp,0),pc=Math.round(done.length/N.length*100);
+  document.getElementById('xp').textContent='⚡ '+xp+' XP';
+  document.getElementById('sub').textContent=`أتقن حكماً لتفتح التالي — ${done.length} من ${N.length} مكتملة`;
+  document.getElementById('bar').style.width=pc+'%';
+  document.getElementById('filters').innerHTML=['ALL','MIDDLE','HIGH','UNIVERSITY'].map(s=>`<button onclick="F='${s}';render()" class="rounded-full px-4 py-1.5 text-xs font-bold ${F===s?'bg-emerald-500 text-white':'bg-white/5 hover:bg-white/10'}">${s==='ALL'?'الكل':SL[s]}</button>`).join('');
+  const list=N.filter(n=>F==='ALL'||n.st===F),tiers=[...new Set(list.map(n=>n.tier))].sort();
+  document.getElementById('tree').innerHTML=tiers.map(t=>{
+    const ns=list.filter(n=>n.tier===t);
+    return `<div class="mb-3 flex items-center gap-3"><span class="text-[11px] font-bold text-slate-500">المستوى ${t+1}</span><div class="h-px flex-1 bg-white/10"></div></div>
+    <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">`+ns.map(n=>`
+      <button onclick="SEL='${n.id}';render()" class="node ${n.st2==='locked'?'locked':''} ${cls(n.st2)} ${SEL===n.id?'ring-2 ring-emerald-400 ring-offset-2 ring-offset-[#0B1020]':''} relative rounded-2xl border p-4 text-right ${n.st2==='locked'?'cursor-not-allowed':''}">
+        ${n.st2==='available'?'<span class="pulse absolute left-3 top-3 h-2 w-2 rounded-full bg-amber-400"></span>':''}
+        <div class="flex justify-between items-start"><div class="h-11 w-11 flex items-center justify-center rounded-xl bg-black/30 text-lg font-bold">${n.st2==='locked'?'🔒':'◈'}</div>
+        <div class="flex flex-col items-end gap-1">${badge(n.st2)}<span class="text-[10px] text-slate-400">${SL[n.st]}</span></div></div>
+        <h3 class="mt-3 font-extrabold ${n.st2==='locked'?'text-slate-500':''}">${n.t}</h3><p class="text-xs text-slate-400">${n.s}</p>
+        ${(n.st2==='in-progress'||n.st2==='completed')?`<div class="mt-3 h-1.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full rounded-full ${n.st2==='completed'?'bg-emerald-400':'bg-sky-400'}" style="width:${n.m*100}%"></div></div>`:''}
+        <div class="mt-2 flex justify-between text-[11px] text-slate-400"><span>⚡ ${n.xp} XP</span><span>${n.l} دروس • ${n.min} د</span></div>
+      </button>`).join('')+`</div>`;
+  }).join('');
+  const d=N.find(n=>n.id===SEL);
+  document.getElementById('detail').innerHTML=`<div class="fade">
+    <h2 class="text-lg font-extrabold">${d.t}</h2><p class="text-xs text-slate-400">${d.s} • ${SL[d.st]}</p>
+    <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+      <div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold text-amber-300">⚡${d.xp}</div><div class="text-[10px] text-slate-400">نقاط XP</div></div>
+      <div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold">${d.l}</div><div class="text-[10px] text-slate-400">دروس</div></div>
+      <div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold">${d.min}د</div><div class="text-[10px] text-slate-400">المدة</div></div>
+    </div>
+    <div class="mt-4"><div class="mb-1 flex justify-between text-xs"><span class="text-slate-400">الإتقان</span><span class="font-bold">${Math.round(d.m*100)}%</span></div>
+    <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l from-emerald-400 to-sky-400" style="width:${d.m*100}%"></div></div></div>
+    ${d.req.length?`<div class="mt-4 text-xs"><b>المتطلبات: </b>`+d.req.map(r=>{const p=N.find(x=>x.id===r);return `<span class="inline-block rounded-full px-2 py-0.5 font-bold mr-1 ${p.st2==='completed'?'bg-emerald-500/15 text-emerald-300':'bg-white/5 text-slate-400'}">${p.st2==='completed'?'✓ ':''}${p.t}</span>`}).join('')+`</div>`:''}
+    ${d.st2==='locked'?`<button disabled class="mt-5 w-full rounded-xl bg-white/5 py-3 text-sm font-bold text-slate-500 cursor-not-allowed">🔒 مغلق — أتقن المتطلبات أولاً</button>`
+    :`<button class="mt-5 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white hover:bg-emerald-400">${d.st2==='completed'?'↻ مراجعة الدرس':d.st2==='in-progress'?'▶ إكمال من حيث توقفت':'▶ ابدأ التحدي — +'+d.xp+' XP'}</button>`}
+  </div>`;
+}
+render();
+</script>
+</body>
+</html>

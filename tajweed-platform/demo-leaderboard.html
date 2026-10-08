@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المواسم والصدارة — عرض عملي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>body{font-family:'IBM Plex Sans Arabic',sans-serif}</style>
+</head>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div class="max-w-4xl mx-auto p-4 md:p-8" id="app"></div>
+<script>
+const B=[
+{n:'عبدالله م.',xp:4850,r:'متمكن',s:21},{n:'يوسف ن.',xp:4620,r:'متمكن',s:18,y:1},
+{n:'حمزة س.',xp:4310,r:'مجوّد',s:15},{n:'مريم خ.',xp:3980,r:'مجوّد',s:12},
+{n:'أنس ر.',xp:3540,r:'مجوّد',s:9},{n:'ليان ع.',xp:3100,r:'مبتدئ',s:7}];
+const M=[['🥇',1],['🥈',2],['🥉',3]];
+document.getElementById('app').innerHTML=`
+<h1 class="text-2xl font-extrabold">المواسم <span class="text-amber-300">والبطولات</span></h1>
+<p class="text-xs text-slate-400 mt-1">دوري المدارس — رمضان 1448 • تُحسب من XpEvent داخل فترة الموسم (GET /api/leaderboard)</p>
+<div class="mt-6 flex items-end justify-center gap-3">
+${[B[1],B[0],B[2]].map((e,i)=>`<div class="w-28 rounded-2xl border p-3 text-center ${e.n==='عبدالله م.'?'border-amber-300/60 bg-amber-400/10 pb-6':'border-white/10 bg-white/[.04]'} ${e.y?'ring-2 ring-emerald-400':''}">
+<div class="text-2xl">${['🥈','🥇','🥉'][i]}</div><div class="text-sm font-extrabold truncate mt-1">${e.n}</div>
+<div class="text-[11px] text-slate-400">${e.r} • 🔥${e.s}</div><div class="text-amber-300 font-extrabold mt-1">${e.xp} XP</div></div>`).join('')}
+</div>
+<div class="mt-4 space-y-2">${B.slice(3).map((e,i)=>`
+<div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3">
+<span class="w-8 text-center font-extrabold text-slate-400">#${i+4}</span>
+<div class="h-9 w-9 rounded-lg bg-white/10 flex items-center justify-center font-extrabold">${e.n[0]}</div>
+<div class="flex-1"><div class="text-sm font-bold">${e.n}</div><div class="text-[11px] text-slate-400">${e.r} • سلسلة ${e.s} يوم</div></div>
+<span class="font-extrabold text-amber-300">${e.xp} XP</span></div>`).join('')}</div>
+<h2 class="mt-8 text-lg font-extrabold">🏟️ قوس البطولة</h2>
+<div class="mt-3 grid gap-2 md:grid-cols-3">
+<div class="rounded-2xl border border-white/10 p-4 text-sm"><div class="text-[11px] text-slate-400 font-bold">نصف النهائي</div><div class="font-bold mt-2">عبدالله م. 300</div><div class="text-center text-slate-500">ضد</div><div class="font-bold">حمزة س. 200</div></div>
+<div class="rounded-2xl border border-white/10 p-4 text-sm"><div class="text-[11px] text-slate-400 font-bold">نصف النهائي</div><div class="font-bold mt-2">يوسف ن. 300</div><div class="text-center text-slate-500">ضد</div><div class="font-bold">مريم خ. 250</div></div>
+<div class="rounded-2xl border border-amber-300/50 bg-amber-400/5 p-4 text-sm"><div class="text-[11px] font-bold text-amber-300">النهائي — الجمعة ● قادمة</div><div class="font-bold mt-2">عبدالله م.</div><div class="text-center text-slate-500">ضد</div><div class="font-bold">يوسف ن. (أنت)</div></div>
+</div>`;
+</script>
+</body>
+</html>

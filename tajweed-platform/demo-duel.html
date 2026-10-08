@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>غرفة النزال 1v1 — عرض عملي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>body{font-family:'IBM Plex Sans Arabic',sans-serif}.fq{font-family:'Amiri Quran',serif}.fade{animation:fd .25s ease both}@keyframes fd{from{opacity:0}to{opacity:1}}</style>
+</head>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div class="max-w-3xl mx-auto p-4 md:p-8" id="app"></div>
+<script>
+const QS=[
+{p:'انقر كلمة الإظهار',r:'البقرة 74',w:[['مِنْ',0],['خَشْيَةِ',1]]},
+{p:'انقر الحرف المقلقَل',r:'الإخلاص 1',w:[['قُلْ',1],['هُوَ',0]]},
+{p:'انقر كلمة الإخفاء',r:'البقرة 3',w:[['مِن',0],['فَضْلِ',1]]},
+{p:'انقر كلمة الإدغام',r:'مثال',w:[['مَن',0],['يَقُولُ',1]]}];
+const T=10;let ph='lobby',qi=0,tl=T,me=0,opp=0,ans=false,oppA=false,timer=null,botT=null;
+function render(){
+const el=document.getElementById('app');
+let h=`<div class="mb-4 flex justify-between"><span class="text-xs font-bold text-slate-400">⚔️ غرفة 1v1 مباشرة</span><span class="rounded-full bg-rose-500/10 border border-rose-500/30 px-3 py-1 text-xs font-bold text-rose-300">● خصم محاكى</span></div>`;
+let b='';
+if(ph==='lobby')b=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center">
+<div class="flex justify-center gap-6 items-center"><div><div class="mx-auto h-16 w-16 rounded-2xl bg-emerald-500/15 text-2xl font-extrabold text-emerald-300 flex items-center justify-center">أ</div><p class="text-sm font-bold mt-2">أنت</p></div>
+<div class="text-3xl font-extrabold text-slate-500">VS</div>
+<div><div class="mx-auto h-16 w-16 rounded-2xl bg-violet-500/15 text-2xl font-extrabold text-violet-300 flex items-center justify-center">خ</div><p class="text-sm font-bold mt-2">منافس</p></div></div>
+<p class="text-xs text-slate-400 mt-4">${QS.length} جولات • الفائز +150 XP</p>
+<button onclick="go()" class="mt-5 rounded-xl bg-rose-500 px-10 py-3 text-sm font-extrabold">⚔️ ابدأ النزال</button></div>`;
+if(ph==='live'){const q=QS[qi];
+b=`<div class="grid grid-cols-2 gap-2"><div class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-center"><div class="text-xs font-bold text-emerald-300">أنت</div><div class="text-2xl font-extrabold">${me}</div></div>
+<div class="rounded-xl border border-violet-500/40 bg-violet-500/10 p-3 text-center"><div class="text-xs font-bold text-violet-300">الخصم</div><div class="text-2xl font-extrabold">${opp}</div></div></div>
+<div class="mt-2 h-2 rounded-full bg-white/10 overflow-hidden"><div id="tb" class="h-full bg-rose-500" style="width:100%"></div></div>
+<div class="fade mt-3 rounded-2xl border border-white/10 bg-white/[.04] p-6 text-center">
+<p class="text-sm font-bold">الجولة ${qi+1}/${QS.length} — ${q.p} <span class="text-slate-500">(${q.r})</span></p>
+<div class="fq mt-3 text-4xl leading-[2]">${q.w.map(x=>`<button ${ans?'disabled':''} onclick="pick(${x[1]})" class="mx-2 px-4 py-1 rounded-xl border border-white/10 bg-black/30 ${ans?'opacity-60':''}">${x[0]}</button>`).join('')}</div>
+${oppA?'<p class="text-[11px] text-violet-300 mt-2">الخصم أجاب هذه الجولة…</p>':''}</div>`}
+if(ph==='over'){const w=me>=opp?'أنت':'الخصم';
+b=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center"><div class="text-5xl">${w==='أنت'?'🏆':'🤝'}</div>
+<h2 class="text-2xl font-extrabold mt-2">الفائز: ${w}</h2><p class="text-sm text-slate-400">${me} — ${opp}</p>
+<button onclick="reset()" class="mt-4 rounded-xl bg-rose-500 px-8 py-3 text-sm font-extrabold">↻ نزال جديد</button></div>`}
+el.innerHTML=h+b}
+function go(){ph='live';qi=0;me=0;opp=0;round()}
+function reset(){go()}
+function round(){ans=false;oppA=false;tl=T;render();clearTimeout(botT);
+botT=setTimeout(()=>{if(ph!=='live')return;oppA=true;if(Math.random()<.7)opp+=100;render();const b=document.getElementById('tb');if(b)b.style.width=tl/T*100+'%'},2500+Math.random()*4000);
+clearInterval(timer);timer=setInterval(()=>{tl=Math.round((tl-.1)*10)/10;const b=document.getElementById('tb');if(b)b.style.width=Math.max(0,tl/T*100)+'%';
+if(tl<=0){clearInterval(timer);clearTimeout(botT);setTimeout(()=>{qi+1>=QS.length?over():{qi++;round()}},400)}},100)}
+function pick(o){if(ans)return;ans=true;clearInterval(timer);if(o)me+=100;render();setTimeout(()=>{qi+1>=QS.length?over():{qi++;round()}},600)}
+function over(){ph='over';clearInterval(timer);clearTimeout(botT);render()}
+render();
+</script>
+</body>
+</html>
