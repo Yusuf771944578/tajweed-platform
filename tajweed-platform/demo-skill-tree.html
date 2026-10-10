@@ -13,15 +13,25 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 #mapWrap.grabbing{cursor:grabbing}
 #map{position:relative;transform-origin:0 0;min-width:100%}
 #links{position:absolute;inset:0;pointer-events:none;overflow:visible}
-.node{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.node{transition:transform .2s ease,border-color .2s ease}
 .node:not(.locked):hover{transform:translateY(-4px)}
 .pulse{animation:pl 2s infinite}@keyframes pl{0%,100%{opacity:.4}50%{opacity:1}}
 .fade{animation:fd .25s ease both}@keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:60;display:flex;align-items:center;justify-content:center;padding:1rem}
-#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s;z-index:70;pointer-events:none}
+.pop{animation:pop .35s ease}@keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.shake{animation:shk .35s ease}@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(7px)}75%{transform:translateX(-7px)}}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:60;display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
+.cfetti{position:fixed;top:32%;width:9px;height:14px;z-index:80;pointer-events:none;border-radius:2px;animation:cfall 1.25s ease-in forwards}
+@keyframes cfall{to{transform:translateY(48vh) rotate(560deg);opacity:0}}
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s;z-index:70;pointer-events:none;max-width:92vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .badge{transition:all .2s}.badge.off{filter:grayscale(1);opacity:.45}
 .opt{transition:all .15s}
+.heart{font-size:15px;letter-spacing:1px}
+table.ruletbl{width:100%;border-collapse:collapse;font-size:13px}
+table.ruletbl th,table.ruletbl td{border:1px solid rgba(255,255,255,.12);padding:.5rem .6rem;text-align:right}
+table.ruletbl th{background:rgba(255,255,255,.06)}
+[data-theme="light"] table.ruletbl th,[data-theme="light"] table.ruletbl td{border-color:#e2e8f0}
+[data-theme="light"] table.ruletbl th{background:#f1f5f9}
 </style>
 </head>
 <body class="bg-[#0B1020] text-slate-100 min-h-screen">
@@ -40,7 +50,7 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 </div>
 <div class="mt-3 h-2 rounded-full bg-white/10 overflow-hidden"><div id="bar" class="h-full rounded-full bg-gradient-to-l from-emerald-400 to-sky-400" style="width:0;transition:width .8s"></div></div>
 <div class="mt-3 flex gap-2 flex-wrap items-center" id="filters"></div>
-<p class="mt-2 text-[11px] text-slate-500">💡 اسحب الخريطة للتنقل • عجلة/زرا + و− للتقريب • أتقن عقدة لتفتح ما بعدها • عد يومياً للحفاظ على السلسلة 🔥</p>
+<p class="mt-2 text-[11px] text-slate-500">💡 اسحب الخريطة للتنقل • + و− للتقريب • ابدأ من وحدة البراعم (جزء عم) • عد يومياً للحفاظ على السلسلة 🔥</p>
 </header>
 
 <div class="mt-4 grid gap-4 lg:grid-cols-[1fr_320px]">
@@ -55,22 +65,19 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 <aside class="lg:sticky lg:top-4 h-fit rounded-2xl border border-white/10 bg-white/[.04] p-5"><div id="detail"></div></aside>
 </div>
 
-<!-- الأوسمة -->
 <section class="mt-4 rounded-2xl border border-white/10 bg-white/[.03] p-5">
 <h2 class="font-extrabold">🏅 الأوسمة والشارات</h2>
 <div id="badges" class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2"></div>
 </section>
 
-<!-- صندوق المراجعة -->
 <section class="mt-4 rounded-2xl border border-white/10 bg-white/[.03] p-5">
 <div class="flex justify-between items-center flex-wrap gap-2">
-<h2 class="font-extrabold">📦 صندوق المراجعة <span class="text-xs text-slate-400 font-bold">(أخطاؤك السابقة للتدرب عليها)</span></h2>
+<h2 class="font-extrabold">📦 صندوق المراجعة <span class="text-xs text-slate-400 font-bold">(أخطاؤك للتدرب عليها)</span></h2>
 <button onclick="clearVault()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-1.5 text-xs font-bold">مسح السجل</button>
 </div>
 <div id="vault" class="mt-3 space-y-2"></div>
 </section>
 
-<!-- وضع المعلم -->
 <section id="teacher" class="mt-4 rounded-2xl border border-violet-500/30 bg-violet-500/5 p-5" style="display:none">
 <h2 class="font-extrabold">👨‍🏫 لوحة المعلم <span class="text-[11px] text-slate-400">(بيانات تجريبية للعرض)</span></h2>
 <div id="roster" class="mt-3 grid gap-2 md:grid-cols-2"></div>
@@ -91,52 +98,76 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 <script src="assets/xp.js?v=6"></script>
 <script src="assets/site.js?v=9"></script>
 <script>
-/* ================= البيانات ================= */
+/* ================= المنهج الجديد: 3 وحدات ================= */
 var NODES=[
-{id:'n-noon',t:'مدخل النون الساكنة',s:'الفرق بين السكون والتنوين',st:'MIDDLE',tier:0,xp:50,l:3,min:10,req:[],rule:'noon',ex:'كِتَابٌ — تنوين الضم'},
-{id:'n-makh',t:'مخارج الحروف',s:'الحلق واللسان والشفتان',st:'MIDDLE',tier:0,xp:50,l:4,min:12,req:[],rule:'makharij',ex:'حروف الحلق: ء هـ ع ح غ خ'},
-{id:'n-izhar',t:'الإظهار الحلقي',s:'ء هـ ع ح غ خ',st:'MIDDLE',tier:1,xp:80,l:5,min:15,req:['n-noon'],rule:'izhar',ex:'مِنْ خَشْيَةِ ٱللَّهِ'},
-{id:'n-idgham',t:'الإدغام',s:'بغنة وبغير غنة — يرملون',st:'MIDDLE',tier:1,xp:100,l:6,min:20,req:['n-noon'],rule:'idgham',ex:'مَن يَقُولُ'},
-{id:'n-iqlab',t:'الإقلاب',s:'النون + الباء ← ميم مخفاة',st:'HIGH',tier:1,xp:100,l:4,min:15,req:['n-noon'],rule:'iqlab',ex:'مِن بَعْدِ'},
-{id:'n-ikhfa',t:'الإخفاء الحقيقي',s:'15 حرفاً + غنة حركتين',st:'HIGH',tier:2,xp:120,l:6,min:25,req:['n-idgham','n-iqlab'],rule:'ikhfa',ex:'مِن فَضْلِ ٱللَّهِ'},
-{id:'n-ghunna',t:'أزمنة الغنة',s:'النون والميم المشددتين',st:'HIGH',tier:2,xp:150,l:4,min:20,req:['n-ikhfa'],rule:'ghunna',ex:'إِنَّ ٱللَّهَ'},
-{id:'n-meem',t:'أحكام الميم الساكنة',s:'إخفاء شفوي • إدغام • إظهار',st:'HIGH',tier:2,xp:120,l:5,min:20,req:['n-izhar'],rule:'meem',ex:'هُم بِهِ'},
-{id:'n-madd',t:'المدود',s:'طبيعي • متصل • منفصل • عارض',st:'UNIVERSITY',tier:3,xp:180,l:8,min:30,req:['n-ikhfa','n-meem'],rule:'madd',ex:'قَالُوا'},
-{id:'n-qalq',t:'القلقلة',s:'قطب جد — صغرى وكبرى',st:'UNIVERSITY',tier:3,xp:150,l:4,min:15,req:['n-meem'],rule:'qalqalah',ex:'قُلْ هُوَ'},
-{id:'n-itqan',t:'الإتقان الشامل',s:'تطبيق شامل على جزء عم',st:'UNIVERSITY',tier:4,xp:300,l:10,min:45,req:['n-madd','n-qalq'],rule:'itqan',ex:'مراجعة كل الأبواب'}];
-var SL={MIDDLE:'الإعدادية',HIGH:'الثانوية',UNIVERSITY:'الجامعية'};
+{id:'b-ghunna',t:'النون والميم المشددتان',s:'الغنة أكمل ما تكون — ٱلنَّاسِ، ثُمَّ',mod:'beg',tier:0,xp:50,l:3,min:10,req:[],rule:'ghunna',ex:'إِنَّ ٱللَّهَ'},
+{id:'b-qalq',t:'القلقلة وحروفها',s:'قطب جد — قُلْ، أَحَدْ، ٱلْفَلَقْ',mod:'beg',tier:0,xp:60,l:3,min:12,req:[],rule:'qalqalah',ex:'قُلْ هُوَ ٱللَّهُ أَحَدٌ'},
+{id:'b-maddtab',t:'المد الطبيعي',s:'أسبابه: الهمز والسكون — قَالَ',mod:'beg',tier:0,xp:60,l:3,min:12,req:[],rule:'maddtab',ex:'قَالُوا'},
+{id:'m-noon',t:'مدخل النون الساكنة والتنوين',s:'تعريف السكون والتنوين',mod:'mid',tier:1,xp:40,l:3,min:10,req:['b-ghunna','b-qalq','b-maddtab'],rule:'noon',ex:'كِتَابٌ'},
+{id:'m-izhar',t:'الإظهار الحلقي',s:'ء هـ ع ح غ خ',mod:'mid',tier:2,xp:80,l:5,min:15,req:['m-noon'],rule:'izhar',ex:'مِنْ خَشْيَةِ ٱللَّهِ'},
+{id:'m-idgham',t:'الإدغام',s:'بغنة وبغير غنة — يرملون',mod:'mid',tier:2,xp:100,l:6,min:20,req:['m-noon'],rule:'idgham',ex:'مَن يَقُولُ'},
+{id:'m-iqlab',t:'الإقلاب',s:'النون + الباء ← ميم مخفاة',mod:'mid',tier:2,xp:100,l:4,min:15,req:['m-noon'],rule:'iqlab',ex:'مِن بَعْدِ'},
+{id:'m-ikhfa',t:'الإخفاء الحقيقي',s:'15 حرفاً + غنة حركتين',mod:'mid',tier:3,xp:120,l:6,min:25,req:['m-idgham','m-iqlab'],rule:'ikhfa',ex:'مِن فَضْلِ ٱللَّهِ'},
+{id:'m-meem',t:'أحكام الميم الساكنة',s:'إخفاء شفوي • إدغام • إظهار',mod:'mid',tier:3,xp:120,l:5,min:20,req:['m-izhar'],rule:'meem',ex:'هُم بِهِ'},
+{id:'a-madd',t:'المدود الفرعية',s:'متصل • منفصل • عارض • لازم',mod:'adv',tier:4,xp:180,l:8,min:30,req:['m-ikhfa','m-meem'],rule:'maddadv',ex:'جَآءَ'},
+{id:'a-tafkheem',t:'التفخيم والترقيق',s:'الاستعلاء • الراء • لام الجلالة',mod:'adv',tier:4,xp:180,l:6,min:25,req:['m-meem'],rule:'tafkheem',ex:'خَالِدِينَ'},
+{id:'a-makharij',t:'المخارج والصفات',s:'17 مخرجاً وأمهات الصفات',mod:'adv',tier:5,xp:200,l:8,min:30,req:['a-tafkheem'],rule:'makharij',ex:'حروف الحلق واللسان'},
+{id:'a-waqf',t:'الوقف والابتداء',s:'أين تقف وأين تبدأ',mod:'adv',tier:5,xp:200,l:6,min:25,req:['a-madd','a-makharij'],rule:'waqf',ex:'نهاية الآيات'}];
+var MODS=[['ALL','الكل'],['beg','🌱 البراعم (ابتدائية)'],['mid','⚙ المتوسطة'],['adv','🎓 المتقدمة']];
 var BANK={
-noon:{click:{p:'انقر الكلمة التي فيها نون ساكنة',w:[['يَنْهَوْنَ',1],['آمَنُوا',0]]},m:[{q:'ما التنوين؟',o:['نون ساكنة تلحق آخر الاسم لفظاً لا خطاً','نون أصلية في الكلمة','حرف مد'],c:0},{q:'النون الساكنة توجد في…',o:['الأسماء والأفعال والحروف','الأسماء فقط','آخر الكلمات فقط'],c:0}]},
-makharij:{click:{p:'انقر حرفاً من حروف الحلق',w:[['خ',1],['ب',0],['م',0]]},m:[{q:'من مخارج الحروف الرئيسية…',o:['الحلق واللسان والشفتان والجوف','الحلق فقط','اللسان فقط'],c:0},{q:'مخرج الخاء والغين؟',o:['أدنى الحلق','طرف اللسان','الشفتان'],c:0}]},
-izhar:{click:{p:'انقر كلمة الإظهار الحلقي',w:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]]},m:[{q:'ما حكم النون في ﴿مِنْ خَشْيَةِ﴾؟',o:['إظهار حلقي','إدغام','إخفاء'],c:0},{q:'سُمّي حلقياً لأن حروفه…',o:['تخرج من الحلق','تخرج من اللسان','فيها غنة'],c:0}]},
-idgham:{click:{p:'انقر كلمة الإدغام',w:[['مَن',0],['يَقُولُ',1]]},m:[{q:'حروف الإدغام مجموعة في…',o:['يرملون','قطب جد','ء هـ ع ح غ خ'],c:0},{q:'الإدغام بغير غنة مع…',o:['اللام والراء','الياء والنون','الميم والواو'],c:0}]},
-iqlab:{click:{p:'انقر كلمة الإقلاب',w:[['مِن',0],['بَعْدِ',1]]},m:[{q:'حرف الإقلاب الوحيد؟',o:['الباء','الميم','الفاء'],c:0},{q:'تُقلب النون الساكنة إلى…',o:['ميم مخفاة بغنة','نون مشددة','تُحذف'],c:0}]},
-ikhfa:{click:{p:'انقر كلمة الإخفاء',w:[['مِن',0],['فَضْلِ',1]]},m:[{q:'عدد حروف الإخفاء الحقيقي؟',o:['15 حرفاً','6 حروف','4 حروف'],c:0},{q:'مقدار الغنة في الإخفاء؟',o:['حركتان','4 حركات','بدون غنة'],c:0}]},
-ghunna:{click:{p:'انقر النون المشددة (أكمل الغنن)',w:[['إِنَّ',1],['مِن',0]]},m:[{q:'أكمل مراتب الغنة في…',o:['النون والميم المشددتين','التنوين فقط','حروف المد'],c:0},{q:'مقدار غنة المشدد؟',o:['حركتان','حركة','4 حركات'],c:0}]},
-meem:{click:{p:'انقر موضع الإخفاء الشفوي',w:[['هُم',0],['بِهِ',1]]},m:[{q:'أحكام الميم الساكنة ثلاثة وهي…',o:['إخفاء شفوي وإدغام وإظهار','إظهار وإدغام وقلب','مد وغنة وقلقلة'],c:0},{q:'الإخفاء الشفوي يكون مع…',o:['الباء','الفاء','الميم'],c:0}]},
-madd:{click:{p:'انقر الكلمة الممدودة',w:[['قَالُوا',1],['كَتَبَ',0]]},m:[{q:'حروف المد ثلاثة وهي…',o:['الألف والواو والياء','الهمزة والهاء','النون والميم'],c:0},{q:'مقدار المد الطبيعي؟',o:['حركتان','4 حركات','6 حركات'],c:0}]},
-qalqalah:{click:{p:'انقر الحرف المقلقَل',w:[['قُلْ',1],['هُوَ',0]]},m:[{q:'حروف القلقلة مجموعة في…',o:['قطب جد','يرملون','حي طهر'],c:0},{q:'حكم القاف الساكنة في ﴿قُلْ﴾؟',o:['قلقلة صغرى','قلقلة كبرى','إظهار'],c:0}]},
-itqan:{click:{p:'انقر كلمة الإظهار',w:[['مِنْ',0],['خَشْيَةِ',1]]},m:[{q:'الغنة صفة لازمة لـ…',o:['النون والميم','الراء واللام','حروف المد'],c:0},{q:'أقوى حروف الاستعلاء؟',o:['الطاء','الهمزة','الهاء'],c:0}]}};
+ghunna:{click:{p:'انقر النون المشددة',w:[['إِنَّ',1],['مِن',0]],e:'النون المشددة تُغنّ أكمل ما تكون بمقدار حركتين'},audio:{t:'إِنَّ ٱللَّهَ',q:'أي حكم سمعت في النون المشددة؟',o:['غنة أكمل ما تكون','إظهار','قلقلة'],c:0,e:'المشدد يُغنّ دائماً حركتين'},classify:{boxes:['غنة مشددة','قلقلة','مد طبيعي'],words:[['ٱلنَّاسِ','غنة مشددة'],['ٱلْفَلَقْ','قلقلة'],['قَالُوا','مد طبيعي']]},m:[{q:'مقدار غنة النون والميم المشددتين؟',o:['حركتان','حركة','4 حركات'],c:0,e:'الغنة في المشدد أكمل ما تكون: حركتان'},{q:'من أمثلة الغنة الكاملة…',o:['ثُمَّ وعَمَّ','قُلْ','كَتَبَ'],c:0,e:'ثُمَّ وعَمَّ: ميم ونون مشددتان'}]},
+qalqalah:{click:{p:'انقر الحرف المقلقَل',w:[['قُلْ',1],['هُوَ',0]],e:'القاف ساكنة من (قطب جد) → قلقلة صغرى'},audio:{t:'قُلْ هُوَ ٱللَّهُ أَحَدٌ',q:'أين القلقلة فيما سمعت؟',o:['القاف في قُلْ','الهاء','الدال'],c:0,e:'القاف ساكنة في الأول → قلقلة، والدال موقوف عليها → كبرى'},classify:{boxes:['قلقلة','غنة مشددة','إظهار'],words:[['أَحَدْ','قلقلة'],['عَمَّ','غنة مشددة'],['مِنْ خَشْيَةِ','إظهار']]},m:[{q:'حروف القلقلة مجموعة في…',o:['قطب جد','يرملون','ء هـ ع'],c:0,e:'القاف والطاء والباء والجيم والدال السواكن'},{q:'القلقلة الكبرى تكون…',o:['عند الوقف على الحرف','وسط الكلمة','مع الغنة'],c:0,e:'السكون العارض بالوقف أقوى اهتزازاً'}]},
+maddtab:{click:{p:'انقر الكلمة الممدودة مداً طبيعياً',w:[['قَالُوا',1],['كَتَبَ',0]],e:'الألف الساكنة بعد فتح → مد طبيعي حركتين'},audio:{t:'قَالُوا',q:'ما الحكم المسموع؟',o:['مد طبيعي','غنة','قلقلة'],c:0,e:'إطالة الألف حركتين دون سبب همز أو سكون'},classify:{boxes:['مد طبيعي','قلقلة','غنة'],words:[['قَالَ','مد طبيعي'],['لَمْ يَلِدْ','قلقلة'],['ثُمَّ','غنة']]},m:[{q:'حروف المد الطبيعي؟',o:['ا و ي سواكن مجانس لها ما قبلها','ء هـ ع','قطب جد'],c:0,e:'الألف بعد فتح، والواو بعد ضم، والياء بعد كسر'},{q:'مقدار المد الطبيعي؟',o:['حركتان','4 حركات','6 حركات'],c:0,e:'الطبيعي لا يزيد ولا ينقص عن حركتين'}]},
+noon:{click:{p:'انقر الكلمة التي فيها نون ساكنة',w:[['يَنْهَوْنَ',1],['آمَنُوا',0]],e:'النون الأولى ساكنة أصلية في الفعل'},audio:{t:'مِن فَضْلِ ٱللَّهِ',q:'ما حكم النون التي سمعت؟',o:['إخفاء','إظهار','إدغام'],c:0,e:'النون + الفاء → إخفاء حقيقي بغنة'},classify:{boxes:['إظهار','إدغام','إقلاب'],words:[['مِنْ خَشْيَةِ','إظهار'],['مَن يَقُولُ','إدغام'],['مِن بَعْدِ','إقلاب']]},m:[{q:'ما التنوين؟',o:['نون ساكنة تلحق آخر الاسم لفظاً لا خطاً','نون أصلية','حرف مد'],c:0,e:'التنوين نون ساكنة زائدة تُنطق ولا تُكتب'},{q:'النون الساكنة توجد في…',o:['الأسماء والأفعال والحروف','الأسماء فقط','آخر السور فقط'],c:0,e:'تقع أصلية أو زائدة في الكلمات الثلاث'}]},
+izhar:{click:{p:'انقر كلمة الإظهار الحلقي',w:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]],e:'الخاء حلقية → تُظهر النون'},audio:{t:'عَلِيمًا حَكِيمًا',q:'الحكم المسموع في التنوين؟',o:['إظهار حلقي','إخفاء','إدغام'],c:0,e:'تنوين + حاء → إظهار لتباعد المخرجين'},classify:{boxes:['إظهار','إدغام','إقلاب'],words:[['مِنْ عَمَلٍ','إظهار'],['مِن رَّبِّهِمْ','إدغام'],['مِن بَعْدِ','إقلاب']]},m:[{q:'حروف الإظهار الحلقي؟',o:['ء هـ ع ح غ خ','يرملون','قطب جد'],c:0,e:'ستة أحرف تخرج من الحلق'},{q:'سُمّي إظهاراً لأن النون…',o:['تُنطق واضحة','تُدغم','تُقلب'],c:0,e:'لبعد مخرجها عن حروف الحلق'}]},
+idgham:{click:{p:'انقر كلمة الإدغام',w:[['مَن',0],['يَقُولُ',1]],e:'النون دخلت في الياء مع الغنة'},audio:{t:'مَن يَقُولُ',q:'الحكم المسموع؟',o:['إدغام بغنة','إظهار','إقلاب'],c:0,e:'نون + ياء → إدغام بغنة حركتين'},classify:{boxes:['إدغام بغنة','إدغام بغير غنة','إظهار'],words:[['مِن وَالٍ','إدغام بغنة'],['مِن لَّدُنْهُ','إدغام بغير غنة'],['مِنْ خَوْفٍ','إظهار']]},m:[{q:'حروف الإدغام مجموعة في…',o:['يرملون','قطب جد','صف ذا ثنا'],c:0,e:'الياء والراء والميم واللام والواو والنون'},{q:'الإدغام بغير غنة مع…',o:['اللام والراء','الياء والنون','الميم والواو'],c:0,e:'اللام والراء إدغام كامل بلا غنة'}]},
+iqlab:{click:{p:'انقر كلمة الإقلاب',w:[['مِن',0],['بَعْدِ',1]],e:'النون + الباء → تُقلب ميماً'},audio:{t:'مِن بَعْدِ',q:'ماذا سمعت؟',o:['إقلاب بغنة','إظهار','مد'],c:0,e:'ميم مخفاة مع غنة بدل النون'},classify:{boxes:['إقلاب','إظهار','إدغام'],words:[['مِن بَخِيلٍ','إقلاب'],['مِنْ غِلٍّ','إظهار'],['مَن يَعْمَلْ','إدغام']]},m:[{q:'حرف الإقلاب الوحيد؟',o:['الباء','الميم','الفاء'],c:0,e:'لا إقلاب إلا مع الباء'},{q:'تُقلب النون الساكنة إلى…',o:['ميم مخفاة بغنة','نون مشددة','تُحذف'],c:0,e:'مع مراعاة الغنة والإخفاء'}]},
+ikhfa:{click:{p:'انقر كلمة الإخفاء',w:[['مِن',0],['فَضْلِ',1]],e:'النون + الفاء → إخفاء بغنة مرققة'},audio:{t:'كُنتُمْ',q:'الحكم المسموع؟',o:['إخفاء حقيقي','إظهار','قلقلة'],c:0,e:'نون + تاء → إخفاء'},classify:{boxes:['إخفاء','إظهار','إقلاب'],words:[['أَنتُمْ','إخفاء'],['مِنْ حَكِيمٍ','إظهار'],['مِن بَعْدِ','إقلاب']]},m:[{q:'عدد حروف الإخفاء؟',o:['15 حرفاً','6 حروف','10 حروف'],c:0,e:'الباقي بعد حروف الإظهار والإدغام والباء'},{q:'مقدار الغنة في الإخفاء؟',o:['حركتان','4 حركات','بدون غنة'],c:0,e:'غنة مرققة أو مفخمة حسب ما بعدها'}]},
+meem:{click:{p:'انقر موضع الإخفاء الشفوي',w:[['هُم',0],['بِهِ',1]],e:'ميم + باء → إخفاء شفوي'},audio:{t:'هُم بِهِ',q:'الحكم المسموع؟',o:['إخفاء شفوي','إظهار شفوي','مد'],c:0,e:'إخفاء الميم مع الغنة قبل الباء'},classify:{boxes:['إخفاء شفوي','إدغام شفوي','إظهار شفوي'],words:[['هُم بِهِ','إخفاء شفوي'],['لَهُم مَّا','إدغام شفوي'],['هُمْ فِيهَا','إظهار شفوي']]},m:[{q:'أحكام الميم الساكنة؟',o:['إخفاء وإدغام وإظهار','إظهار ومد وغنة','قلب ومد'],c:0,e:'ثلاثة: شفويان وإظهار'},{q:'الإدغام الشفوي يكون مع…',o:['الميم','الباء','الفاء'],c:0,e:'ميم + ميم = إدغام متماثلين بغنة'}]},
+maddadv:{click:{p:'انقر المد المتصل',w:[['ٱلسَّمَآءَ',1],['قَالَ',0]],e:'المد والهمز في كلمة واحدة → متصل'},audio:{t:'جَآءَ',q:'نوع المد المسموع؟',o:['متصل','منفصل','طبيعي'],c:0,e:'اتصال الشرط والسبب في كلمة'},classify:{boxes:['متصل','منفصل','عارض للسكون'],words:[['جَآءَ','متصل'],['إِنَّآ أَعْطَيْنَاكَ','منفصل'],['ٱلْعَـٰلَمِينَ','عارض للسكون']]},m:[{q:'مقدار المد اللازم؟',o:['6 حركات','حركتان','4 حركات'],c:0,e:'أقوى المدود لزوماً'},{q:'العارض للسكون يجوز فيه؟',o:['2 أو 4 أو 6','حركتان فقط','6 فقط'],c:0,e:'على حسب مرتبة التلاوة'}]},
+tafkheem:{click:{p:'انقر الكلمة التي فيها حرف مفخم',w:[['قَالَ',1],['مَالِكِ',0]],e:'القاف من حروف الاستعلاء'},audio:{t:'خَالِدِينَ',q:'الحرف المفخم المسموع؟',o:['الخاء','اللام','النون'],c:0,e:'الخاء مستعلية مطبقة'},classify:{boxes:['مفخم','مرقق'],words:[['صِرَٰطَ','مفخم'],['بِسْمِ','مرقق'],['فِرْعَوْنَ','مرقق']]},m:[{q:'حروف الاستعلاء مجموعة في؟',o:['خص ضغط قظ','قطب جد','يرملون'],c:0,e:'سبعة أحرف يعلو بها اللسان'},{q:'لام لفظ الجلالة تفخم إذا سبقها؟',o:['فتح أو ضم','كسر','سكون'],c:0,e:'مثل: عَبْدُ ٱللَّهِ، وتُرقق بعد الكسر'}]},
+makharij:{click:{p:'انقر حرفاً شفوياً',w:[['م',1],['خ',0],['ق',0]],e:'الميم تخرج بانطباق الشفتين'},audio:{t:'مِن خَشْيَةِ',q:'مخرج الخاء؟',o:['أدنى الحلق','الشفتان','طرف اللسان'],c:0,e:'الخاء والغين من أدنى الحلق'},classify:{boxes:['حلقي','شفوي','لساني'],words:[['ع','حلقي'],['ب','شفوي'],['ن','لساني']]},m:[{q:'عدد مخارج الحروف على المشهور؟',o:['17 مخرجاً','10 مخارج','5 مخارج'],c:0,e:'مذهب الخليل وسيبويه وابن الجزري'},{q:'مخرج النون؟',o:['طرف اللسان','الحلق','الجوف'],c:0,e:'طرف اللسان مع أصول الثنايا العليا'}]},
+waqf:{click:{p:'انقر رمز الوقف اللازم',w:[['م',1],['ج',0],['ص',0]],e:'الميم: وقف لازم لا توصل بعده'},audio:{t:'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ',q:'أين يَحسُن الوقف؟',o:['على رأس الآية','وسط الكلمة','بعد الحرف الأول'],c:0,e:'الوقف على رؤوس الآي سنة'},classify:{boxes:['وقف لازم','وقف جائز','ممنوع'],words:[['رمز مـ','وقف لازم'],['نهاية الآية','وقف جائز'],['وسط الكلمة','ممنوع']]},m:[{q:'الوقف على رأس الآية حكمه؟',o:['سنة متبعة','ممنوع','مكروه'],c:0,e:'ولو تعلق بما بعده'},{q:'الابتداء يكون بـ…',o:['كلام تام المعنى','نصف كلمة','أي موضع'],c:0,e:'لا تبدأ بما يفسد المعنى'}]}};
+var LESSONS={
+ghunna:{def:'النون والميم المشددتان تُغنّان أكمل ما تكون بمقدار حركتين — وهي أول ما يسمعه الطفل في: ٱلنَّاسِ، ثُمَّ، عَمَّ، ٱلْجَنَّةِ.',rows:[['نّ','مثال: إِنَّ، ٱلنَّاسِ'],['مّ','مثال: ثُمَّ، عَمَّ']],poem:['وَغُنَّ مِيمًا ثُمَّ نُونًا شُدِّدَا','وَسَمِّ كُلاًّ حَرْفَ غُنَّةٍ بَدَا'],ex:'إِنَّ ٱللَّهَ'},
+qalqalah:{def:'حروف (قطب جد): القاف والطاء والباء والجيم والدال — إذا سكنت اهتز مخرجها. صغرى وسط الكلام، وكبرى عند الوقف.',rows:[['ق','قُلْ'],['ط','ٱلطَّارِقُ'],['ب','ٱلْأَبْوَٰبُ'],['ج','ٱلْفَجْرِ'],['د','أَحَدْ']],poem:['صَفِيرُهَا صَادٌ وَزَايٌ سِينُ','قَلْقَلَةٌ قُطْبُ جَدٍّ وَاللِّينُ'],ex:'قُلْ هُوَ ٱللَّهُ أَحَدٌ'},
+maddtab:{def:'المد الطبيعي: ألف ساكنة بعد فتح، أو واو بعد ضم، أو ياء بعد كسر — يُمد حركتين فقط، ولا يقوم الحرف إلا به.',rows:[['ا','قَالَ'],['و','يَقُولُ'],['ي','قِيلَ']],poem:['وَالْمَدُّ أَصْلِيٌّ وَفَرْعِيٌّ لَهُ','وَسَمِّ أَوَّلاً طَبِيعِيًّا وَهُو'],ex:'قَالُوا'},
+noon:{def:'النون الساكنة: نون لا حركة لها تثبت لفظاً ووصلاً. والتنوين: نون ساكنة زائدة تلحق آخر الاسم لفظاً لا خطاً. لهما أربعة أحكام.',rows:[['تعريف','نون ساكنة + تنوين = 4 أحكام'],['أين تقع؟','الأسماء والأفعال والحروف']],poem:['لِلنُّونِ إِنْ تَسْكُنْ وَلِلتَّنْوِينِ','أَرْبَعُ أَحْكَامٍ فَخُذْ تَبْيِينِي'],ex:'كِتَابٌ'},
+izhar:{def:'إذا جاء بعد النون الساكنة أو التنوين حرف من حروف الحلق الستة نُطقت النون واضحة من مخرجها.',rows:[['ء','مِنْ أَجْرٍ'],['هـ','مِنْ هَادٍ'],['ع','مِنْ عَمَلٍ'],['ح','عَلِيمًا حَكِيمًا'],['غ','مِنْ غِلٍّ'],['خ','مِنْ خَشْيَةِ']],poem:['فَالأَوَّلُ الإِظْهَارُ قَبْلَ أَحْرُفِ','لِلْحَلْقِ سِتٌّ رُتِّبَتْ فَلْتَعْرِفِ'],ex:'مِنْ خَشْيَةِ ٱللَّهِ'},
+idgham:{def:'إدخال النون الساكنة في حرف من (يرملون): بغنة مع (ينمو)، وبغير غنة مع (ل، ر).',rows:[['ي','مَن يَقُولُ'],['ن','مِن نَّصِيبٍ'],['م','مِن مَّالٍ'],['و','مِن وَالٍ'],['ل','مِن لَّدُنْهُ'],['ر','مِن رَّبِّهِمْ']],poem:['وَالثَّانِ إِدْغَامٌ بِسِتَّةٍ أَتَتْ','فِي يَرْمُلُونَ عِنْدَهُمْ قَدْ ثَبَتَتْ'],ex:'مَن يَقُولُ'},
+iqlab:{def:'إذا جاءت الباء بعد النون الساكنة قُلبت النون ميماً مخفاة مع غنة حركتين.',rows:[['ب','مِن بَعْدِ، سَمِيعٌ بَصِيرٌ']],poem:['وَالثَّالِثُ الإِقْلاَبُ عِنْدَ الْبَاءِ','مِيمًا بِغُنَّةٍ مَعَ الإِخْفَاءِ'],ex:'مِن بَعْدِ'},
+ikhfa:{def:'باقي الحروف (15) بعد النون إخفاء: حالة بين الإظهار والإدغام مع غنة حركتين ترقق أو تفخم.',rows:[['ف','مِن فَضْلِ'],['ت','كُنتُمْ'],['ق','مِن قَبْلُ'],['+ 12 حرفاً','ص ذ ث ك ج ش س د ط ز ض ظ']],poem:['وَالرَّابِعُ الإِخْفَاءُ عِنْدَ الْفَاضِلِ','مِنَ الْحُرُوفِ وَاجِبٌ لِلْفَاضِلِ'],ex:'مِن فَضْلِ ٱللَّهِ'},
+meem:{def:'للميم الساكنة ثلاثة أحكام: إخفاء شفوي مع الباء، وإدغام مثلين مع الميم، وإظهار مع الباقي.',rows:[['ب → إخفاء شفوي','هُم بِهِ'],['م → إدغام','لَهُم مَّا'],['باقي الحروف → إظهار','هُمْ فِيهَا']],poem:['أَحْكَامُهَا ثَلاَثَةٌ لِمَنْ ضَبَطْ','إِخْفَاءٌ ادْغَامٌ وَإِظْهَارٌ فَقَطْ'],ex:'هُم بِهِ'},
+maddadv:{def:'المد الفرعي ما توقف على همز أو سكون: متصل ومنفصل وبدل، وعارض ولازم.',rows:[['متصل 4-5','ٱلسَّمَآءَ، جَآءَ'],['منفصل 2-5','إِنَّآ أَعْطَيْنَاكَ'],['عارض 2/4/6','ٱلْعَـٰلَمِينَ'],['لازم 6','الٓمٓ']],poem:['وَالْمَدُّ أَصْلِيٌّ وَفَرْعِيٌّ لَهُ','وَسَمِّ أَوَّلاً طَبِيعِيًّا وَهُو'],ex:'جَآءَ'},
+tafkheem:{def:'حروف الاستعلاء (خص ضغط قظ) تُفخم دائماً. والراء واللام تدور بين التفخيم والترقيق.',rows:[['خص ضغط قظ','خَالِدِينَ، صِرَٰطَ'],['راء مرققة','فِرْعَوْنَ، بِسْمِ'],['لام الجلالة','تُفخم بعد فتح/ضم، وتُرقق بعد كسر']],poem:['وَرَقِّقِ الرَّاءَ إِذَا مَا كُسِرَتْ','كَذَاكَ بَعْدَ الْكَسْرِ حَيْثُ سَكَنَتْ'],ex:'خَالِدِينَ'},
+makharij:{def:'مخارج الحروف سبعة عشر على مذهب الخليل: الجوف والحلق واللسان والشفتان والخيشوم.',rows:[['الجوف','حروف المد ا و ي'],['الحلق','ء هـ ع ح غ خ'],['اللسان','أكثر الحروف: ن ل ر س…'],['الشفتان','ب م و'],['الخيشوم','مخرج الغنة']],poem:['مَخَارِجُ الْحُرُوفِ سَبْعَةَ عَشَرْ','عَلَى الَّذِي يَخْتَارُهُ مَنِ اخْتَبَرْ'],ex:'مِنْ خَشْيَةِ'},
+waqf:{def:'قاعدة ذهبية: قِف حيث يتم المعنى، وابدأ بما يُفهِم. الوقف على رؤوس الآي سنة.',rows:[['مـ وقف لازم','لا تصل بعده'],['ج وقف جائز','قف أو صل'],['ممنوع','لا تقف وسط الكلمة']],poem:[],ex:'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ'}};
 var BADGES=[
 {id:'b_first',t:'الخطوة الأولى',d:'أكمل أول عقدة',i:'🌱'},
-{id:'b_noon',t:'خبير النون الساكنة',d:'أتقن الإظهار والإدغام والإقلاب والإخفاء',i:'🟢'},
-{id:'b_madd',t:'بطل المدود',d:'أتقن عقدة المدود',i:'📏'},
+{id:'b_noon',t:'خبير الساكنات',d:'أتقن أحكام النون الأربع',i:'🟢'},
+{id:'b_madd',t:'بطل المدود',d:'أتقن المدود الفرعية',i:'📏'},
 {id:'b_qal',t:'متقن القلقلة',d:'أتقن عقدة القلقلة',i:'🔔'},
 {id:'b_xp500',t:'صاحب الـ500',d:'اجمع 500 XP',i:'⚡'},
 {id:'b_streak7',t:'المثابر',d:'حافظ على سلسلة 7 أيام',i:'🔥'}];
 var ROSTER=[
-{n:'أحمد (تجريبي)',done:8,weak:'الإدغام بغنة'},
-{n:'سارة (تجريبي)',done:5,weak:'المدود'},
-{n:'خالد (تجريبي)',done:3,weak:'الإخفاء'},
-{n:'ليلى (تجريبي)',done:10,weak:'لا شيء — ممتازة'}];
+{n:'أحمد (تجريبي)',done:9,weak:'الإدغام بغنة'},
+{n:'سارة (تجريبي)',done:6,weak:'المدود الفرعية'},
+{n:'خالد (تجريبي)',done:4,weak:'الإخفاء'},
+{n:'ليلى (تجريبي)',done:12,weak:'لا شيء — ممتازة'}];
 
-/* ================= المخازن المحلية ================= */
+/* ================= المخازن ================= */
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-var PROG=load('tajweed_tree_v1',{nodes:{},badges:[],mistakes:[],hw:[]});
+var PROG=load('tajweed_tree_v2',null);
+if(!PROG){
+  var old=load('tajweed_tree_v1',{nodes:{},badges:[],mistakes:[],hw:[]});
+  var MAP={'n-noon':'m-noon','n-makh':'a-makharij','n-izhar':'m-izhar','n-idgham':'m-idgham','n-iqlab':'m-iqlab','n-ikhfa':'m-ikhfa','n-ghunna':'b-ghunna','n-meem':'m-meem','n-madd':'a-madd','n-qalq':'b-qalq'};
+  PROG={nodes:{},badges:[],mistakes:[],hw:old.hw||[]};
+  Object.keys(old.nodes||{}).forEach(function(k){if(MAP[k])PROG.nodes[MAP[k]]=old.nodes[k]});
+  save('tajweed_tree_v2',PROG);
+}
 function nodeSt(n){
-  var p=PROG.nodes[n.id];
-  var m=p?p.m:0;
+  var p=PROG.nodes[n.id],m=p?p.m:0;
   if(m>=0.7){
     var bad=PROG.mistakes.some(function(x){return x.n===n.id});
     return bad?'review':'completed';
@@ -146,13 +177,21 @@ function nodeSt(n){
   return (p&&p.att>0)?'in-progress':'available';
 }
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show')},2600)}
+var AC=null;
+function tone(f,d){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.value=.1;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+function sndOk(){tone(660,.12);setTimeout(function(){tone(990,.16)},110)}
+function sndNo(){tone(185,.25)}
+function boom(big){var m=document.getElementById('modal'),n=big?60:22;for(var i=0;i<n;i++){var s=document.createElement('span');s.className='cfetti';s.style.left=(25+Math.random()*50)+'%';s.style.background=['#34d399','#fbbf24','#38bdf8','#fb7185','#a78bfa'][i%5];s.style.animationDelay=(Math.random()*.3)+'s';m.appendChild(s);(function(el){setTimeout(function(){el.remove()},1500)})(s)}}
+function speak(t){try{var u=new SpeechSynthesisUtterance(t);u.lang='ar-SA';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 
 /* ================= العرض ================= */
-var F='ALL',SEL='n-noon',VW={x:0,y:0,k:1};
+var F='ALL',SEL='b-ghunna',VW={x:0,y:0,k:1};
 var CLS={completed:'border-emerald-500/60 bg-emerald-500/10',review:'border-orange-400/60 bg-orange-400/10','in-progress':'border-sky-500/60 bg-sky-500/10',available:'border-amber-400/50 bg-amber-400/5',locked:'border-white/10 bg-white/[.03]'};
-var BDG={completed:'<span class="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">✓ مكتمل</span>',review:'<span class="rounded-full bg-orange-400/15 px-2 py-0.5 text-[10px] font-bold text-orange-300">🔄 يحتاج مراجعة</span>','in-progress':'<span class="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold text-sky-300">جارٍ التقدم</span>',available:'<span class="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">▶ متاح الآن</span>',locked:'<span class="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-slate-500">🔒 مغلق</span>'};
+var BDG={completed:'<span class="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">✓ مكتمل</span>',review:'<span class="rounded-full bg-orange-400/15 px-2 py-0.5 text-[10px] font-bold text-orange-300">🔄 راجعني</span>','in-progress':'<span class="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold text-sky-300">جارٍ التقدم</span>',available:'<span class="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">▶ متاح الآن</span>',locked:'<span class="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold text-slate-500">🔒 مغلق</span>'};
+var MODL={beg:'🌱 البراعم',mid:'⚙ المتوسطة',adv:'🎓 المتقدمة'};
+function modName(m){return MODL[m]||m}
 function render(){
-  var done=NODES.filter(function(n){return nodeSt(n)==='completed'||nodeSt(n)==='review'}).length;
+  var done=NODES.filter(function(n){var s=nodeSt(n);return s==='completed'||s==='review'}).length;
   document.getElementById('sub').textContent='أتقن عقدة لتفتح ما بعدها — '+done+' من '+NODES.length+' مكتملة';
   document.getElementById('bar').style.width=Math.round(done/NODES.length*100)+'%';
   try{
@@ -160,17 +199,19 @@ function render(){
     document.getElementById('hst').textContent='🔥 سلسلة '+XP.streak()+' يوم';
     document.getElementById('hrk').textContent='🎖 '+XP.rank();
   }catch(e){}
-  document.getElementById('filters').innerHTML=['ALL','MIDDLE','HIGH','UNIVERSITY'].map(function(s){
-    return '<button onclick="F=\''+s+'\';render()" class="rounded-full px-4 py-1.5 text-xs font-bold '+(F===s?'bg-emerald-500 text-white':'bg-white/5 hover:bg-white/10')+'">'+(s==='ALL'?'الكل':SL[s])+'</button>';
+  document.getElementById('filters').innerHTML=MODS.map(function(s){
+    return '<button onclick="F=\''+s[0]+'\';render()" class="rounded-full px-4 py-1.5 text-xs font-bold '+(F===s[0]?'bg-emerald-500 text-white':'bg-white/5 hover:bg-white/10')+'">'+s[1]+'</button>';
   }).join('');
-  var list=NODES.filter(function(n){return F==='ALL'||n.st===F});
-  var tiers={};list.forEach(function(n){(tiers[n.tier]=tiers[n.tier]||[]).push(n)});
-  var keys=Object.keys(tiers).sort();
-  document.getElementById('tiers').innerHTML=keys.map(function(t){
-    return '<div class="mb-2 flex items-center gap-3"><span class="text-[11px] font-bold text-slate-500">المستوى '+(+t+1)+'</span><div class="h-px flex-1 bg-white/10"></div></div>'+
+  var list=NODES.filter(function(n){return F==='ALL'||n.mod===F});
+  var tiers={},order=[];
+  list.forEach(function(n){if(!tiers[n.tier]){tiers[n.tier]=[];order.push(n.tier)}tiers[n.tier].push(n)});
+  order.sort(function(a,b){return a-b});
+  var TNAME={0:'🌱 التأسيس',1:'⚙ أحكام الساكنات (1)',2:'⚙ أحكام الساكنات (2)',3:'⚙ أحكام الساكنات (3)',4:'🎓 الاحتراف',5:'🎓 القمة'};
+  document.getElementById('tiers').innerHTML=order.map(function(t){
+    return '<div class="mb-2 flex items-center gap-3"><span class="text-[11px] font-bold text-slate-500">'+(TNAME[t]||('المستوى '+(+t+1)))+'</span><div class="h-px flex-1 bg-white/10"></div></div>'+
     '<div class="mb-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">'+tiers[t].map(cardHTML).join('')+'</div>';
   }).join('');
-  applyT();drawLinks();setTimeout(drawLinks,300);setTimeout(drawLinks,1200);
+  applyT();drawLinks();setTimeout(drawLinks,400);
   renderDetail();renderBadges();renderVault();renderHWNode();
 }
 function cardHTML(n){
@@ -178,7 +219,7 @@ function cardHTML(n){
   return '<button id="nd-'+n.id+'" onclick="if(window._mm)return;SEL=\''+n.id+'\';render()" class="node '+(s==='locked'?'locked':'')+' '+CLS[s]+(SEL===n.id?' ring-2 ring-emerald-400':'')+' relative rounded-2xl border p-4 text-right '+(s==='locked'?'cursor-not-allowed':'cursor-pointer')+'">'+
   (s==='available'?'<span class="pulse absolute left-3 top-3 h-2 w-2 rounded-full bg-amber-400"></span>':'')+
   '<div class="flex justify-between items-start gap-2"><div class="h-11 w-11 flex items-center justify-center rounded-xl bg-black/30 text-lg font-extrabold">'+(s==='locked'?'🔒':s==='completed'?'✓':s==='review'?'🔄':'◈')+'</div>'+
-  '<div class="flex flex-col items-end gap-1">'+BDG[s]+'<span class="text-[10px] text-slate-400">'+SL[n.st]+'</span></div></div>'+
+  '<div class="flex flex-col items-end gap-1">'+BDG[s]+'<span class="text-[10px] text-slate-400">'+modName(n.mod)+'</span></div></div>'+
   '<h3 class="mt-3 font-extrabold '+(s==='locked'?'text-slate-500':'')+'">'+n.t+'</h3><p class="text-xs text-slate-400">'+n.s+'</p>'+
   (m>0?'<div class="mt-3 h-1.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full rounded-full '+(m>=0.7?'bg-emerald-400':'bg-sky-400')+'" style="width:'+Math.round(m*100)+'%"></div></div>':'')+
   '<div class="mt-2 flex justify-between text-[11px] text-slate-400"><span>⚡ '+n.xp+' XP</span><span>'+n.l+' دروس • '+n.min+' د</span></div></button>';
@@ -188,27 +229,22 @@ function renderDetail(){
   var req=n.req.map(function(r){var d=NODES.find(function(x){return x.id===r});var ok=(PROG.nodes[r]||{m:0}).m>=0.7;
     return '<span class="inline-block rounded-full px-2 py-0.5 font-bold mr-1 '+(ok?'bg-emerald-500/15 text-emerald-300':'bg-white/5 text-slate-400')+'">'+(ok?'✓ ':'🔒 ')+d.t+'</span>'}).join('');
   document.getElementById('detail').innerHTML='<div class="fade">'+
-  '<h2 class="text-lg font-extrabold">'+n.t+'</h2><p class="text-xs text-slate-400">'+n.s+' • '+SL[n.st]+'</p>'+
-  '<div class="mt-3 rounded-xl bg-black/20 border border-white/10 p-3"><div class="text-[11px] text-slate-400 font-bold">ملخص الحكم + مثال صوتي</div>'+
-  '<div class="fq text-xl mt-1 leading-loose">'+n.ex+'</div>'+
-  '<button onclick="speakEx()" class="mt-1 rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold">🔊 استماع للمثال</button></div>'+
+  '<h2 class="text-lg font-extrabold">'+n.t+'</h2><p class="text-xs text-slate-400">'+n.s+' • '+modName(n.mod)+'</p>'+
   '<div class="mt-3 grid grid-cols-3 gap-2 text-center">'+
   '<div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold text-amber-300">⚡'+n.xp+'</div><div class="text-[10px] text-slate-400">XP</div></div>'+
   '<div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold">'+Math.round(p.m*100)+'%</div><div class="text-[10px] text-slate-400">الإتقان</div></div>'+
   '<div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold">'+p.att+'</div><div class="text-[10px] text-slate-400">محاولات</div></div></div>'+
   (req?'<div class="mt-3 text-xs"><b>المتطلبات:</b><br>'+req+'</div>':'')+
   (s==='locked'?'<button disabled class="mt-4 w-full rounded-xl bg-white/5 py-3 text-sm font-bold text-slate-500 cursor-not-allowed">🔒 مغلق — أتقن المتطلبات أولاً</button>'
-  :'<button onclick="openChallenge(\''+n.id+'\')" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white hover:bg-emerald-400">'+(s==='completed'||s==='review'?'🔄 تحدي المراجعة':'▶ ابدأ تحدي العقدة +'+n.xp+' XP')+'</button>'+
-  '<a href="demo-lesson.html" class="mt-2 block text-center rounded-xl bg-white/5 border border-white/10 py-2.5 text-xs font-bold">📖 أو ادرس الدرس الكامل أولاً</a>')+'</div>';
+  :'<button onclick="openLesson(\''+n.id+'\')" class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 py-2.5 text-sm font-bold">📖 الدرس الكامل أولاً</button>'+
+  '<button onclick="openChallenge(\''+n.id+'\')" class="mt-2 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white hover:bg-emerald-400">'+(s==='completed'||s==='review'?'🔄 تحدي المراجعة':'⚔️ ابدأ التحدي — 5 أسئلة و3 قلوب')+'</button>')+'</div>';
 }
-function speakEx(){var n=NODES.find(function(x){return x.id===SEL});try{var u=new SpeechSynthesisUtterance(n.ex);u.lang='ar-SA';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
-
-/* ================= الخريطة: وصلات + تحريك + تقريب ================= */
 function applyT(){document.getElementById('map').style.transform='translate('+VW.x+'px,'+VW.y+'px) scale('+VW.k+')'}
 function zoom(f){VW.k=Math.min(1.8,Math.max(.5,VW.k*f));applyT()}
 function zoomReset(){VW={x:0,y:0,k:1};applyT()}
 function drawLinks(){
   var map=document.getElementById('map'),svg=document.getElementById('links');
+  if(!map||!svg)return;
   var mr=map.getBoundingClientRect();
   svg.setAttribute('width',map.scrollWidth);svg.setAttribute('height',map.scrollHeight);
   var h='';
@@ -220,7 +256,7 @@ function drawLinks(){
       var p=document.getElementById('nd-'+q);if(!p)return;
       var pr=p.getBoundingClientRect();
       var x1=(pr.left-mr.left)/VW.k+pr.width/VW.k/2,y1=(pr.top-mr.top)/VW.k+pr.height/VW.k;
-      var s=nodeSt(n),col=s==='locked'?'rgba(148,163,184,.3)':s==='completed'||s==='review'?'rgba(52,211,153,.6)':'rgba(251,191,36,.55)';
+      var s=nodeSt(n),col=s==='locked'?'rgba(148,163,184,.3)':(s==='completed'||s==='review')?'rgba(52,211,153,.6)':'rgba(251,191,36,.55)';
       h+='<path d="M'+x1+' '+y1+' C'+x1+' '+(y1+34)+','+x2+' '+(y2-34)+','+x2+' '+y2+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-dasharray="'+(s==='locked'?'5 5':'none')+'"/>';
     });
   });
@@ -242,76 +278,167 @@ function drawLinks(){
   window.addEventListener('resize',function(){drawLinks()});
 })();
 
-/* ================= تحدي العقدة ================= */
+/* ================= الدرس الكامل ================= */
+function openLesson(id){
+  var n=NODES.find(function(x){return x.id===id}),L=LESSONS[n.rule];
+  var rows=L.rows.map(function(r){
+    return '<tr><td class="font-quran" style="font-size:1.35em">'+r[0]+'</td><td>'+r[1]+' <button onclick="speak(\''+r[1].replace(/'/g,'')+'\')" class="text-xs">🔊</button></td></tr>';
+  }).join('');
+  var poem=L.poem.length?'<div class="mt-3 rounded-xl border border-amber-300/30 bg-amber-400/5 p-3 text-center"><div class="text-[11px] font-bold text-amber-300">🎵 من تحفة الأطفال (للحفظ)</div><div class="fq text-lg leading-loose mt-1">'+L.poem.join('<br>')+'</div><button onclick="speak(\''+L.poem.join(' ')+'\')" class="mt-1 text-xs font-bold text-amber-300">🔊 استماع للبيتين</button></div>':'<div class="mt-3 rounded-xl border border-white/10 bg-white/5 p-3 text-xs leading-6 text-slate-300">💡 <b>قاعدة ذهبية:</b> قِف حيث يتم المعنى، وابدأ بما يُفهِم — والوقف على رؤوس الآي سنة.</div>';
+  document.getElementById('modal').innerHTML='<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="fade w-full max-w-lg rounded-2xl border border-white/10 bg-[#141b31] p-5 md:p-7" style="max-height:88vh;overflow-y:auto">'+
+  '<div class="flex justify-between items-center"><h2 class="text-xl font-extrabold">'+n.t+'</h2><button onclick="closeModal()" class="text-slate-400 font-bold">✕</button></div>'+
+  '<p class="text-[11px] text-slate-400">'+modName(n.mod)+' • '+n.s+'</p>'+
+  '<div class="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm leading-7"><b class="text-emerald-300">الفكرة بكلمات بسيطة: </b>'+L.def+'</div>'+
+  '<div class="mt-3"><table class="ruletbl"><tr><th>الحرف / النقطة</th><th>المثال العثماني + استماع</th></tr>'+rows+'</table></div>'+
+  '<button onclick="speak(\''+L.ex+'\')" class="mt-3 w-full rounded-xl bg-white/5 border border-white/10 py-2.5 text-sm font-bold">🔊 استماع للمثال الرئيسي: <span class="fq text-base">'+L.ex+'</span></button>'+
+  poem+
+  '<button onclick="closeModal();openChallenge(\''+n.id+'\')" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white">جاهز للتحدي الآن 🚀</button>'+
+  '</div></div>';
+}
+function closeModal(){if(CH&&CH.timer)clearTimeout(CH.timer);document.getElementById('modal').innerHTML=''}
+
+/* ================= مسرح التحدي ================= */
 var CH=null;
 function openChallenge(id){
   var n=NODES.find(function(x){return x.id===id}),b=BANK[n.rule];
-  CH={n:n,step:0,score:0,answers:[],qs:[
-    {t:'click',p:b.click.p,w:b.click.w},
-    {t:'mcq',q:b.m[0].q,o:b.m[0].o,c:b.m[0].c},
-    {t:'mcq',q:b.m[1].q,o:b.m[1].o,c:b.m[1].c}]};
-  renderCH();
+  CH={n:n,step:0,hearts:3,score:0,items:7,timer:null,cl:null,
+    qs:['click','audio','classify','mcq0','mcq1'],bank:b};
+  var p=PROG.nodes[n.id]||{m:0,att:0,best:0};
+  p.att++;PROG.nodes[n.id]=p;save('tajweed_tree_v2',PROG);
+  renderQ();
 }
-function renderCH(){
-  var m=document.getElementById('modal'),q=CH.qs[CH.step],n=CH.n;
-  var body='';
-  if(q.t==='click'){
-    body='<p class="text-sm font-bold">'+q.p+'</p><div class="fq mt-3 text-4xl leading-[2.2]">'+q.w.map(function(w,i){
-      return '<button onclick="answerClick('+i+','+w[1]+')" class="mx-2 px-4 py-1 rounded-xl bg-black/30 border border-white/10 hover:border-emerald-400/60">'+w[0]+'</button>'}).join('')+'</div>';
+function heartsHTML(){var h='';for(var i=0;i<3;i++)h+=i<CH.hearts?'❤️':'🖤';return '<span class="heart">'+h+'</span>'}
+function topBar(){
+  var names=['استخراج بصري','تمييز صوتي','تصنيف','سؤال 4','سؤال 5'];
+  return '<div class="flex justify-between items-center text-xs font-bold"><span>السؤال '+(CH.step+1)+' من 5 • '+names[CH.step]+'</span>'+heartsHTML()+'</div>'+
+  '<div class="mt-2 h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l from-amber-300 to-emerald-400" style="width:'+(CH.step/5*100)+'%;transition:width .4s"></div></div>';
+}
+function renderQ(){
+  var m=document.getElementById('modal'),n=CH.n,b=CH.bank,q=CH.qs[CH.step],body='';
+  if(q==='click'){
+    body='<p class="text-sm font-bold">'+b.click.p+' <span class="text-slate-500">('+n.ex+')</span></p><div class="fq mt-3 text-4xl leading-[2.2] text-center">'+b.click.w.map(function(w,i){
+      return '<button id="cq'+i+'" onclick="aClick('+i+','+w[1]+')" class="mx-2 px-4 py-1 rounded-xl bg-black/30 border border-white/10 hover:border-emerald-400/60">'+w[0]+'</button>'}).join('')+'</div>';
+  }else if(q==='audio'){
+    body='<p class="text-sm font-bold">🔊 استمع ثم أجب: <button onclick="speak(\''+b.audio.t+'\')" class="rounded-lg bg-sky-500/15 border border-sky-500/40 px-4 py-1.5 text-sky-300 font-bold">▶ تشغيل المقطع</button></p>'+
+    '<div class="fq text-2xl text-center mt-2 text-slate-500">؟ ؟ ؟</div>'+
+    '<p class="text-sm font-bold mt-2">'+b.audio.q+'</p><div class="mt-2 space-y-2">'+b.audio.o.map(function(o,i){
+      return '<button id="cq'+i+'" onclick="aMcq('+i+','+b.audio.c+',\''+b.audio.e.replace(/'/g,'')+'\',\''+b.audio.q.replace(/'/g,'')+'\')" class="opt w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-right text-sm">'+o+'</button>'}).join('')+'</div>';
+  }else if(q==='classify'){
+    if(!CH.cl)CH.cl={words:b.classify.words.map(function(w){return {t:w[0],r:w[1],done:false}}),sel:-1};
+    var c=CH.cl;
+    body='<p class="text-sm font-bold">🗂 انقر الكلمة ثم انقر صندوق حكمها:</p><div class="mt-2 flex gap-2 flex-wrap justify-center">'+c.words.map(function(w,i){
+      return w.done?'<span class="rounded-xl bg-emerald-500/20 border border-emerald-400 px-3 py-2 text-sm font-bold text-emerald-300">✓ '+w.t+'</span>'
+      :'<button onclick="clPick('+i+')" class="rounded-xl border px-3 py-2 text-sm font-bold '+(c.sel===i?'border-amber-400 bg-amber-400/15':'border-white/10 bg-white/5')+'">'+w.t+'</button>'}).join('')+'</div>'+
+    '<div class="mt-3 grid grid-cols-3 gap-2">'+b.classify.boxes.map(function(bx){
+      return '<button onclick="clDrop(\''+bx+'\')" class="rounded-xl border border-dashed border-white/20 bg-black/20 p-3 text-xs font-extrabold min-h-[64px]">'+bx+'</button>'}).join('')+'</div>';
   }else{
-    body='<p class="text-sm font-bold">'+q.q+'</p><div class="mt-3 space-y-2">'+q.o.map(function(o,i){
-      return '<button onclick="answerMcq('+i+','+q.c+')" class="opt w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-right text-sm hover:border-white/25">'+o+'</button>'}).join('')+'</div>';
+    var mq=b.m[q==='mcq0'?0:1];
+    body='<p class="text-sm font-bold">'+mq.q+'</p><div class="mt-3 space-y-2">'+mq.o.map(function(o,i){
+      return '<button id="cq'+i+'" onclick="aMcq('+i+','+mq.c+',\''+mq.e.replace(/'/g,'')+'\',\''+mq.q.replace(/'/g,'')+'\')" class="opt w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-right text-sm">'+o+'</button>'}).join('')+'</div>';
   }
-  m.innerHTML='<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="fade w-full max-w-md rounded-2xl border border-white/10 bg-[#141b31] p-6">'+
-  '<div class="flex justify-between items-center"><b>'+n.t+' — سؤال '+(CH.step+1)+'/3</b><button onclick="closeModal()" class="text-slate-400 font-bold">✕</button></div>'+
-  '<div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden"><div class="h-full bg-emerald-400" style="width:'+(CH.step/3*100)+'%"></div></div>'+
-  '<div class="mt-4">'+body+'</div></div></div>';
+  m.innerHTML='<div class="modal-bg"><div class="pop w-full max-w-md rounded-2xl border border-white/10 bg-[#141b31] p-5 md:p-6" id="chCard">'+
+  '<div class="flex justify-between items-center"><b class="text-sm">'+n.t+' ⚔️</b><button onclick="closeModal();render()" class="text-slate-400 font-bold">✕</button></div>'+
+  '<div class="mt-2">'+topBar()+'</div><div class="mt-4" id="qbody">'+body+'</div><div id="qfb" class="mt-3 text-sm font-bold" style="min-height:1.6rem"></div></div></div>';
 }
-function closeModal(){document.getElementById('modal').innerHTML=''}
-function pushMistake(qtext,ok){
-  if(PROG.mistakes.some(function(x){return x.q===qtext}))return;
-  PROG.mistakes.push({n:CH.n.id,r:CH.n.rule,q:qtext,ok:ok,ts:Date.now()});
+function fb(ok,msg){
+  var el=document.getElementById('qfb');
+  el.innerHTML='<span class="'+(ok?'text-emerald-300':'text-rose-300')+'">'+(ok?'✓ ':'✗ ')+msg+'</span>';
+  var card=document.getElementById('chCard');
+  card.classList.remove('pop','shake');void card.offsetWidth;card.classList.add(ok?'pop':'shake');
+  ok?sndOk():sndNo();
 }
-function answerClick(i,ok){
-  var q=CH.qs[CH.step];
-  if(ok){CH.score++;toast('✓ إجابة صحيحة')}
-  else{toast('✗ راجع القاعدة');pushMistake(q.p+' ('+CH.n.ex+')',q.w.find(function(w){return w[1]} )[0])}
-  nextCH();
+function loseHeart(){
+  CH.hearts--;
+  if(CH.hearts<=0){failCH();return true}
+  renderQHearts();return false;
 }
-function answerMcq(i,c){
-  var q=CH.qs[CH.step];
-  if(i===c){CH.score++;toast('✓ إجابة صحيحة')}
-  else{toast('✗ الإجابة: '+q.o[c]);pushMistake(q.q,q.o[c])}
-  nextCH();
+function renderQHearts(){
+  var m=document.getElementById('modal');
+  var bar=m.querySelector('.heart');if(bar)bar.outerHTML=heartsHTML();
 }
-function nextCH(){
-  CH.step++;
-  if(CH.step>=CH.qs.length)finishCH();
-  else renderCH();
+function goNext(ms){
+  if(CH.timer)clearTimeout(CH.timer);
+  CH.timer=setTimeout(function(){CH.step++;if(CH.step>=5)finishCH();else renderQ()},ms||1500);
+}
+function aClick(i,ok){
+  var q=CH.bank.click,e=document.getElementById('cq'+i);
+  if(ok){e.className=e.className.replace('bg-black/30','bg-emerald-500/25').replace('border-white/10','border-emerald-400');CH.score++;fb(true,q.e);goNext()}
+  else{e.className+=' border-rose-500 bg-rose-500/10';pushMistake(q.p,q.w);}
+  if(!ok){fb(false,q.e);if(loseHeart())return;goNext()}
+}
+function aMcq(i,c,expl,qq){
+  var btns=document.querySelectorAll('#qbody .opt');
+  for(var k=0;k<btns.length;k++){btns[k].disabled=true;if(k===c)btns[k].className+=' border-emerald-400 bg-emerald-500/15'}
+  if(i===c){CH.score++;fb(true,expl);goNext()}
+  else{fb(false,expl);pushMistake(qq||'',expl);if(loseHeart())return;goNext()}
+}
+function pushMistake(q,okWord){
+  var txt=typeof q==='string'?q:q;
+  if(PROG.mistakes.some(function(x){return x.q===txt}))return;
+  PROG.mistakes.push({n:CH.n.id,r:CH.n.rule,q:txt.slice(0,60),ok:typeof okWord==='string'?okWord.slice(0,40):'',ts:Date.now()});
+  save('tajweed_tree_v2',PROG);
+}
+function clPick(i){CH.cl.sel=i;renderQKeep()}
+function renderQKeep(){
+  var sc=document.getElementById('modal').querySelector('#qbody');
+  var keep=sc?sc.innerHTML:'';
+  renderQ();
+}
+function clDrop(box){
+  var c=CH.cl;
+  if(c.sel<0){toast('انقر الكلمة أولاً ثم الصندوق');return}
+  var w=c.words[c.sel];
+  if(w.done){c.sel=-1;renderQ();return}
+  if(w.r===box){
+    w.done=true;c.sel=-1;CH.score++;sndOk();toast('✓ '+w.t+' ← '+box);
+    if(c.words.every(function(x){return x.done})){fb(true,'أحسنت! صنّفت الكلمات الثلاث');goNext(1200)}else renderQ();
+  }else{
+    sndNo();
+    pushMistake('تصنيف: '+w.t+' → '+box,w.r);
+    if(loseHeart())return;
+    c.sel=-1;toast('ليست هنا — تخسر قلباً، حاول مجدداً');renderQ();
+  }
 }
 function finishCH(){
-  var n=CH.n,sc=Math.round(CH.score/CH.qs.length*100)/100;
+  var n=CH.n,sc=Math.round(CH.score/CH.items*100)/100,pass=sc>=0.7;
   var p=PROG.nodes[n.id]||{m:0,att:0,best:0};
-  var first=p.att===0;
-  p.att++;p.best=Math.max(p.best,sc);p.m=Math.max(p.m,sc);
-  PROG.nodes[n.id]=p;
-  var gain=first?Math.round(n.xp*sc):Math.round(n.xp*0.1*sc);
-  try{if(gain>0)XP.add(gain)}catch(e){}
-  save('tajweed_tree_v1',PROG);
-  checkBadges();
-  document.getElementById('modal').innerHTML='<div class="modal-bg"><div class="fade w-full max-w-md rounded-2xl border border-white/10 bg-[#141b31] p-8 text-center">'+
-  '<div class="text-5xl">'+(sc>=0.7?'🎉':'💪')+'</div><h2 class="text-xl font-extrabold mt-2">'+(sc>=0.7?'أتقنت العقدة!':'نتيجة '+Math.round(sc*100)+'% — أعد التحدي للإتقان')+'</h2>'+
-  '<p class="text-sm text-slate-400 mt-1">+'+gain+' XP في رصيدك</p>'+
-  '<button onclick="closeModal();render()" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold">عودة للخريطة ✓</button></div></div>';
+  var first=p.best===0;
+  p.best=Math.max(p.best,sc);
+  var gain=0;
+  if(pass){
+    p.m=Math.max(p.m,sc);
+    gain=first?Math.round(n.xp*sc):Math.round(n.xp*0.1*sc);
+    try{if(gain>0)XP.add(gain)}catch(e){}
+  }
+  PROG.nodes[n.id]=p;save('tajweed_tree_v2',PROG);
+  if(pass)checkBadges();
+  if(pass)boom(true);
+  document.getElementById('modal').innerHTML='<div class="modal-bg"><div class="pop w-full max-w-md rounded-2xl border border-white/10 bg-[#141b31] p-8 text-center">'+
+  '<div class="text-5xl">'+(pass?'🏆':'💔')+'</div><h2 class="text-xl font-extrabold mt-2">'+(pass?(sc>=1?'علامة كاملة! أسطوري':'أتقنت العقدة!'):'نفدت القلوب — حاول مجدداً')+'</h2>'+
+  '<p class="text-sm text-slate-400 mt-1">النتيجة '+CH.score+'/'+CH.items+' ('+Math.round(sc*100)+'%)'+(pass?' • +'+gain+' XP':'')+'</p>'+
+  '<div class="mt-4 flex gap-2"><button onclick="closeModal();render()" class="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-extrabold">عودة للخريطة ✓</button>'+
+  (pass?'':'<button onclick="openChallenge(\''+n.id+'\')" class="flex-1 rounded-xl bg-white/10 py-3 text-sm font-bold">↻ إعادة التحدي</button>')+'</div></div></div>';
   render();
 }
+function failCH(){
+  var p=PROG.nodes[CH.n.id]||{m:0,att:0,best:0};
+  PROG.nodes[CH.n.id]=p;save('tajweed_tree_v2',PROG);
+  document.getElementById('modal').innerHTML='<div class="modal-bg"><div class="pop w-full max-w-md rounded-2xl border border-white/10 bg-[#141b31] p-8 text-center">'+
+  '<div class="text-5xl">💔</div><h2 class="text-xl font-extrabold mt-2">نفدت القلوب الثلاثة!</h2>'+
+  '<p class="text-sm text-slate-400 mt-1">راجع الدرس الكامل ثم عُد أقوى — العقدة بانتظارك.</p>'+
+  '<div class="mt-4 flex gap-2"><button onclick="openLesson(\''+CH.n.id+'\')" class="flex-1 rounded-xl bg-white/10 py-3 text-sm font-bold">📖 مراجعة الدرس</button>'+
+  '<button onclick="openChallenge(\''+CH.n.id+'\')" class="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-extrabold">↻ محاولة جديدة</button></div></div></div>';
+  render();
+}
+
+/* ================= أوسمة + صندوق + معلم ================= */
 function checkBadges(){
-  var has=function(id){return PROG.badges.indexOf(id)>-1},give=function(id,t){if(!has(id)){PROG.badges.push(id);save('tajweed_tree_v1',PROG);toast('🏅 وسام جديد: '+t)}};
+  var has=function(id){return PROG.badges.indexOf(id)>-1},give=function(id,t){if(!has(id)){PROG.badges.push(id);save('tajweed_tree_v2',PROG);toast('🏅 وسام جديد: '+t);boom(false)}};
   var c=function(id){var p=PROG.nodes[id];return p&&p.m>=0.7};
   if(Object.keys(PROG.nodes).length>0)give('b_first','الخطوة الأولى 🌱');
-  if(c('n-izhar')&&c('n-idgham')&&c('n-iqlab')&&c('n-ikhfa'))give('b_noon','خبير النون الساكنة 🟢');
-  if(c('n-madd'))give('b_madd','بطل المدود 📏');
-  if(c('n-qalq'))give('b_qal','متقن القلقلة 🔔');
+  if(c('m-izhar')&&c('m-idgham')&&c('m-iqlab')&&c('m-ikhfa'))give('b_noon','خبير الساكنات 🟢');
+  if(c('a-madd'))give('b_madd','بطل المدود 📏');
+  if(c('b-qalq'))give('b_qal','متقن القلقلة 🔔');
   try{
     if(XP.get()>=500)give('b_xp500','صاحب الـ500 ⚡');
     if(XP.streak()>=7)give('b_streak7','المثابر 🔥');
@@ -327,16 +454,15 @@ function renderBadges(){
 function renderVault(){
   var v=document.getElementById('vault');
   if(!PROG.mistakes.length){v.innerHTML='<p class="text-sm text-slate-500">صندوقك فارغ — أحسنت! ستظهر هنا الأسئلة التي تخطئ فيها لتراجعها.</p>';return}
-  v.innerHTML=PROG.mistakes.slice().reverse().map(function(m,i){
+  v.innerHTML=PROG.mistakes.slice().reverse().slice(0,12).map(function(m){
     var n=NODES.find(function(x){return x.id===m.n});
+    if(!n)return '';
     return '<div class="fade flex items-center gap-2 rounded-xl border border-white/10 bg-white/[.02] p-3 text-xs flex-wrap">'+
     '<span class="font-bold text-orange-300">✗ '+m.q+'</span><span class="text-emerald-300">✓ '+m.ok+'</span>'+
     '<button onclick="SEL=\''+m.n+'\';openChallenge(\''+m.n+'\')" class="mr-auto rounded-lg bg-emerald-500 px-4 py-1.5 font-bold text-white">تدرب الآن</button></div>';
   }).join('');
 }
-function clearVault(){PROG.mistakes=[];save('tajweed_tree_v1',PROG);renderVault();render()}
-
-/* ================= وضع المعلم ================= */
+function clearVault(){PROG.mistakes=[];save('tajweed_tree_v2',PROG);renderVault();render()}
 function toggleTeacher(){
   var el=document.getElementById('teacher'),open=el.style.display!=='none';
   el.style.display=open?'none':'block';
@@ -358,7 +484,7 @@ function renderHWNode(){
 function makeHW(){
   var id=document.getElementById('hwNode').value,n=NODES.find(function(x){return x.id===id});
   var code='HW-'+Math.random().toString(36).slice(2,6).toUpperCase();
-  PROG.hw.push({code:code,node:n.t,ts:Date.now()});save('tajweed_tree_v1',PROG);renderHW();
+  PROG.hw.push({code:code,node:n.t,ts:Date.now()});save('tajweed_tree_v2',PROG);renderHW();
   toast('تم إنشاء الواجب '+code);
 }
 function renderHW(){
@@ -367,7 +493,7 @@ function renderHW(){
     return '<div class="rounded-lg bg-black/30 border border-white/10 p-2">📌 <b>'+h.code+'</b> — '+h.node+' <button onclick="copyHW(\''+h.code+'\')" class="text-emerald-300 font-bold">نسخ</button></div>';
   }).join(''):'<p class="text-slate-500">لا واجبات بعد — اختر عقدة وأنشئ أول واجب.</p>';
 }
-function copyHW(c){try{navigator.clipboard.writeText('واجب التجويد '+c+': افتح demo-lesson.html وأكمل الدرس')}catch(e){}toast('نُسخ الواجب '+c)}
+function copyHW(c){try{navigator.clipboard.writeText('واجب التجويد '+c)}catch(e){}toast('نُسخ الواجب '+c)}
 render();
 </script>
 </body>
