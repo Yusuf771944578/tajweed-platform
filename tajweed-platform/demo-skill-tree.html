@@ -170,7 +170,7 @@ function render(){
     return '<div class="mb-2 flex items-center gap-3"><span class="text-[11px] font-bold text-slate-500">المستوى '+(+t+1)+'</span><div class="h-px flex-1 bg-white/10"></div></div>'+
     '<div class="mb-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">'+tiers[t].map(cardHTML).join('')+'</div>';
   }).join('');
-  applyT();requestAnimationFrame(drawLinks);
+  applyT();drawLinks();setTimeout(drawLinks,300);setTimeout(drawLinks,1200);
   renderDetail();renderBadges();renderVault();renderHWNode();
 }
 function cardHTML(n){
