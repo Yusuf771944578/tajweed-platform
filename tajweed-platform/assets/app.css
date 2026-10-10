@@ -150,6 +150,7 @@ button{font-family:inherit}
 @media print{
 .tabbar{display:none!important}
 body{padding-bottom:0!important}
+}
 
 /* ---------- الوضع النهاري ---------- */
 [data-theme="light"] body{background:#eef2f7;color:#0f172a}
