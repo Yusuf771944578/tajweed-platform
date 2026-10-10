@@ -400,6 +400,7 @@ function clDrop(box){
   }
 }
 function finishCH(){
+  if(CH.done)return;CH.done=true;
   var n=CH.n,sc=Math.round(CH.score/CH.items*100)/100,pass=sc>=0.7;
   var p=PROG.nodes[n.id]||{m:0,att:0,best:0};
   var first=p.best===0;
