@@ -11,7 +11,7 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 .qline{font-family:'Amiri Quran','KFGQPC Uthman Taha Naskh',serif;line-height:3;word-spacing:.4rem}
 .wd{white-space:nowrap;margin-inline:var(--cg,8px)}
 .lt{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:64px;padding:0 .45rem;margin:.15rem .06rem;border-radius:.8rem;border:2px solid transparent;cursor:pointer;transition:all .15s ease;vertical-align:middle;touch-action:manipulation;user-select:none;-webkit-user-select:none}
-.lt:hover{border-color:rgba(255,255,255,.4);transform:translateY(-3px)}
+.lt:hover{border-color:rgba(255,255,255,.4)}
 .lt.dk{border-style:dashed;opacity:.92}
 @media (pointer:coarse){.lt{min-width:62px;min-height:76px}}
 .pc0{background:rgba(16,185,129,.18);color:#6ee7b7;border-color:rgba(52,211,153,.7)}
@@ -127,12 +127,12 @@ body{background:#fff!important;color:#000!important}
 <script src="assets/site.js"></script>
 <script>
 var COLORS=[
-{n:'أخضر',c:'pc0',dot:'#34d399'},
-{n:'أصفر',c:'pc1',dot:'#fbbf24'},
-{n:'أحمر',c:'pc2',dot:'#fb7185'},
-{n:'أزرق',c:'pc3',dot:'#38bdf8'},
-{n:'بنفسجي',c:'pc4',dot:'#a78bfa'},
-{n:'برتقالي',c:'pc5',dot:'#fb923c'}];
+{n:'أخضر',f:'الخضراء',c:'pc0',dot:'#34d399'},
+{n:'أصفر',f:'الصفراء',c:'pc1',dot:'#fbbf24'},
+{n:'أحمر',f:'الحمراء',c:'pc2',dot:'#fb7185'},
+{n:'أزرق',f:'الزرقاء',c:'pc3',dot:'#38bdf8'},
+{n:'بنفسجي',f:'البنفسجية',c:'pc4',dot:'#a78bfa'},
+{n:'برتقالي',f:'البرتقالية',c:'pc5',dot:'#fb923c'}];
 var RULES={
 izhar:{t:'الإظهار الحلقي',w:'تباعد المخرجين — تُنطق النون واضحة'},
 idgham:{t:'الإدغام',w:'اندماج المخرجين — تدخل النون في الحرف التالي'},
@@ -252,7 +252,7 @@ function explain(){
   if(!ks.length){box.innerHTML='لوّن حرفاً أو أكثر من الأعلى — ثم اختر الحكم المناسب من القائمة لتظهر الصياغة الجاهزة للشرح.';return}
   var parts=ks.map(function(k){
     var c=COLORS[+k];
-    return '<span class="dot" style="background:'+c.dot+'"></span> <b>الحروف '+c.n+'ة:</b> <span class="font-quran" style="font-size:1.4em">'+g[k].join('، ')+'</span>';
+    return '<span class="dot" style="background:'+c.dot+'"></span> <b>الحروف '+c.f+':</b> <span class="font-quran" style="font-size:1.4em">'+g[k].join('، ')+'</span>';
   });
   box.innerHTML=parts.join('<br>')+'<br><b class="text-emerald-300">مواجهتها = '+r.t+':</b> '+r.w+'.';
 }
