@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>استوديو المعلم — لوّن الحروف واستنتج الحكم</title>
-<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app.css?v=9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -33,6 +33,11 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 .fade{animation:fd .3s ease both}@keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 input[type=range]{accent-color:#10b981}
 #bigSec:fullscreen{background:#0B1020;padding:2rem;overflow:auto}
+.theaterExit{display:none;position:fixed;top:12px;left:12px;z-index:99}
+body.theater header,body.theater section:not(#bigSec){display:none!important}
+body.theater .tabbar{display:none!important}
+body.theater #bigSec{border:none;background:transparent}
+body.theater .theaterExit{display:block}
 @media print{
 .no-print{display:none!important}
 body{background:#fff!important;color:#000!important}
@@ -101,7 +106,7 @@ body{background:#fff!important;color:#000!important}
 </div>
 <div id="exp" class="mt-3 rounded-xl bg-black/20 border border-white/10 p-4 text-sm leading-8"></div>
 <!-- دليل الألوان المقترح -->
-<div class="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-7 no-print">
+<div id="legBox" class="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-7 no-print">
 <b>🎨 الدليل المقترح:</b>
 <span class="dot" style="background:#34d399"></span> نون ساكنة / تنوين
 <span class="dot" style="background:#fbbf24"></span> حرف الحكم
@@ -114,17 +119,19 @@ body{background:#fff!important;color:#000!important}
 
 <!-- العرض المكبر -->
 <section id="bigSec" class="mt-4 rounded-2xl border border-white/10 bg-white/[.04] p-5 text-center">
+<button class="theaterExit rounded-xl bg-rose-500 px-5 py-2.5 text-sm font-extrabold text-white" onclick="document.body.classList.remove('theater')">✕ خروج من العرض</button>
 <h2 class="font-extrabold no-print">📺 العرض المكبّر للصف</h2>
 <div id="big" class="qline mt-2" style="font-size:64px;line-height:2.4"></div>
 <div class="mt-3 flex gap-2 justify-center flex-wrap no-print">
 <button onclick="goFull()" class="rounded-xl bg-emerald-500 px-6 py-2.5 text-sm font-extrabold text-white">⛶ ملء الشاشة للعارض</button>
+<button onclick="exportPNG()" class="rounded-xl bg-sky-500 px-6 py-2.5 text-sm font-extrabold text-white">🖼 تصدير كصورة</button>
 <button onclick="shareLink()" class="rounded-xl bg-white/5 border border-white/10 px-6 py-2.5 text-sm font-bold">🔗 نسخ رابط اللوحة</button>
 <button onclick="window.print()" class="rounded-xl bg-white/5 border border-white/10 px-6 py-2.5 text-sm font-bold">🖨 حفظ PDF / طباعة</button>
 </div>
 </section>
 </div>
 
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v=9"></script>
 <script>
 var COLORS=[
 {n:'أخضر',f:'الخضراء',c:'pc0',dot:'#34d399'},
@@ -281,15 +288,57 @@ function speak(){
 function toggleQuiz(){
   quiz=!quiz;
   document.getElementById('exp').classList.toggle('blurred',quiz);
-  document.getElementById('quizBtn').textContent=quiz?'👁 كشف الحكم':'🙈 وضع الاختبار: إخفاء الحكم';
+  try{document.getElementById('legBox').classList.toggle('blurred',quiz)}catch(e){}
+  document.getElementById('quizBtn').textContent=quiz?'👁 كشف الحكم والدليل':'🙈 وضع الاختبار: إخفاء الحكم';
 }
 function goFull(){
   var el=document.getElementById('bigSec');
   try{
-    if(document.fullscreenElement)document.exitFullscreen();
-    else if(el.requestFullscreen)el.requestFullscreen();
-    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+    if(document.fullscreenElement){document.exitFullscreen();return}
+    if(el.requestFullscreen){el.requestFullscreen();return}
+    if(el.webkitRequestFullscreen){el.webkitRequestFullscreen();return}
   }catch(e){}
+  document.body.classList.toggle('theater');
+}
+async function exportPNG(){
+  try{
+    var rule=RULES[document.getElementById('rule').value];
+    var fontCss='';
+    try{
+      var buf=await (await fetch('assets/fonts/amiri-quran-400.woff2')).arrayBuffer();
+      var bytes=new Uint8Array(buf),bin='';
+      for(var i=0;i<bytes.length;i+=32768){bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+32768))}
+      fontCss="@font-face{font-family:'Amiri Quran';src:url(data:font/woff2;base64,"+btoa(bin)+") format('woff2');}";
+    }catch(e){}
+    var css=".qline{font-family:'Amiri Quran',serif;line-height:2.6;text-align:center;direction:rtl;}"+
+    ".wd{white-space:nowrap;margin:0 10px}.lt{display:inline-block;padding:4px 12px;margin:4px;border-radius:14px;border:3px solid transparent;vertical-align:middle}"+
+    ".pc0{background:#d1fae5;color:#065f46;border-color:#10b981}.pc1{background:#fef3c7;color:#92400e;border-color:#f59e0b}"+
+    ".pc2{background:#ffe4e6;color:#9f1239;border-color:#f43f5e}.pc3{background:#e0f2fe;color:#0c4a6e;border-color:#0ea5e9}"+
+    ".pc4{background:#ede9fe;color:#5b21b6;border-color:#8b5cf6}.pc5{background:#ffedd5;color:#9a3412;border-color:#f97316}";
+    var clone=document.getElementById('board').cloneNode(true);
+    clone.removeAttribute('id');clone.removeAttribute('style');
+    clone.setAttribute('style','font-size:46px;background:#ffffff;color:#111827;padding:30px;border-radius:8px;');
+    var W=1200,H=860;
+    var inner=new XMLSerializer().serializeToString(clone);
+    var expTxt=document.getElementById('exp').innerText||'';
+    var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="background:#ffffff;color:#111827;font-family:Tahoma,Arial;padding:30px;direction:rtl;">'+
+    '<div style="text-align:center;font-weight:800;font-size:24px;margin-bottom:6px;">'+wordsText()+' — '+rule.t+'</div>'+
+    '<style>'+fontCss+css+'</style>'+inner+
+    '<div style="margin-top:12px;font-size:17px;text-align:center">'+expTxt.replace(/</g,'')+'</div>'+
+    '<div style="margin-top:8px;font-size:13px;color:#6b7280;text-align:center">منصة التجويد التفاعلية</div>'+
+    '</div></foreignObject></svg>';
+    var img=new Image();
+    img.onload=function(){
+      try{
+        var s=2,cv=document.createElement('canvas');cv.width=W*s;cv.height=H*s;
+        var cx=cv.getContext('2d');cx.scale(s,s);cx.fillStyle='#fff';cx.fillRect(0,0,W,H);
+        cx.drawImage(img,0,0,W,H);
+        var a=document.createElement('a');a.download='tajweed-board.png';a.href=cv.toDataURL('image/png');document.body.appendChild(a);a.click();a.remove();
+      }catch(err){alert('تعذّر التصدير — جرّب حفظ PDF')}
+    };
+    img.onerror=function(){alert('تعذّر التصدير — جرّب حفظ PDF')};
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  }catch(e){alert('تعذّر التصدير — جرّب حفظ PDF')}
 }
 function shareLink(){
   try{
