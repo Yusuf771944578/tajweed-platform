@@ -202,3 +202,10 @@ body{padding-bottom:70px}
 .bg-\[\#141b31\]{background-color:#141b31}
 .max-w-lg{max-width:32rem}
 .border-dashed{border-style:dashed}
+/* تباين الوضع النهاري: تغميق الألوان الفاتحة لقراءة مريحة */
+[data-theme="light"] .text-emerald-300{color:#047857}
+[data-theme="light"] .text-amber-300{color:#b45309}
+[data-theme="light"] .text-sky-300{color:#0369a1}
+[data-theme="light"] .text-violet-300{color:#6d28d9}
+[data-theme="light"] .text-rose-300{color:#be123c}
+[data-theme="light"] .text-orange-300{color:#c2410c}

@@ -181,7 +181,7 @@ try{document.getElementById('totalXp').textContent=XP.get()+' XP';document.getEl
 /* لعبة التذوق المصغرة */
 var TASTE=[
 {rule:'الإظهار الحلقي',words:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]],ok:'✓ أحسنت! الخاء من حروف الحلق ← إظهار'},
-{rule:'القلقلة',words:[['قُلْ',1],['هُوَ',0],['أَحَدٌ',0]],ok:'✓ صحيح! القاف ساكنة من (قطب جد) ← قلقلة'},
+{rule:'القلقلة',words:[['يَقْطَعُونَ',1],['يَكْتُبُ',0]],ok:'✓ صحيح! القاف ساكنة وسط الكلمة ← قلقلة صغرى'},
 {rule:'الإخفاء الحقيقي',words:[['مِن',0],['فَضْلِ',1],['ٱللَّهِ',0]],ok:'✓ ممتاز! النون + الفاء ← إخفاء بغنة'}];
 var _tq=0;
 function tasteRender(){var q=TASTE[_tq];document.getElementById('tasteRule').textContent=q.rule;

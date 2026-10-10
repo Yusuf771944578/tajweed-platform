@@ -66,8 +66,8 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 </div>
 
 <section class="mt-4 rounded-2xl border border-white/10 bg-white/[.03] p-5">
-<h2 class="font-extrabold">🏅 الأوسمة والشارات</h2>
-<div id="badges" class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2"></div>
+<h2 class="font-extrabold">🏅 سلم الأوسمة والرتب <span class="text-xs text-slate-400">(من المستوى 10 إلى 1)</span></h2>
+<div id="badges" class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2"></div>
 </section>
 
 <section class="mt-4 rounded-2xl border border-white/10 bg-white/[.03] p-5">
@@ -100,23 +100,23 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 <script>
 /* ================= المنهج الجديد: 3 وحدات ================= */
 var NODES=[
-{id:'b-ghunna',t:'النون والميم المشددتان',s:'الغنة أكمل ما تكون — ٱلنَّاسِ، ثُمَّ',mod:'beg',tier:0,xp:50,l:3,min:10,req:[],rule:'ghunna',ex:'إِنَّ ٱللَّهَ'},
-{id:'b-qalq',t:'القلقلة وحروفها',s:'قطب جد — قُلْ، أَحَدْ، ٱلْفَلَقْ',mod:'beg',tier:0,xp:60,l:3,min:12,req:[],rule:'qalqalah',ex:'قُلْ هُوَ ٱللَّهُ أَحَدٌ'},
-{id:'b-maddtab',t:'المد الطبيعي',s:'أسبابه: الهمز والسكون — قَالَ',mod:'beg',tier:0,xp:60,l:3,min:12,req:[],rule:'maddtab',ex:'قَالُوا'},
-{id:'m-noon',t:'مدخل النون الساكنة والتنوين',s:'تعريف السكون والتنوين',mod:'mid',tier:1,xp:40,l:3,min:10,req:['b-ghunna','b-qalq','b-maddtab'],rule:'noon',ex:'كِتَابٌ'},
-{id:'m-izhar',t:'الإظهار الحلقي',s:'ء هـ ع ح غ خ',mod:'mid',tier:2,xp:80,l:5,min:15,req:['m-noon'],rule:'izhar',ex:'مِنْ خَشْيَةِ ٱللَّهِ'},
-{id:'m-idgham',t:'الإدغام',s:'بغنة وبغير غنة — يرملون',mod:'mid',tier:2,xp:100,l:6,min:20,req:['m-noon'],rule:'idgham',ex:'مَن يَقُولُ'},
-{id:'m-iqlab',t:'الإقلاب',s:'النون + الباء ← ميم مخفاة',mod:'mid',tier:2,xp:100,l:4,min:15,req:['m-noon'],rule:'iqlab',ex:'مِن بَعْدِ'},
-{id:'m-ikhfa',t:'الإخفاء الحقيقي',s:'15 حرفاً + غنة حركتين',mod:'mid',tier:3,xp:120,l:6,min:25,req:['m-idgham','m-iqlab'],rule:'ikhfa',ex:'مِن فَضْلِ ٱللَّهِ'},
-{id:'m-meem',t:'أحكام الميم الساكنة',s:'إخفاء شفوي • إدغام • إظهار',mod:'mid',tier:3,xp:120,l:5,min:20,req:['m-izhar'],rule:'meem',ex:'هُم بِهِ'},
-{id:'a-madd',t:'المدود الفرعية',s:'متصل • منفصل • عارض • لازم',mod:'adv',tier:4,xp:180,l:8,min:30,req:['m-ikhfa','m-meem'],rule:'maddadv',ex:'جَآءَ'},
-{id:'a-tafkheem',t:'التفخيم والترقيق',s:'الاستعلاء • الراء • لام الجلالة',mod:'adv',tier:4,xp:180,l:6,min:25,req:['m-meem'],rule:'tafkheem',ex:'خَالِدِينَ'},
-{id:'a-makharij',t:'المخارج والصفات',s:'17 مخرجاً وأمهات الصفات',mod:'adv',tier:5,xp:200,l:8,min:30,req:['a-tafkheem'],rule:'makharij',ex:'حروف الحلق واللسان'},
-{id:'a-waqf',t:'الوقف والابتداء',s:'أين تقف وأين تبدأ',mod:'adv',tier:5,xp:200,l:6,min:25,req:['a-madd','a-makharij'],rule:'waqf',ex:'نهاية الآيات'}];
+{id:'b-ghunna',xpl:0,t:'النون والميم المشددتان',s:'الغنة أكمل ما تكون — ٱلنَّاسِ، ثُمَّ',mod:'beg',tier:0,xp:50,l:3,min:10,req:[],rule:'ghunna',ex:'إِنَّ ٱللَّهَ'},
+{id:'b-qalq',xpl:0,t:'القلقلة وحروفها',s:'قطب جد — يَقْطَعُونَ، ٱلْفَلَقْ وقفاً',mod:'beg',tier:0,xp:60,l:3,min:12,req:[],rule:'qalqalah',ex:'يَقْطَعُونَ • ٱلْفَلَقْ (وقفاً)'},
+{id:'b-maddtab',xpl:0,t:'المد الطبيعي',s:'أسبابه: الهمز والسكون — قَالَ',mod:'beg',tier:0,xp:60,l:3,min:12,req:[],rule:'maddtab',ex:'قَالُوا'},
+{id:'m-noon',xpl:50,t:'مدخل النون الساكنة والتنوين',s:'تعريف السكون والتنوين',mod:'mid',tier:1,xp:40,l:3,min:10,req:['b-ghunna','b-qalq','b-maddtab'],rule:'noon',ex:'كِتَابٌ'},
+{id:'m-izhar',xpl:120,t:'الإظهار الحلقي',s:'ء هـ ع ح غ خ',mod:'mid',tier:2,xp:80,l:5,min:15,req:['m-noon'],rule:'izhar',ex:'مِنْ خَشْيَةِ ٱللَّهِ'},
+{id:'m-idgham',xpl:120,t:'الإدغام',s:'بغنة وبغير غنة — يرملون',mod:'mid',tier:2,xp:100,l:6,min:20,req:['m-noon'],rule:'idgham',ex:'مَن يَقُولُ'},
+{id:'m-iqlab',xpl:120,t:'الإقلاب',s:'النون + الباء ← ميم مخفاة',mod:'mid',tier:2,xp:100,l:4,min:15,req:['m-noon'],rule:'iqlab',ex:'مِن بَعْدِ'},
+{id:'m-ikhfa',xpl:250,t:'الإخفاء الحقيقي',s:'15 حرفاً + غنة حركتين',mod:'mid',tier:3,xp:120,l:6,min:25,req:['m-idgham','m-iqlab'],rule:'ikhfa',ex:'مِن فَضْلِ ٱللَّهِ'},
+{id:'m-meem',xpl:250,t:'أحكام الميم الساكنة',s:'إخفاء شفوي • إدغام • إظهار',mod:'mid',tier:3,xp:120,l:5,min:20,req:['m-izhar'],rule:'meem',ex:'هُم بِهِ'},
+{id:'a-madd',xpl:500,t:'المدود الفرعية',s:'متصل • منفصل • عارض • لازم',mod:'adv',tier:4,xp:180,l:8,min:30,req:['m-ikhfa','m-meem'],rule:'maddadv',ex:'جَآءَ'},
+{id:'a-tafkheem',xpl:500,t:'التفخيم والترقيق',s:'الاستعلاء • الراء • لام الجلالة',mod:'adv',tier:4,xp:180,l:6,min:25,req:['m-meem'],rule:'tafkheem',ex:'خَالِدِينَ'},
+{id:'a-makharij',xpl:800,t:'المخارج والصفات',s:'17 مخرجاً وأمهات الصفات',mod:'adv',tier:5,xp:200,l:8,min:30,req:['a-tafkheem'],rule:'makharij',ex:'حروف الحلق واللسان'},
+{id:'a-waqf',xpl:1000,t:'الوقف والابتداء',s:'أين تقف وأين تبدأ',mod:'adv',tier:5,xp:200,l:6,min:25,req:['a-madd','a-makharij'],rule:'waqf',ex:'نهاية الآيات'}];
 var MODS=[['ALL','الكل'],['beg','🌱 البراعم (ابتدائية)'],['mid','⚙ المتوسطة'],['adv','🎓 المتقدمة']];
 var BANK={
-ghunna:{click:{p:'انقر النون المشددة',w:[['إِنَّ',1],['مِن',0]],e:'النون المشددة تُغنّ أكمل ما تكون بمقدار حركتين'},audio:{t:'إِنَّ ٱللَّهَ',q:'أي حكم سمعت في النون المشددة؟',o:['غنة أكمل ما تكون','إظهار','قلقلة'],c:0,e:'المشدد يُغنّ دائماً حركتين'},classify:{boxes:['غنة مشددة','قلقلة','مد طبيعي'],words:[['ٱلنَّاسِ','غنة مشددة'],['ٱلْفَلَقْ','قلقلة'],['قَالُوا','مد طبيعي']]},m:[{q:'مقدار غنة النون والميم المشددتين؟',o:['حركتان','حركة','4 حركات'],c:0,e:'الغنة في المشدد أكمل ما تكون: حركتان'},{q:'من أمثلة الغنة الكاملة…',o:['ثُمَّ وعَمَّ','قُلْ','كَتَبَ'],c:0,e:'ثُمَّ وعَمَّ: ميم ونون مشددتان'}]},
-qalqalah:{click:{p:'انقر الحرف المقلقَل',w:[['قُلْ',1],['هُوَ',0]],e:'القاف ساكنة من (قطب جد) → قلقلة صغرى'},audio:{t:'قُلْ هُوَ ٱللَّهُ أَحَدٌ',q:'أين القلقلة فيما سمعت؟',o:['القاف في قُلْ','الهاء','الدال'],c:0,e:'القاف ساكنة في الأول → قلقلة، والدال موقوف عليها → كبرى'},classify:{boxes:['قلقلة','غنة مشددة','إظهار'],words:[['أَحَدْ','قلقلة'],['عَمَّ','غنة مشددة'],['مِنْ خَشْيَةِ','إظهار']]},m:[{q:'حروف القلقلة مجموعة في…',o:['قطب جد','يرملون','ء هـ ع'],c:0,e:'القاف والطاء والباء والجيم والدال السواكن'},{q:'القلقلة الكبرى تكون…',o:['عند الوقف على الحرف','وسط الكلمة','مع الغنة'],c:0,e:'السكون العارض بالوقف أقوى اهتزازاً'}]},
+ghunna:{click:{p:'انقر النون المشددة',w:[['إِنَّ',1],['مِن',0]],e:'النون المشددة تُغنّ أكمل ما تكون بمقدار حركتين'},audio:{t:'إِنَّ ٱللَّهَ',q:'أي حكم سمعت في النون المشددة؟',o:['غنة أكمل ما تكون','إظهار','قلقلة'],c:0,e:'المشدد يُغنّ دائماً حركتين'},classify:{boxes:['غنة مشددة','قلقلة','مد طبيعي'],words:[['ٱلنَّاسِ','غنة مشددة'],['ٱلْفَلَقْ','قلقلة'],['قَالُوا','مد طبيعي']]},m:[{q:'مقدار غنة النون والميم المشددتين؟',o:['حركتان','حركة','4 حركات'],c:0,e:'الغنة في المشدد أكمل ما تكون: حركتان'},{q:'من أمثلة الغنة الكاملة…',o:['ثُمَّ وعَمَّ','يَكْتُبُ','كَتَبَ'],c:0,e:'ثُمَّ وعَمَّ: ميم ونون مشددتان'}]},
+qalqalah:{click:{p:'انقر الحرف المقلقَل',w:[['يَقْطَعُونَ',1],['يَعْلَمُ',0]],e:'القاف ساكنة وسط الكلمة من (قطب جد) → قلقلة صغرى'},audio:{t:'يَقْطَعُونَ',q:'أين القلقلة فيما سمعت؟',o:['القاف الساكنة','الياء','النون'],c:0,e:'القاف ساكنة وسط الكلمة → قلقلة صغرى'},classify:{boxes:['قلقلة','غنة مشددة','إظهار'],words:[['أَحَدْ','قلقلة'],['عَمَّ','غنة مشددة'],['مِنْ خَشْيَةِ','إظهار']]},m:[{q:'حروف القلقلة مجموعة في…',o:['قطب جد','يرملون','ء هـ ع'],c:0,e:'القاف والطاء والباء والجيم والدال السواكن'},{q:'القلقلة الكبرى تكون…',o:['عند الوقف على الحرف','وسط الكلمة','مع الغنة'],c:0,e:'السكون العارض بالوقف أقوى اهتزازاً'}]},
 maddtab:{click:{p:'انقر الكلمة الممدودة مداً طبيعياً',w:[['قَالُوا',1],['كَتَبَ',0]],e:'الألف الساكنة بعد فتح → مد طبيعي حركتين'},audio:{t:'قَالُوا',q:'ما الحكم المسموع؟',o:['مد طبيعي','غنة','قلقلة'],c:0,e:'إطالة الألف حركتين دون سبب همز أو سكون'},classify:{boxes:['مد طبيعي','قلقلة','غنة'],words:[['قَالَ','مد طبيعي'],['لَمْ يَلِدْ','قلقلة'],['ثُمَّ','غنة']]},m:[{q:'حروف المد الطبيعي؟',o:['ا و ي سواكن مجانس لها ما قبلها','ء هـ ع','قطب جد'],c:0,e:'الألف بعد فتح، والواو بعد ضم، والياء بعد كسر'},{q:'مقدار المد الطبيعي؟',o:['حركتان','4 حركات','6 حركات'],c:0,e:'الطبيعي لا يزيد ولا ينقص عن حركتين'}]},
 noon:{click:{p:'انقر الكلمة التي فيها نون ساكنة',w:[['يَنْهَوْنَ',1],['آمَنُوا',0]],e:'النون الأولى ساكنة أصلية في الفعل'},audio:{t:'مِن فَضْلِ ٱللَّهِ',q:'ما حكم النون التي سمعت؟',o:['إخفاء','إظهار','إدغام'],c:0,e:'النون + الفاء → إخفاء حقيقي بغنة'},classify:{boxes:['إظهار','إدغام','إقلاب'],words:[['مِنْ خَشْيَةِ','إظهار'],['مَن يَقُولُ','إدغام'],['مِن بَعْدِ','إقلاب']]},m:[{q:'ما التنوين؟',o:['نون ساكنة تلحق آخر الاسم لفظاً لا خطاً','نون أصلية','حرف مد'],c:0,e:'التنوين نون ساكنة زائدة تُنطق ولا تُكتب'},{q:'النون الساكنة توجد في…',o:['الأسماء والأفعال والحروف','الأسماء فقط','آخر السور فقط'],c:0,e:'تقع أصلية أو زائدة في الكلمات الثلاث'}]},
 izhar:{click:{p:'انقر كلمة الإظهار الحلقي',w:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]],e:'الخاء حلقية → تُظهر النون'},audio:{t:'عَلِيمًا حَكِيمًا',q:'الحكم المسموع في التنوين؟',o:['إظهار حلقي','إخفاء','إدغام'],c:0,e:'تنوين + حاء → إظهار لتباعد المخرجين'},classify:{boxes:['إظهار','إدغام','إقلاب'],words:[['مِنْ عَمَلٍ','إظهار'],['مِن رَّبِّهِمْ','إدغام'],['مِن بَعْدِ','إقلاب']]},m:[{q:'حروف الإظهار الحلقي؟',o:['ء هـ ع ح غ خ','يرملون','قطب جد'],c:0,e:'ستة أحرف تخرج من الحلق'},{q:'سُمّي إظهاراً لأن النون…',o:['تُنطق واضحة','تُدغم','تُقلب'],c:0,e:'لبعد مخرجها عن حروف الحلق'}]},
@@ -130,7 +130,7 @@ makharij:{click:{p:'انقر حرفاً شفوياً',w:[['م',1],['خ',0],['ق'
 waqf:{click:{p:'انقر رمز الوقف اللازم',w:[['م',1],['ج',0],['ص',0]],e:'الميم: وقف لازم لا توصل بعده'},audio:{t:'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ',q:'أين يَحسُن الوقف؟',o:['على رأس الآية','وسط الكلمة','بعد الحرف الأول'],c:0,e:'الوقف على رؤوس الآي سنة'},classify:{boxes:['وقف لازم','وقف جائز','ممنوع'],words:[['رمز مـ','وقف لازم'],['نهاية الآية','وقف جائز'],['وسط الكلمة','ممنوع']]},m:[{q:'الوقف على رأس الآية حكمه؟',o:['سنة متبعة','ممنوع','مكروه'],c:0,e:'ولو تعلق بما بعده'},{q:'الابتداء يكون بـ…',o:['كلام تام المعنى','نصف كلمة','أي موضع'],c:0,e:'لا تبدأ بما يفسد المعنى'}]}};
 var LESSONS={
 ghunna:{def:'النون والميم المشددتان تُغنّان أكمل ما تكون بمقدار حركتين — وهي أول ما يسمعه الطفل في: ٱلنَّاسِ، ثُمَّ، عَمَّ، ٱلْجَنَّةِ.',rows:[['نّ','مثال: إِنَّ، ٱلنَّاسِ'],['مّ','مثال: ثُمَّ، عَمَّ']],poem:['وَغُنَّ مِيمًا ثُمَّ نُونًا شُدِّدَا','وَسَمِّ كُلاًّ حَرْفَ غُنَّةٍ بَدَا'],ex:'إِنَّ ٱللَّهَ'},
-qalqalah:{def:'حروف (قطب جد): القاف والطاء والباء والجيم والدال — إذا سكنت اهتز مخرجها. صغرى وسط الكلام، وكبرى عند الوقف.',rows:[['ق','قُلْ'],['ط','ٱلطَّارِقُ'],['ب','ٱلْأَبْوَٰبُ'],['ج','ٱلْفَجْرِ'],['د','أَحَدْ']],poem:['صَفِيرُهَا صَادٌ وَزَايٌ سِينُ','قَلْقَلَةٌ قُطْبُ جَدٍّ وَاللِّينُ'],ex:'قُلْ هُوَ ٱللَّهُ أَحَدٌ'},
+qalqalah:{def:'حروف (قطب جد): القاف والطاء والباء والجيم والدال — لا تُقلقل إلا ساكنة: صغرى وسط الكلمة (يَقْطَعُونَ، إِبْرَاهِيمَ)، وكبرى عند الوقف (ٱلْفَلَقْ، أَحَدْ).',rows:[['ق','يَقْطَعُونَ'],['ط','يَطْمَعُونَ'],['ب','إِبْرَاهِيمَ'],['ج','تَجْرِي'],['د','أَحَدْ (وقفاً)']],poem:['صَفِيرُهَا صَادٌ وَزَايٌ سِينُ','قَلْقَلَةٌ قُطْبُ جَدٍّ وَاللِّينُ'],ex:'يَقْطَعُونَ'},
 maddtab:{def:'المد الطبيعي: ألف ساكنة بعد فتح، أو واو بعد ضم، أو ياء بعد كسر — يُمد حركتين فقط، ولا يقوم الحرف إلا به.',rows:[['ا','قَالَ'],['و','يَقُولُ'],['ي','قِيلَ']],poem:['وَالْمَدُّ أَصْلِيٌّ وَفَرْعِيٌّ لَهُ','وَسَمِّ أَوَّلاً طَبِيعِيًّا وَهُو'],ex:'قَالُوا'},
 noon:{def:'النون الساكنة: نون لا حركة لها تثبت لفظاً ووصلاً. والتنوين: نون ساكنة زائدة تلحق آخر الاسم لفظاً لا خطاً. لهما أربعة أحكام.',rows:[['تعريف','نون ساكنة + تنوين = 4 أحكام'],['أين تقع؟','الأسماء والأفعال والحروف']],poem:['لِلنُّونِ إِنْ تَسْكُنْ وَلِلتَّنْوِينِ','أَرْبَعُ أَحْكَامٍ فَخُذْ تَبْيِينِي'],ex:'كِتَابٌ'},
 izhar:{def:'إذا جاء بعد النون الساكنة أو التنوين حرف من حروف الحلق الستة نُطقت النون واضحة من مخرجها.',rows:[['ء','مِنْ أَجْرٍ'],['هـ','مِنْ هَادٍ'],['ع','مِنْ عَمَلٍ'],['ح','عَلِيمًا حَكِيمًا'],['غ','مِنْ غِلٍّ'],['خ','مِنْ خَشْيَةِ']],poem:['فَالأَوَّلُ الإِظْهَارُ قَبْلَ أَحْرُفِ','لِلْحَلْقِ سِتٌّ رُتِّبَتْ فَلْتَعْرِفِ'],ex:'مِنْ خَشْيَةِ ٱللَّهِ'},
@@ -142,13 +142,28 @@ maddadv:{def:'المد الفرعي ما توقف على همز أو سكون: �
 tafkheem:{def:'حروف الاستعلاء (خص ضغط قظ) تُفخم دائماً. والراء واللام تدور بين التفخيم والترقيق.',rows:[['خص ضغط قظ','خَالِدِينَ، صِرَٰطَ'],['راء مرققة','فِرْعَوْنَ، بِسْمِ'],['لام الجلالة','تُفخم بعد فتح/ضم، وتُرقق بعد كسر']],poem:['وَرَقِّقِ الرَّاءَ إِذَا مَا كُسِرَتْ','كَذَاكَ بَعْدَ الْكَسْرِ حَيْثُ سَكَنَتْ'],ex:'خَالِدِينَ'},
 makharij:{def:'مخارج الحروف سبعة عشر على مذهب الخليل: الجوف والحلق واللسان والشفتان والخيشوم.',rows:[['الجوف','حروف المد ا و ي'],['الحلق','ء هـ ع ح غ خ'],['اللسان','أكثر الحروف: ن ل ر س…'],['الشفتان','ب م و'],['الخيشوم','مخرج الغنة']],poem:['مَخَارِجُ الْحُرُوفِ سَبْعَةَ عَشَرْ','عَلَى الَّذِي يَخْتَارُهُ مَنِ اخْتَبَرْ'],ex:'مِنْ خَشْيَةِ'},
 waqf:{def:'قاعدة ذهبية: قِف حيث يتم المعنى، وابدأ بما يُفهِم. الوقف على رؤوس الآي سنة.',rows:[['مـ وقف لازم','لا تصل بعده'],['ج وقف جائز','قف أو صل'],['ممنوع','لا تقف وسط الكلمة']],poem:[],ex:'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ'}};
-var BADGES=[
-{id:'b_first',t:'الخطوة الأولى',d:'أكمل أول عقدة',i:'🌱'},
-{id:'b_noon',t:'خبير الساكنات',d:'أتقن أحكام النون الأربع',i:'🟢'},
-{id:'b_madd',t:'بطل المدود',d:'أتقن المدود الفرعية',i:'📏'},
-{id:'b_qal',t:'متقن القلقلة',d:'أتقن عقدة القلقلة',i:'🔔'},
-{id:'b_xp500',t:'صاحب الـ500',d:'اجمع 500 XP',i:'⚡'},
-{id:'b_streak7',t:'المثابر',d:'حافظ على سلسلة 7 أيام',i:'🔥'}];
+var LEVELS=[
+{l:10,t:'القارئ المبتدئ',xp:0,i:'🔟',req:[]},
+{l:9,t:'طالب الترتيل',xp:100,i:'9️⃣',req:['b-ghunna']},
+{l:8,t:'فرس القلقلة',xp:200,i:'8️⃣',req:['b-qalq']},
+{l:7,t:'متقن المد الطبيعي',xp:350,i:'7️⃣',req:['b-maddtab']},
+{l:6,t:'حارس النون الساكنة',xp:500,i:'6️⃣',req:['m-izhar','m-idgham','m-iqlab','m-ikhfa']},
+{l:5,t:'خبير الميم الساكنة',xp:700,i:'5️⃣',req:['m-meem']},
+{l:4,t:'فارس المدود الفرعية',xp:950,i:'4️⃣',req:['a-madd']},
+{l:3,t:'متقن التفخيم والترقيق',xp:1200,i:'3️⃣',req:['a-tafkheem']},
+{l:2,t:'شيخ المخارج والصفات',xp:1500,i:'2️⃣',req:['a-makharij','a-waqf']},
+{l:1,t:'المقرئ المتقن',xp:2000,i:'🥇',req:['ALL']}];
+function lvlEarned(L){
+  if(myXP()<L.xp)return {ok:false,need:L.xp-myXP()};
+  if(L.req[0]==='ALL'){
+    var all=NODES.every(function(n){var p=PROG.nodes[n.id];return p&&p.m>=0.7});
+    return all?{ok:true}:{ok:false,need:0,missing:['باقي العقد']};
+  }
+  var missing=L.req.filter(function(r){var p=PROG.nodes[r];return !(p&&p.m>=0.7)});
+  return missing.length?{ok:false,need:0,missing:missing}:{ok:true};
+}
+function curLevel(){var c=LEVELS[0];for(var i=0;i<LEVELS.length;i++){if(lvlEarned(LEVELS[i]).ok)c=LEVELS[i]}return c}
+function nextLevel(){var c=curLevel();for(var i=0;i<LEVELS.length;i++){if(LEVELS[i].l===c.l-1)return LEVELS[i]}return null}
 var ROSTER=[
 {n:'أحمد (تجريبي)',done:9,weak:'الإدغام بغنة'},
 {n:'سارة (تجريبي)',done:6,weak:'المدود الفرعية'},
@@ -166,12 +181,27 @@ if(!PROG){
   Object.keys(old.nodes||{}).forEach(function(k){if(MAP[k])PROG.nodes[MAP[k]]=old.nodes[k]});
   save('tajweed_tree_v2',PROG);
 }
+function myXP(){try{return XP.get()}catch(e){return 0}}
+function lockWhy(n){
+  var p=PROG.nodes[n.id],m=p?p.m:0;
+  if(m>=0.7)return null;
+  return {xp:myXP()<(n.xpl||0),pre:n.req.filter(function(r){var q=PROG.nodes[r];return !(q&&q.m>=0.7)})};
+}
+function lockHTML(n){
+  var w=lockWhy(n);if(!w)return '';
+  var h='';
+  if(w.xp){var need=n.xpl,have=myXP(),pc=need?Math.min(100,Math.round(have/need*100)):100;
+    h+='<div class="mt-2 rounded-lg bg-white/5 border border-white/10 p-2 text-[11px] font-bold">🔒 يحتاج '+need+' XP لفك القفل (رصيدك '+have+')<div class="mt-1 h-1.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full rounded-full bg-amber-400" style="width:'+pc+'%"></div></div></div>'}
+  if(w.pre.length){var names=w.pre.map(function(r){var d=NODES.find(function(x){return x.id===r});return d?d.t:r});h+='<div class="mt-1 text-[11px] text-slate-400">📌 يتطلب إتقان: '+names.join('، ')+'</div>'}
+  return h;
+}
 function nodeSt(n){
   var p=PROG.nodes[n.id],m=p?p.m:0;
   if(m>=0.7){
     var bad=PROG.mistakes.some(function(x){return x.n===n.id});
     return bad?'review':'completed';
   }
+  if(myXP()<(n.xpl||0))return 'locked';
   var open=n.req.every(function(r){var q=PROG.nodes[r];return q&&q.m>=0.7});
   if(!open)return 'locked';
   return (p&&p.att>0)?'in-progress':'available';
@@ -221,6 +251,7 @@ function cardHTML(n){
   '<div class="flex justify-between items-start gap-2"><div class="h-11 w-11 flex items-center justify-center rounded-xl bg-black/30 text-lg font-extrabold">'+(s==='locked'?'🔒':s==='completed'?'✓':s==='review'?'🔄':'◈')+'</div>'+
   '<div class="flex flex-col items-end gap-1">'+BDG[s]+'<span class="text-[10px] text-slate-400">'+modName(n.mod)+'</span></div></div>'+
   '<h3 class="mt-3 font-extrabold '+(s==='locked'?'text-slate-500':'')+'">'+n.t+'</h3><p class="text-xs text-slate-400">'+n.s+'</p>'+
+  (s==='locked'?lockHTML(n):'')+
   (m>0?'<div class="mt-3 h-1.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full rounded-full '+(m>=0.7?'bg-emerald-400':'bg-sky-400')+'" style="width:'+Math.round(m*100)+'%"></div></div>':'')+
   '<div class="mt-2 flex justify-between text-[11px] text-slate-400"><span>⚡ '+n.xp+' XP</span><span>'+n.l+' دروس • '+n.min+' د</span></div></button>';
 }
@@ -235,7 +266,7 @@ function renderDetail(){
   '<div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold">'+Math.round(p.m*100)+'%</div><div class="text-[10px] text-slate-400">الإتقان</div></div>'+
   '<div class="rounded-xl bg-black/30 p-2.5"><div class="text-lg font-extrabold">'+p.att+'</div><div class="text-[10px] text-slate-400">محاولات</div></div></div>'+
   (req?'<div class="mt-3 text-xs"><b>المتطلبات:</b><br>'+req+'</div>':'')+
-  (s==='locked'?'<button disabled class="mt-4 w-full rounded-xl bg-white/5 py-3 text-sm font-bold text-slate-500 cursor-not-allowed">🔒 مغلق — أتقن المتطلبات أولاً</button>'
+  (s==='locked'?lockHTML(n)+'<button disabled class="mt-2 w-full rounded-xl bg-white/5 py-3 text-sm font-bold text-slate-500 cursor-not-allowed">🔒 مغلق</button>'
   :'<button onclick="openLesson(\''+n.id+'\')" class="mt-4 w-full rounded-xl bg-white/5 border border-white/10 py-2.5 text-sm font-bold">📖 الدرس الكامل أولاً</button>'+
   '<button onclick="openChallenge(\''+n.id+'\')" class="mt-2 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white hover:bg-emerald-400">'+(s==='completed'||s==='review'?'🔄 تحدي المراجعة':'⚔️ ابدأ التحدي — 5 أسئلة و3 قلوب')+'</button>')+'</div>';
 }
@@ -434,22 +465,25 @@ function failCH(){
 
 /* ================= أوسمة + صندوق + معلم ================= */
 function checkBadges(){
-  var has=function(id){return PROG.badges.indexOf(id)>-1},give=function(id,t){if(!has(id)){PROG.badges.push(id);save('tajweed_tree_v2',PROG);toast('🏅 وسام جديد: '+t);boom(false)}};
-  var c=function(id){var p=PROG.nodes[id];return p&&p.m>=0.7};
-  if(Object.keys(PROG.nodes).length>0)give('b_first','الخطوة الأولى 🌱');
-  if(c('m-izhar')&&c('m-idgham')&&c('m-iqlab')&&c('m-ikhfa'))give('b_noon','خبير الساكنات 🟢');
-  if(c('a-madd'))give('b_madd','بطل المدود 📏');
-  if(c('b-qalq'))give('b_qal','متقن القلقلة 🔔');
+  var give=function(L){var id='L'+L.l;if(PROG.badges.indexOf(id)<0){PROG.badges.push(id);save('tajweed_tree_v2',PROG);toast('🏅 مستوى جديد: م'+L.l+' '+L.t+' '+L.i);boom(false)}};
+  LEVELS.forEach(function(L){if(lvlEarned(L).ok)give(L)});
   try{
-    if(XP.get()>=500)give('b_xp500','صاحب الـ500 ⚡');
-    if(XP.streak()>=7)give('b_streak7','المثابر 🔥');
+    if(XP.streak()>=7&&PROG.badges.indexOf('STREAK7')<0){PROG.badges.push('STREAK7');save('tajweed_tree_v2',PROG);toast('🔥 وسام المثابر: سلسلة 7 أيام')}
   }catch(e){}
 }
 function renderBadges(){
-  document.getElementById('badges').innerHTML=BADGES.map(function(b){
-    var on=PROG.badges.indexOf(b.id)>-1;
+  var cur=curLevel(),nx=nextLevel();
+  try{document.getElementById('hrk').textContent='🎖 المستوى '+cur.l+' — '+cur.t;}catch(e){}
+  var nxTxt=nx?('القادم: م'+nx.l+' '+nx.t+' (باقي '+Math.max(0,nx.xp-myXP())+' XP)':'القمة! 🏆');
+  document.getElementById('badges').innerHTML='<p class="text-xs text-slate-400" style="grid-column:1/-1">مستواك: <b class="text-amber-300">م'+cur.l+' '+cur.t+'</b> ('+myXP()+' XP) • '+nxTxt+'</p>'+
+  LEVELS.map(function(L){
+    var e=lvlEarned(L),on=e.ok;
+    var sub=on?'✓ مفتوح':((e.need||0)>0?('🔒 باقي '+e.need+' XP'):'🔒 أكمل: '+(e.missing||[]).map(function(r){var d=NODES.find(function(x){return x.id===r});return d?d.t:r}).join('، '));
+    var pc=L.xp?Math.min(100,Math.round(myXP()/L.xp*100)):100;
     return '<div class="badge '+(on?'':'off')+' rounded-xl border p-3 text-center '+(on?'border-amber-300/50 bg-amber-400/5':'border-white/10 bg-white/[.02]')+'">'+
-    '<div class="text-2xl">'+b.i+'</div><div class="mt-1 text-xs font-extrabold">'+b.t+'</div><div class="text-[10px] text-slate-400">'+b.d+'</div></div>';
+    '<div class="text-2xl">'+L.i+'</div><div class="mt-1 text-xs font-extrabold">م'+L.l+' '+L.t+'</div>'+
+    '<div class="text-[10px] text-slate-400">'+L.xp+' XP • '+sub+'</div>'+
+    '<div class="mt-1 h-1 rounded-full bg-black/40 overflow-hidden"><div class="h-full bg-amber-400" style="width:'+pc+'%"></div></div></div>';
   }).join('');
 }
 function renderVault(){
