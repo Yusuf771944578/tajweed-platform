@@ -35,6 +35,7 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 </style>
 </head>
 <body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div id="errbox" style="display:none" class="max-w-6xl mx-auto mt-2 rounded-xl bg-rose-500/15 border border-rose-500/50 p-3 text-xs font-bold text-rose-300"></div>
 <div class="max-w-6xl mx-auto p-4 md:p-8" id="app">
 
 <header class="rounded-2xl border border-white/10 bg-white/[.04] p-4 md:p-5">
@@ -92,6 +93,7 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 </section>
 </div>
 
+<div class="mt-4 text-center text-[11px] text-slate-500">إصدار الشجرة <b id="bld"></b> • إن ظهرت الصفحة فارغة اضغط: <button onclick="location.href=location.pathname+'?v='+Date.now()" class="font-bold text-emerald-300">↻ تحديث النسخة</button></div>
 <div id="modal"></div>
 <div id="toast" class="rounded-xl bg-emerald-500 text-white px-6 py-3 text-sm font-extrabold shadow-lg"></div>
 
@@ -99,6 +101,8 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 <script src="assets/site.js?v=9"></script>
 <script>
 /* ================= المنهج الجديد: 3 وحدات ================= */
+var BUILD='tree-v8-1010';
+window.onerror=function(m){try{var b=document.getElementById('errbox');if(b){b.style.display='block';b.innerHTML+='<div>⚠ خطأ: '+String(m).slice(0,140)+'</div>'}}catch(e){};return false};
 var NODES=[
 {id:'b-ghunna',xpl:0,t:'النون والميم المشددتان',s:'الغنة أكمل ما تكون — ٱلنَّاسِ، ثُمَّ',mod:'beg',tier:0,xp:50,l:3,min:10,req:[],rule:'ghunna',ex:'إِنَّ ٱللَّهَ'},
 {id:'b-qalq',xpl:0,t:'القلقلة وحروفها',s:'قطب جد — يَقْطَعُونَ، ٱلْفَلَقْ وقفاً',mod:'beg',tier:0,xp:60,l:3,min:12,req:[],rule:'qalqalah',ex:'يَقْطَعُونَ • ٱلْفَلَقْ (وقفاً)'},
@@ -529,7 +533,8 @@ function renderHW(){
   }).join(''):'<p class="text-slate-500">لا واجبات بعد — اختر عقدة وأنشئ أول واجب.</p>';
 }
 function copyHW(c){try{navigator.clipboard.writeText('واجب التجويد '+c)}catch(e){}toast('نُسخ الواجب '+c)}
-render();
+try{document.getElementById('bld').textContent=BUILD}catch(e){}
+try{render()}catch(e){var b=document.getElementById('errbox');if(b){b.style.display='block';b.textContent='⚠ تعذر تشغيل الصفحة: '+e.message}}
 </script>
 </body>
 </html>
