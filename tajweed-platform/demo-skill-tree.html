@@ -36,6 +36,7 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 </head>
 <body class="bg-[#0B1020] text-slate-100 min-h-screen">
 <div id="errbox" style="display:none" class="max-w-6xl mx-auto mt-2 rounded-xl bg-rose-500/15 border border-rose-500/50 p-3 text-xs font-bold text-rose-300"></div>
+<div id="dbg" style="display:none" class="max-w-6xl mx-auto mt-2 rounded-xl bg-sky-500/10 border border-sky-500/40 p-3 text-[11px] font-bold text-sky-300"></div>
 <div class="max-w-6xl mx-auto p-4 md:p-8" id="app">
 
 <header class="rounded-2xl border border-white/10 bg-white/[.04] p-4 md:p-5">
@@ -101,7 +102,9 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 <script src="assets/site.js?v=10"></script>
 <script>
 /* ================= المنهج الجديد: 3 وحدات ================= */
-var BUILD='tree-v8-1010';
+var BUILD='tree-v9-1010';
+function mark(s){try{var d=document.getElementById('dbg');if(d){d.style.display='block';d.innerHTML+='<div>'+s+'</div>'}}catch(e){}}
+function safe(fn,name){try{fn();mark('✓ '+name)}catch(e){mark('✗ '+name+': '+String((e&&e.message)||e).slice(0,90))}}
 window.onerror=function(m){try{var b=document.getElementById('errbox');if(b){b.style.display='block';b.innerHTML+='<div>⚠ خطأ: '+String(m).slice(0,140)+'</div>'}}catch(e){};return false};
 var NODES=[
 {id:'b-ghunna',xpl:0,t:'النون والميم المشددتان',s:'الغنة أكمل ما تكون — ٱلنَّاسِ، ثُمَّ',mod:'beg',tier:0,xp:50,l:3,min:10,req:[],rule:'ghunna',ex:'إِنَّ ٱللَّهَ'},
@@ -232,21 +235,26 @@ function render(){
     document.getElementById('hxp').textContent='⚡ '+XP.get()+' XP';
     document.getElementById('hst').textContent='🔥 سلسلة '+XP.streak()+' يوم';
     document.getElementById('hrk').textContent='🎖 '+XP.rank();
-  }catch(e){}
+  }catch(e){mark('✗ header: '+String(e.message||e).slice(0,60))}
+  mark('النسخة '+BUILD+' • العقد: '+NODES.length);
+  safe(function(){
   document.getElementById('filters').innerHTML=MODS.map(function(s){
     return '<button onclick="F=\''+s[0]+'\';render()" class="rounded-full px-4 py-1.5 text-xs font-bold '+(F===s[0]?'bg-emerald-500 text-white':'bg-white/5 hover:bg-white/10')+'">'+s[1]+'</button>';
   }).join('');
+  },'الفلاتر');
   var list=NODES.filter(function(n){return F==='ALL'||n.mod===F});
   var tiers={},order=[];
   list.forEach(function(n){if(!tiers[n.tier]){tiers[n.tier]=[];order.push(n.tier)}tiers[n.tier].push(n)});
   order.sort(function(a,b){return a-b});
   var TNAME={0:'🌱 التأسيس',1:'⚙ أحكام الساكنات (1)',2:'⚙ أحكام الساكنات (2)',3:'⚙ أحكام الساكنات (3)',4:'🎓 الاحتراف',5:'🎓 القمة'};
+  safe(function(){
   document.getElementById('tiers').innerHTML=order.map(function(t){
     return '<div class="mb-2 flex items-center gap-3"><span class="text-[11px] font-bold text-slate-500">'+(TNAME[t]||('المستوى '+(+t+1)))+'</span><div class="h-px flex-1 bg-white/10"></div></div>'+
     '<div class="mb-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">'+tiers[t].map(cardHTML).join('')+'</div>';
   }).join('');
-  applyT();drawLinks();setTimeout(drawLinks,400);
-  renderDetail();renderBadges();renderVault();renderHWNode();
+  },'العقد');
+  safe(applyT,'تحريك');safe(drawLinks,'الوصلات');setTimeout(function(){try{drawLinks()}catch(e){}},400);
+  safe(renderDetail,'التفاصيل');safe(renderBadges,'الأوسمة');safe(renderVault,'الصندوق');safe(renderHWNode,'الواجبات');
 }
 function cardHTML(n){
   var s=nodeSt(n),p=PROG.nodes[n.id],m=p?p.m:0;
