@@ -10,13 +10,10 @@
 <body class="bg-[#0B1020] text-slate-100 min-h-screen">
 <div class="max-w-4xl mx-auto p-4 md:p-8" id="app"></div>
 <script>
-const B=[
-{n:'عبدالله م.',xp:4850,r:'متمكن',s:21},{n:'يوسف ن.',xp:4620,r:'متمكن',s:18,y:1},
-{n:'حمزة س.',xp:4310,r:'مجوّد',s:15},{n:'مريم خ.',xp:3980,r:'مجوّد',s:12},
-{n:'أنس ر.',xp:3540,r:'مجوّد',s:9},{n:'ليان ع.',xp:3100,r:'مبتدئ',s:7}];
+var B=[];
 try{var _nm='';try{_nm=localStorage.getItem('tajweed_name')||''}catch(e){}
 var _mx=0;try{_mx=XP.get()}catch(e){}
-if(_nm||_mx>0){B.push({n:_nm||'أنت (زائر)',xp:_mx,r:_mx>=500?'مجوّد':'مبتدئ',s:0,y:1});B.sort(function(a,b){return b.xp-a.xp})}}catch(e){}
+if(_nm||_mx>0){B.push({n:_nm||'أنت (زائر)',xp:_mx,r:_mx>=500?'مجوّد':'مبتدئ',s:0,y:1});B.sort(function(a,b){return b.xp-a.xp});for(var _k=0;_k<B.length;_k++){B[_k].pos=_k+1}}}catch(e){}
 const M=[['🥇',1],['🥈',2],['🥉',3]];
 document.getElementById('app').innerHTML=`
 <h1 class="text-2xl font-extrabold">المواسم <span class="text-amber-300">والبطولات</span></h1>
@@ -24,13 +21,13 @@ document.getElementById('app').innerHTML=`
 <div class="mt-2 flex gap-2"><input id="nm" placeholder="اكتب اسمك…" class="flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none"><button onclick="saveName()" class="rounded-xl bg-emerald-500 px-5 py-2 text-sm font-bold">حفظ</button></div>
 <script>function saveName(){var v=document.getElementById('nm').value.trim();if(!v)return;try{localStorage.setItem('tajweed_name',v)}catch(e){}location.reload()}</script>
 <div class="mt-6 flex items-end justify-center gap-3">
-${[B[1],B[0],B[2]].map((e,i)=>`<div class="w-28 rounded-2xl border p-3 text-center ${i===1?'border-amber-300/60 bg-amber-400/10 pb-6':'border-white/10 bg-white/[.04]'} ${e.y?'ring-2 ring-emerald-400':''}">
-<div class="text-2xl">${['🥈','🥇','🥉'][i]}</div><div class="text-sm font-extrabold truncate mt-1">${e.n}</div>
+${B.length===0?'<div class="w-full rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-slate-400">لا بيانات بعد — العب في الوحدات واجمع نقاطك لتظهر هنا</div>':''}${[B[1],B[0],B[2]].filter(function(x){return !!x}).map((e,i)=>`<div class="w-28 rounded-2xl border p-3 text-center ${(e.pos||i+1)===1?'border-amber-300/60 bg-amber-400/10 pb-6':'border-white/10 bg-white/[.04]'} ${e.y?'ring-2 ring-emerald-400':''}">
+<div class="text-2xl">${['🥇','🥈','🥉'][(e.pos||i+1)-1]||'🏅'}</div><div class="text-sm font-extrabold truncate mt-1">${e.n}</div>
 <div class="text-[11px] text-slate-400">${e.r} • 🔥${e.s}</div><div class="text-amber-300 font-extrabold mt-1">${e.xp} XP</div></div>`).join('')}
 </div>
 <div class="mt-4 space-y-2">${B.slice(3).map((e,i)=>`
 <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3">
-<span class="w-8 text-center font-extrabold text-slate-400">#${i+4}</span>
+<span class="w-8 text-center font-extrabold text-slate-400">#${e.pos}</span>
 <div class="h-9 w-9 rounded-lg bg-white/10 flex items-center justify-center font-extrabold">${e.n[0]}</div>
 <div class="flex-1"><div class="text-sm font-bold">${e.n}</div><div class="text-[11px] text-slate-400">${e.r} • سلسلة ${e.s} يوم</div></div>
 <span class="font-extrabold text-amber-300">${e.xp} XP</span></div>`).join('')}</div>

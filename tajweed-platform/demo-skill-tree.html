@@ -23,8 +23,8 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif}
       <p id="sub" class="text-xs text-slate-400 mt-1"></p></div>
       <div class="flex gap-2 text-sm">
         <span id="xp" class="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 font-bold text-amber-300"></span>
-        <span class="rounded-full bg-orange-500/10 border border-orange-500/30 px-3 py-1 font-bold text-orange-300">🔥 سلسلة 7 أيام</span>
-        <span class="rounded-full bg-violet-500/10 border border-violet-500/30 px-3 py-1 font-bold text-violet-300">مجوّد</span>
+        <span id="stk" class="rounded-full bg-orange-500/10 border border-orange-500/30 px-3 py-1 font-bold text-orange-300">🔥 سلسلة 0 يوم</span>
+        <span id="rnk" class="rounded-full bg-violet-500/10 border border-violet-500/30 px-3 py-1 font-bold text-violet-300">مبتدئ</span>
       </div>
     </div>
     <div class="mt-3 h-2 rounded-full bg-white/10 overflow-hidden"><div id="bar" class="h-full rounded-full bg-gradient-to-l from-emerald-400 to-sky-400" style="width:0;transition:width .8s"></div></div>
@@ -39,10 +39,10 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif}
 <script src="assets/site.js"></script>
 <script>
 const N=[
-{id:'n-noon-intro',t:'مدخل النون الساكنة',s:'الفرق بين السكون والتنوين',st:'MIDDLE',tier:0,xp:50,l:3,m:1,st2:'completed',req:[],min:10},
-{id:'n-makharij',t:'مخارج الحروف',s:'الحلق واللسان والشفتان',st:'MIDDLE',tier:0,xp:50,l:4,m:1,st2:'completed',req:[],min:12},
-{id:'n-izhar',t:'الإظهار الحلقي',s:'ء هـ ع ح غ خ',st:'MIDDLE',tier:1,xp:80,l:5,m:.85,st2:'completed',req:['n-noon-intro'],min:15},
-{id:'n-idgham',t:'الإدغام',s:'بغنة وبغير غنة — يرملون',st:'MIDDLE',tier:1,xp:100,l:6,m:.45,st2:'in-progress',req:['n-noon-intro'],min:20},
+{id:'n-noon-intro',t:'مدخل النون الساكنة',s:'الفرق بين السكون والتنوين',st:'MIDDLE',tier:0,xp:50,l:3,m:0,st2:'available',req:[],min:10},
+{id:'n-makharij',t:'مخارج الحروف',s:'الحلق واللسان والشفتان',st:'MIDDLE',tier:0,xp:50,l:4,m:0,st2:'available',req:[],min:12},
+{id:'n-izhar',t:'الإظهار الحلقي',s:'ء هـ ع ح غ خ',st:'MIDDLE',tier:1,xp:80,l:5,m:0,st2:'locked',req:['n-noon-intro'],min:15},
+{id:'n-idgham',t:'الإدغام',s:'بغنة وبغير غنة — يرملون',st:'MIDDLE',tier:1,xp:100,l:6,m:0,st2:'locked',req:['n-noon-intro'],min:20},
 {id:'n-iqlab',t:'الإقلاب',s:'النون + الباء ← ميم مخفاة',st:'HIGH',tier:1,xp:100,l:4,m:0,st2:'available',req:['n-noon-intro'],min:15},
 {id:'n-ikhfa',t:'الإخفاء الحقيقي',s:'15 حرفاً + غنة حركتين',st:'HIGH',tier:2,xp:120,l:6,m:0,st2:'available',req:['n-idgham','n-iqlab'],min:25},
 {id:'n-ghunna',t:'أزمنة الغنة',s:'مختبر الصوت: قِس غنتك',st:'HIGH',tier:2,xp:150,l:4,m:0,st2:'locked',req:['n-ikhfa'],min:20},
@@ -52,12 +52,13 @@ const N=[
 {id:'n-itqan',t:'الإتقان الشامل',s:'تطبيق على جزء عم كاملاً',st:'UNIVERSITY',tier:4,xp:300,l:10,m:0,st2:'locked',req:['n-madd','n-qalqalah'],min:45},
 ];
 const SL={MIDDLE:'الإعدادية',HIGH:'الثانوية',UNIVERSITY:'الجامعية'};
-let F='ALL',SEL='n-idgham';
+let F='ALL',SEL='n-noon-intro';
 const cls=s=>s==='completed'?'border-emerald-500/60 bg-emerald-500/10':s==='in-progress'?'border-sky-500/60 bg-sky-500/10':s==='available'?'border-amber-400/50 bg-amber-400/5':'border-white/10 bg-white/[.03] text-slate-500';
 const badge=s=>s==='completed'?'<span class="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">✓ مكتمل</span>':s==='in-progress'?'<span class="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold text-sky-300">جارٍ</span>':s==='available'?'<span class="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">متاح الآن</span>':'<span class="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-bold">مغلق</span>';
 function render(){
   const done=N.filter(n=>n.st2==='completed'),xp=done.reduce((a,n)=>a+n.xp,0),pc=Math.round(done.length/N.length*100);
-  document.getElementById('xp').textContent='⚡ '+xp+' XP • رصيدك: '+XP.get();
+  document.getElementById('xp').textContent='⚡ رصيدك: '+XP.get()+' XP';
+  try{document.getElementById('stk').textContent='🔥 سلسلة '+XP.streak()+' يوم';document.getElementById('rnk').textContent=XP.rank();}catch(e){}
   document.getElementById('sub').textContent=`أتقن حكماً لتفتح التالي — ${done.length} من ${N.length} مكتملة`;
   document.getElementById('bar').style.width=pc+'%';
   document.getElementById('filters').innerHTML=['ALL','MIDDLE','HIGH','UNIVERSITY'].map(s=>`<button onclick="F='${s}';render()" class="rounded-full px-4 py-1.5 text-xs font-bold ${F===s?'bg-emerald-500 text-white':'bg-white/5 hover:bg-white/10'}">${s==='ALL'?'الكل':SL[s]}</button>`).join('');

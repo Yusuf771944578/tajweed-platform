@@ -32,7 +32,7 @@ interface SkillNodeData {
 // ---------- بيانات تجريبية (تُستبدل لاحقاً بجلب من API) ----------
 const NODES: SkillNodeData[] = [
   // Tier 0 — الأساس
-  { id: 'n-noon-intro', titleAr: 'مدخل النون الساكنة', subtitle: 'الفرق بين السكون الأصلي والتنوين', stage: 'MIDDLE', tier: 0, xpReward: 50, lessons: 3, mastery: 1, status: 'completed', requires: [], ruleKey: 'noon', estimateMin: 10 },
+  { id: 'n-noon-intro', titleAr: 'مدخل النون الساكنة', subtitle: 'الفرق بين السكون الأصلي والتنوين', stage: 'MIDDLE', tier: 0, xpReward: 50, lessons: 3, mastery: 0, status: 'available', requires: [], ruleKey: 'noon', estimateMin: 10 },
   { id: 'n-makharij', titleAr: 'مخارج الحروف', subtitle: 'الحلق واللسان والشفتان', stage: 'MIDDLE', tier: 0, xpReward: 50, lessons: 4, mastery: 1, status: 'completed', requires: [], ruleKey: 'makharij', estimateMin: 12 },
   // Tier 1 — أحكام النون
   { id: 'n-izhar', titleAr: 'الإظهار الحلقي', subtitle: 'ء هـ ع ح غ خ', stage: 'MIDDLE', tier: 1, xpReward: 80, lessons: 5, mastery: 0.85, status: 'completed', requires: ['n-noon-intro'], ruleKey: 'izhar', estimateMin: 15 },

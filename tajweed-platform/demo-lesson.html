@@ -39,7 +39,7 @@ function render(){
     <button onclick="step=1;render()" class="mt-5 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold hover:bg-emerald-400">التالي: مختبر الصوت ←</button></div>`;
   if(step===1) body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-5 md:p-8">
     <h2 class="text-xl font-extrabold">🎙️ مختبر الصوت — اقرأ الآية وسنحلل نطقك</h2>
-    <p class="text-xs text-slate-400 mt-1">اقرأ: <b class="fq text-base text-slate-200">${L.words.map(function(w){return w[0]}).join(' ')}</b> — سجّل 4 ثوانٍ على الأقل (يعمل بالميكروفون فعلاً + رسم الموجة)</p>
+    <p class="text-xs text-slate-400 mt-1">اقرأ: <b class="fq text-base text-slate-200">${L.words.map(function(w){return w[0]}).join(' ')}</b> — سجّل 4 ثوانٍ على الأقل (ميكروفون وموجة حقيقية + تحليل تجريبي)</p>
     <canvas id="cv" width="600" height="110" class="mt-4 w-full rounded-xl bg-black/40"></canvas>
     <div class="mt-3 flex justify-between text-sm"><span class="font-bold">${sec} ث</span>
     ${rec==='rec'?'<span class="text-rose-300">🔴 جارٍ التسجيل…</span>':rec==='an'?'<span class="text-sky-300">⏳ نحلل الغنة والمد…</span>':''}</div>
@@ -61,7 +61,7 @@ function demoMic(){micBlocked=false;rec='an';render();setTimeout(()=>{voice=0.78
     <p class="text-sm text-slate-400 mt-1">العقدة n-izhar أصبحت ${done.completed?'مكتملة ✓':'قيد التقدم'} في الشجرة</p>
     <div class="mx-auto mt-4 grid max-w-md grid-cols-2 gap-2">
       <div class="rounded-xl bg-amber-400/10 border border-amber-400/30 p-4"><div class="text-2xl font-extrabold text-amber-300">+${done.xp} XP</div><div class="text-xs text-slate-400">نقاط جديدة</div></div>
-      <div class="rounded-xl bg-orange-500/10 border border-orange-500/30 p-4"><div class="text-2xl font-extrabold text-orange-300">🔥 8</div><div class="text-xs text-slate-400">سلسلة الأيام</div></div></div>
+      <div class="rounded-xl bg-orange-500/10 border border-orange-500/30 p-4"><div class="text-2xl font-extrabold text-orange-300">🔥 ${XP.streak()}</div><div class="text-xs text-slate-400">سلسلة الأيام</div></div></div>
     <p class="text-xs text-slate-400 mt-3">رصيدك الكلي على هذا الجهاز: ${XP.get()} XP • رتبتك: ${XP.rank()}</p>
     <button onclick="step=0;answers=[-1,-1];voice=null;done=null;rec='idle';sec=0;render()" class="mt-4 rounded-xl bg-emerald-500 px-8 py-3 text-sm font-extrabold">↻ إعادة الدرس</button></div>`;
   el.innerHTML=`<div class="mb-4 flex justify-between items-center"><span class="rounded-full bg-white/5 px-4 py-2 text-xs font-bold">→ شجرة الأحكام / الإظهار الحلقي</span><span class="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 text-xs font-bold text-amber-300">⚡ +${L.xp} XP عند الإتقان</span></div>
