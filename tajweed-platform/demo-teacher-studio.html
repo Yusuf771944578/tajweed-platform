@@ -9,8 +9,11 @@
 <style>
 body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 .qline{font-family:'Amiri Quran','KFGQPC Uthman Taha Naskh',serif;line-height:3;word-spacing:.4rem}
-.lt{display:inline-flex;align-items:center;justify-content:center;min-width:46px;min-height:60px;padding:0 .4rem;margin:.15rem .06rem;border-radius:.8rem;border:2px solid transparent;cursor:pointer;transition:all .18s ease;vertical-align:middle}
-.lt:hover{border-color:rgba(255,255,255,.35);transform:translateY(-3px)}
+.wd{white-space:nowrap;margin-inline:var(--cg,8px)}
+.lt{display:inline-flex;align-items:center;justify-content:center;min-width:52px;min-height:64px;padding:0 .45rem;margin:.15rem .06rem;border-radius:.8rem;border:2px solid transparent;cursor:pointer;transition:all .15s ease;vertical-align:middle;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.lt:hover{border-color:rgba(255,255,255,.4);transform:translateY(-3px)}
+.lt.dk{border-style:dashed;opacity:.92}
+@media (pointer:coarse){.lt{min-width:62px;min-height:76px}}
 .pc0{background:rgba(16,185,129,.18);color:#6ee7b7;border-color:rgba(52,211,153,.7)}
 .pc1{background:rgba(251,191,36,.16);color:#fcd34d;border-color:rgba(251,191,36,.7)}
 .pc2{background:rgba(244,63,94,.15);color:#fda4af;border-color:rgba(251,113,133,.7)}
@@ -21,53 +24,70 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 [data-theme="light"] .pc2{color:#be123c}[data-theme="light"] .pc3{color:#0369a1}
 [data-theme="light"] .pc4{color:#6d28d9}[data-theme="light"] .pc5{color:#c2410c}
 [data-theme="light"] .lt:hover{border-color:rgba(15,23,42,.3)}
-.pal{display:flex;align-items:center;gap:.4rem;min-width:52px;min-height:52px;border-radius:1rem;border:2px solid transparent;cursor:pointer;font-weight:800}
+.pal{display:flex;align-items:center;justify-content:center;gap:.3rem;min-width:56px;min-height:52px;padding:0 .7rem;border-radius:1rem;border:2px solid rgba(255,255,255,.12);cursor:pointer;font-weight:800;font-size:13px;touch-action:manipulation}
 .pal.sel{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
 [data-theme="light"] .pal.sel{border-color:#0f172a;box-shadow:0 0 0 3px rgba(15,23,42,.2)}
-.dot{display:inline-block;width:.85em;height:.85em;border-radius:9999px;vertical-align:baseline;margin-left:.3rem}
-.chip{display:inline-block;border-radius:1rem;padding:.4rem 1rem;margin:.25rem}
+.dot{display:inline-block;width:.85em;height:.85em;border-radius:9999px;margin-left:.3rem;vertical-align:baseline}
+.chip{display:inline-block;border-radius:1rem;padding:.3rem 1rem;margin:.25rem}
+.blurred{filter:blur(10px);user-select:none;-webkit-user-select:none;pointer-events:none}
 .fade{animation:fd .3s ease both}@keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 input[type=range]{accent-color:#10b981}
+#bigSec:fullscreen{background:#0B1020;padding:2rem;overflow:auto}
+@media print{
+.no-print{display:none!important}
+body{background:#fff!important;color:#000!important}
+#board,#exp{background:#fff!important;color:#000!important;border:1px solid #999!important}
+.pc0,.pc1,.pc2,.pc3,.pc4,.pc5{color:#000!important;background:#eee!important;border-color:#000!important}
+}
 </style>
 </head>
 <body class="bg-[#0B1020] text-slate-100 min-h-screen">
-<div class="max-w-5xl mx-auto p-4 md:p-8" id="app">
+<div class="max-w-5xl mx-auto p-4 md:p-8">
 <header class="text-center">
 <h1 class="text-2xl md:text-3xl font-extrabold">استوديو المعلم <span class="text-emerald-400">— لوّن الحروف واستنتج الحكم</span></h1>
-<p class="text-sm text-slate-400 mt-2 leading-7">أدخل كلمة أو كلمتين بالخط العثماني، اختر لوناً من اللوحة، ثم انقر أي حرف فيتلوّن — وعند مواجهة الألوان يتضح الحكم للطلاب. يعمل الخط دون إنترنت.</p>
+<p class="text-sm text-slate-400 mt-2 leading-7">أدخل كلمة أو كلمتين بالخط العثماني (يعمل دون إنترنت)، اختر لوناً ثم انقر أي حرف — بل يمكنك فصل التشكيل وتلوينه وحده. الاختصارات: <b>1-6</b> الألوان • <b>0</b> الممحاة • <b>Ctrl+Z</b> تراجع.</p>
 </header>
 
-<!-- 1: الإدخال -->
-<section class="mt-6 rounded-2xl border border-white/10 bg-white/[.04] p-5">
-<h2 class="font-extrabold">✍️ أولاً: أدخل الكلمات</h2>
+<!-- الإدخال -->
+<section class="no-print mt-6 rounded-2xl border border-white/10 bg-white/[.04] p-5">
+<h2 class="font-extrabold">✍️ الكلمات والأمثلة الجاهزة</h2>
 <div class="mt-3 grid gap-2 md:grid-cols-2">
-<input id="w1" value="مِنْ" placeholder="الكلمة الأولى (مثال: مِنْ)" class="font-quran rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-2xl text-center outline-none focus:border-emerald-500">
-<input id="w2" value="خَشْيَةِ" placeholder="الكلمة الثانية (مثال: خَشْيَةِ)" class="font-quran rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-2xl text-center outline-none focus:border-emerald-500">
+<input id="w1" value="مِنْ" placeholder="الكلمة الأولى" class="font-quran rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-2xl text-center outline-none focus:border-emerald-500">
+<input id="w2" value="خَشْيَةِ" placeholder="الكلمة الثانية (اختياري)" class="font-quran rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-2xl text-center outline-none focus:border-emerald-500">
 </div>
-<div class="mt-3 flex gap-2 flex-wrap text-xs font-bold" id="presets"></div>
-<div class="mt-3 flex items-center gap-3 flex-wrap">
-<button onclick="applyWords()" class="rounded-xl bg-emerald-500 px-8 py-2.5 text-sm font-extrabold text-white">عرض الكلمات ←</button>
-<button onclick="copyWords()" class="rounded-xl bg-white/5 border border-white/10 px-5 py-2.5 text-sm font-bold">📋 نسخ</button>
-<label class="flex items-center gap-2 text-xs font-bold text-slate-400">حجم الخط <input id="fs" type="range" min="30" max="76" value="48" oninput="setSize(this.value)" class="w-32"> <b id="fsV">48</b></label>
-</div>
-</section>
-
-<!-- 2: التلوين -->
-<section class="mt-4 rounded-2xl border border-white/10 bg-white/[.04] p-5">
-<h2 class="font-extrabold">🎨 ثانياً: اختر لوناً ثم انقر الحروف</h2>
-<div class="mt-3 flex gap-2 flex-wrap" id="palette"></div>
-<div id="board" class="qline mt-5 rounded-2xl bg-black/30 border border-white/10 p-6 text-center" style="font-size:48px;overflow-x:auto"></div>
-<p class="mt-2 text-xs text-slate-400 text-center">انقر الحرف مرة أخرى بنفس اللون لإبقائه • استخدم الممحاة لمسح لون حرف • الحروف تتصل ببعضها تلقائياً أثناء التلوين</p>
-<div class="mt-3 flex gap-2 justify-center">
-<button onclick="clearColors()" class="rounded-xl bg-white/5 border border-white/10 px-5 py-2 text-xs font-bold">مسح الألوان فقط</button>
-</div>
-</section>
-
-<!-- 3: الاستنتاج -->
-<section class="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
-<h2 class="font-extrabold">🔍 ثالثاً: ما الحكم عند مواجهة الألوان؟</h2>
 <div class="mt-3 flex gap-2 items-center flex-wrap">
-<label class="text-sm font-bold">الحكم:</label>
+<label class="text-xs font-bold text-slate-400">📚 مكتبة الأمثلة:</label>
+<select id="plib" onchange="loadPreset(this.value)" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm font-bold outline-none max-w-full"></select>
+<button onclick="applyWords()" class="rounded-xl bg-emerald-500 px-8 py-2.5 text-sm font-extrabold text-white">عرض ←</button>
+<button onclick="copyWords()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm font-bold">📋 نسخ</button>
+</div>
+<div class="mt-3 flex gap-4 items-center flex-wrap text-xs font-bold text-slate-400">
+<label class="flex items-center gap-2">حجم الخط <input id="fs" type="range" min="30" max="84" value="48" oninput="setSize(this.value)" class="w-28"> <b id="fsV">48</b></label>
+<label class="flex items-center gap-2">التباعد <input id="gap" type="range" min="0" max="26" value="8" oninput="setGap(this.value)" class="w-28"> <b id="gapV">8</b></label>
+<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="splitChk" onchange="splitMode=this.checked;applyWords()" class="w-4 h-4 accent-emerald-500"> فصل التشكيل عن الحروف</label>
+</div>
+</section>
+
+<!-- التلوين -->
+<section class="mt-4 rounded-2xl border border-white/10 bg-white/[.04] p-5">
+<div class="no-print">
+<h2 class="font-extrabold">🎨 اللوحة — انقر الحروف للتلوين</h2>
+<div class="mt-3 flex gap-2 flex-wrap items-center" id="palette"></div>
+<div class="mt-3 flex gap-2 flex-wrap">
+<button onclick="undo()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">↩ تراجع</button>
+<button onclick="redo()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">↪ إعادة</button>
+<button onclick="clearColors()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">مسح الألوان</button>
+<button onclick="speak()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">🔊 استماع للنطق</button>
+</div>
+<p id="status" class="mt-2 text-xs font-bold text-slate-400"></p>
+</div>
+<div id="board" class="qline mt-4 rounded-2xl bg-black/30 border border-white/10 p-6 text-center" style="font-size:48px;overflow-x:auto"></div>
+</section>
+
+<!-- الاستنتاج -->
+<section class="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+<div class="flex gap-2 items-center flex-wrap">
+<h2 class="font-extrabold">🔍 الحكم المستنتج:</h2>
 <select id="rule" onchange="explain()" class="rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-sm font-bold outline-none">
 <option value="izhar">الإظهار الحلقي</option>
 <option value="idgham">الإدغام</option>
@@ -77,14 +97,30 @@ input[type=range]{accent-color:#10b981}
 <option value="madd">المد</option>
 <option value="tafkheem">التفخيم والترقيق</option>
 </select>
+<button onclick="toggleQuiz()" id="quizBtn" class="no-print rounded-xl bg-violet-500/15 border border-violet-500/40 px-4 py-2.5 text-xs font-bold text-violet-300">🙈 وضع الاختبار: إخفاء الحكم</button>
 </div>
 <div id="exp" class="mt-3 rounded-xl bg-black/20 border border-white/10 p-4 text-sm leading-8"></div>
+<!-- دليل الألوان المقترح -->
+<div class="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-7 no-print">
+<b>🎨 الدليل المقترح:</b>
+<span class="dot" style="background:#34d399"></span> نون ساكنة / تنوين
+<span class="dot" style="background:#fbbf24"></span> حرف الحكم
+<span class="dot" style="background:#fb7185"></span> حروف المد
+<span class="dot" style="background:#38bdf8"></span> حروف القلقلة
+<span class="dot" style="background:#a78bfa"></span> إخفاء / إقلاب
+<span class="dot" style="background:#fb923c"></span> تفخيم
+</div>
 </section>
 
-<!-- 4: العرض المكبر -->
-<section class="mt-4 rounded-2xl border border-white/10 bg-white/[.04] p-5 text-center">
-<h2 class="font-extrabold">📺 العرض المكبّر للصف (للعارض الضوئي)</h2>
-<div id="big" class="qline mt-3" style="font-size:64px;line-height:2.4"></div>
+<!-- العرض المكبر -->
+<section id="bigSec" class="mt-4 rounded-2xl border border-white/10 bg-white/[.04] p-5 text-center">
+<h2 class="font-extrabold no-print">📺 العرض المكبّر للصف</h2>
+<div id="big" class="qline mt-2" style="font-size:64px;line-height:2.4"></div>
+<div class="mt-3 flex gap-2 justify-center flex-wrap no-print">
+<button onclick="goFull()" class="rounded-xl bg-emerald-500 px-6 py-2.5 text-sm font-extrabold text-white">⛶ ملء الشاشة للعارض</button>
+<button onclick="shareLink()" class="rounded-xl bg-white/5 border border-white/10 px-6 py-2.5 text-sm font-bold">🔗 نسخ رابط اللوحة</button>
+<button onclick="window.print()" class="rounded-xl bg-white/5 border border-white/10 px-6 py-2.5 text-sm font-bold">🖨 حفظ PDF / طباعة</button>
+</div>
 </section>
 </div>
 
@@ -105,53 +141,108 @@ ikhfa:{t:'الإخفاء الحقيقي',w:'لا قرب ولا بعد — حال
 qalqalah:{t:'القلقلة',w:'اهتزاز مخرج الحرف الساكن دون ميل لحركة'},
 madd:{t:'المد',w:'إطالة الصوت بحرف المد بمقدار حركتين أو أكثر'},
 tafkheem:{t:'التفخيم والترقيق',w:'امتلاء الفم بالصدى أو نحوله حسب الحرف'}};
-var PRESETS=[['مِنْ','خَشْيَةِ'],['مَن','يَقُولُ'],['مِن','بَعْدِ'],['قُلْ','هُوَ'],['كُنتُمْ',''],['عَلِيمًا','حَكِيمًا']];
-var sel=0, words=[]; // words: [{clusters:[{t,c}]}]
+var PRESETS=[
+{g:'الإظهار الحلقي',a:'مِنْ',b:'خَشْيَةِ'},
+{g:'الإظهار الحلقي',a:'عَلِيمًا',b:'حَكِيمًا'},
+{g:'الإدغام',a:'مَن',b:'يَقُولُ'},
+{g:'الإقلاب',a:'مِن',b:'بَعْدِ'},
+{g:'الإخفاء',a:'مِن',b:'فَضْلِ'},
+{g:'الإخفاء',a:'كُنتُمْ',b:''},
+{g:'القلقلة',a:'قُلْ',b:'هُوَ'},
+{g:'المد',a:'قَالُوا',b:''},
+{g:'التفخيم',a:'خَالِدِينَ',b:''}];
+var sel=0, splitMode=false, quiz=false, words=[], hist=[], hi=-1;
+var ZWJ=String.fromCharCode(8205);
 
 function seg(s){
+  if(splitMode){
+    var out=[];
+    Array.from(s).forEach(function(ch){
+      out.push({t:ch,c:-1,d:/[ً-ٰٟ]/.test(ch)});
+    });
+    return out;
+  }
+  var parts=null;
   try{
     if(typeof Intl!=='undefined'&&Intl.Segmenter){
-      var g=new Intl.Segmenter('ar',{granularity:'grapheme'}),o=[];
-      var it=g.segment(s)[Symbol.iterator](),r;
-      while(!(r=it.next()).done){o.push(r.value.segment)}
-      return o;
+      var iter=new Intl.Segmenter('ar',{granularity:'grapheme'}).segment(s)[Symbol.iterator](),o=[],step;
+      while(!(step=iter.next()).done){o.push(step.value.segment)}
+      parts=o;
     }
-  }catch(e){}
-  return Array.from(s);
+  }catch(e){parts=null}
+  if(!parts)parts=Array.from(s);
+  return parts.map(function(ch){return {t:ch,c:-1,d:false}});
 }
-function applyWords(){
-  var a=document.getElementById('w1').value.trim(),b=document.getElementById('w2').value.trim();
-  words=[];
-  [a,b].forEach(function(w){if(w)words.push({clusters:seg(w).map(function(ch){return {t:ch,c:-1}})})});
-  if(!words.length)words=[{clusters:seg('مِنْ').map(function(ch){return {t:ch,c:-1}})}];
+function applyWords(fromHist){
+  if(!fromHist){
+    var a=document.getElementById('w1').value.trim(),b=document.getElementById('w2').value.trim();
+    words=[];
+    [a,b].forEach(function(w){if(w)words.push({clusters:seg(w)})});
+    if(!words.length)words=[{clusters:seg('مِنْ')}];
+  }
   render();
+  if(!fromHist)pushHist();
 }
+function pushHist(){
+  hist=hist.slice(0,hi+1);
+  hist.push(JSON.stringify(words));
+  if(hist.length>60)hist.shift();
+  hi=hist.length-1;
+}
+function undo(){if(hi>0){hi--;words=JSON.parse(hist[hi]);render()}}
+function redo(){if(hi<hist.length-1){hi++;words=JSON.parse(hist[hi]);render()}}
 function renderPalette(){
-  var h=COLORS.map(function(c,i){return '<button onclick="sel='+i+';renderPalette()" title="'+c.n+'" class="pal '+c.c+(sel===i?' sel':'')+'">'+(sel===i?'✓':'&nbsp;')+'</button>'}).join('');
-  h+='<button onclick="sel=-1;renderPalette()" title="ممحاة" class="pal'+(sel===-1?' sel':'')+'" style="background:rgba(255,255,255,.06);color:#94a3b8">⌫</button>';
+  var h=COLORS.map(function(c,i){
+    return '<button data-pal="'+i+'" class="pal '+c.c+(sel===i?' sel':'')+'"><span class="dot" style="background:'+c.dot+'"></span>'+c.n+'</button>';
+  }).join('');
+  h+='<button data-pal="-1" class="pal'+(sel===-1?' sel':'')+'" style="background:rgba(255,255,255,.06);color:#94a3b8">⌫ ممحاة</button>';
   document.getElementById('palette').innerHTML=h;
 }
 function render(){
   renderPalette();
-  var Z='\u200D';
-  document.getElementById('board').innerHTML=words.map(function(w,wi){
-    return '<span style="white-space:nowrap">'+w.clusters.map(function(cl,ci){
+  var html=words.map(function(w,wi){
+    return '<span class="wd">'+w.clusters.map(function(cl,ci){
       var cls=cl.c>=0?(' '+COLORS[cl.c].c):'';
-      return '<span class="lt'+cls+'" onclick="paint('+wi+','+ci+')">'+cl.t+'</span>';
-    }).join(Z)+'</span>';
-  }).join('<span> </span>');
+      var dk=cl.d?' dk':'';
+      var t=cl.t===' '?'&nbsp;':cl.t;
+      return '<span class="lt'+cls+dk+'" data-w="'+wi+'" data-c="'+ci+'" title="'+(cl.d?'تشكيل — انقر للتلوين':'انقر للتلوين')+'">'+t+'</span>';
+    }).join(ZWJ)+'</span>';
+  }).join(' ');
+  document.getElementById('board').innerHTML=html;
+  var n=0;words.forEach(function(w){w.clusters.forEach(function(cl){if(cl.c>=0)n++})});
+  document.getElementById('status').textContent=n?('✓ تم تلوين '+n+' حرفاً — اللون النشط: '+(sel>=0?COLORS[sel].n:'الممحاة')):'اختر لوناً من الأعلى ثم انقر أي حرف في الكلمات';
   explain();renderBig();
 }
 function paint(wi,ci){
-  var cl=words[wi].clusters[ci];
-  if(cl.t.trim()===''||cl.t===Z)return;
+  var cl=words[wi]&&words[wi].clusters[ci];
+  if(!cl||cl.t.trim()==='')return;
   cl.c=(sel===-1)?-1:sel;
-  render();
+  render();pushHist();
 }
+document.getElementById('board').addEventListener('click',function(e){
+  var t=e.target,tries=0;
+  while(t&&t!==this&&tries<4){
+    if(t.getAttribute&&t.getAttribute('data-w')!==null){
+      paint(+t.getAttribute('data-w'),+t.getAttribute('data-c'));
+      return;
+    }
+    t=t.parentNode;tries++;
+  }
+});
+document.getElementById('palette').addEventListener('click',function(e){
+  var t=e.target,tries=0;
+  while(t&&t!==this&&tries<4){
+    if(t.getAttribute&&t.getAttribute('data-pal')!==null){
+      sel=+t.getAttribute('data-pal');renderPalette();
+      return;
+    }
+    t=t.parentNode;tries++;
+  }
+});
 function groups(){
   var g={};
   words.forEach(function(w){w.clusters.forEach(function(cl){
-    if(cl.c>=0&&(cl.t.trim()!=='')){if(!g[cl.c])g[cl.c]=[];g[cl.c].push(cl.t)}
+    if(cl.c>=0&&cl.t.trim()!==''){if(!g[cl.c])g[cl.c]=[];g[cl.c].push(cl.t)}
   })});
   return g;
 }
@@ -169,14 +260,72 @@ function renderBig(){
   var g=groups(),ks=Object.keys(g);
   document.getElementById('big').innerHTML=ks.length?ks.map(function(k){
     return '<span class="chip '+COLORS[+k].c+'">'+g[k].join(' ')+'</span>';
-  }).join('<span style="font-size:.5em;color:#64748b"> + </span>'):'<span style="font-size:1rem;color:#64748b">—</span>';
+  }).join('<span style="font-size:.5em;color:#64748b"> + </span>'):'<span style="font-size:1rem;color:#64748b">لوّن الحروف أعلاه لتظهر مكبّرة هنا</span>';
 }
-function clearColors(){words.forEach(function(w){w.clusters.forEach(function(cl){cl.c=-1})});render()}
+function clearColors(){words.forEach(function(w){w.clusters.forEach(function(cl){cl.c=-1})});render();pushHist()}
 function setSize(v){document.getElementById('fsV').textContent=v;document.getElementById('board').style.fontSize=v+'px'}
-function copyWords(){var t=words.map(function(w){return w.clusters.map(function(c){return c.t}).join('')}).join(' ');try{navigator.clipboard.writeText(t);alert('نُسخت الكلمات')}catch(e){alert(t)}}
-document.getElementById('presets').innerHTML=PRESETS.map(function(p,i){return '<button onclick="setP('+i+')" class="rounded-full bg-white/5 border border-white/10 px-3 py-1.5">'+(p[0]+(p[1]?' '+p[1]:''))+'</button>'}).join('');
-function setP(i){document.getElementById('w1').value=PRESETS[i][0];document.getElementById('w2').value=PRESETS[i][1];applyWords()}
-applyWords();
+function setGap(v){document.getElementById('gapV').textContent=v;document.getElementById('board').style.setProperty('--cg',v+'px')}
+function copyWords(){var t=words.map(function(w){return w.clusters.map(function(c){return c.t}).join('')}).join(' ');try{navigator.clipboard.writeText(t)}catch(e){}}
+function wordsText(){return words.map(function(w){return w.clusters.map(function(c){return c.t}).join('')}).join(' ')}
+function speak(){
+  try{
+    var u=new SpeechSynthesisUtterance(wordsText()+' . '+RULES[document.getElementById('rule').value].t);
+    u.lang='ar-SA';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);
+  }catch(e){}
+}
+function toggleQuiz(){
+  quiz=!quiz;
+  document.getElementById('exp').classList.toggle('blurred',quiz);
+  document.getElementById('quizBtn').textContent=quiz?'👁 كشف الحكم':'🙈 وضع الاختبار: إخفاء الحكم';
+}
+function goFull(){
+  var el=document.getElementById('bigSec');
+  try{
+    if(document.fullscreenElement)document.exitFullscreen();
+    else if(el.requestFullscreen)el.requestFullscreen();
+    else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();
+  }catch(e){}
+}
+function shareLink(){
+  try{
+    var st={w:words.map(function(w){return w.clusters.map(function(c){return [c.t,c.c]})}),r:document.getElementById('rule').value};
+    var h=btoa(unescape(encodeURIComponent(JSON.stringify(st))));
+    var url=location.href.split('#')[0]+'#s='+h;
+    if(navigator.clipboard)navigator.clipboard.writeText(url);
+    try{history.replaceState(null,'','#s='+h)}catch(e){location.hash='#s='+h}
+    alert('نُسخ رابط اللوحة — شاركه مع الطلاب');
+  }catch(e){alert('تعذّر إنشاء الرابط')}
+}
+function loadHash(){
+  try{
+    if(location.hash.indexOf('#s=')!==0)return false;
+    var st=JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(3)))));
+    words=st.w.map(function(arr){return {clusters:arr.map(function(p){return {t:p[0],c:p[1],d:/[ً-ٰٟ]/.test(p[0])&&p[0].length===1}})}});
+    if(st.r&&RULES[st.r])document.getElementById('rule').value=st.r;
+    render();pushHist();
+    return true;
+  }catch(e){return false}
+}
+function loadPreset(v){
+  var i=+v;if(isNaN(i))return;
+  document.getElementById('w1').value=PRESETS[i].a;
+  document.getElementById('w2').value=PRESETS[i].b;
+  applyWords();
+}
+document.getElementById('plib').innerHTML='<option value="">— اختر مثالاً جاهزاً —</option>'+PRESETS.map(function(p,i){
+  return '<option value="'+i+'">'+p.g+': '+p.a+(p.b?' '+p.b:'')+'</option>';
+}).join('');
+document.addEventListener('keydown',function(e){
+  var tag=(e.target&&e.target.tagName)||'';
+  if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
+  if(e.ctrlKey||e.metaKey){
+    if(e.key==='z'||e.key==='Z'){e.preventDefault();e.shiftKey?redo():undo()}
+    else if(e.key==='y'){e.preventDefault();redo()}
+    return;
+  }
+  if(e.key>='0'&&e.key<='6'){sel=e.key==='0'?-1:(+e.key)-1;renderPalette()}
+});
+if(!loadHash())applyWords();
 </script>
 </body>
 </html>
