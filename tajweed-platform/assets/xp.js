@@ -11,9 +11,10 @@ window.XP = (function () {
   }
   function rank() {
     var x = get();
-    if (x >= 5000) return 'مقرئ';
-    if (x >= 2000) return 'متمكن';
-    if (x >= 500) return 'مجوّد';
+    if (x >= 5000) return 'مجاز';
+    if (x >= 2000) return 'متقن';
+    if (x >= 800) return 'مجوّد';
+    if (x >= 300) return 'قارئ';
     return 'مبتدئ';
   }
   function touchStreak() {
