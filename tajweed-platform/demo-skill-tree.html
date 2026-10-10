@@ -474,7 +474,7 @@ function checkBadges(){
 function renderBadges(){
   var cur=curLevel(),nx=nextLevel();
   try{document.getElementById('hrk').textContent='🎖 المستوى '+cur.l+' — '+cur.t;}catch(e){}
-  var nxTxt=nx?('القادم: م'+nx.l+' '+nx.t+' (باقي '+Math.max(0,nx.xp-myXP())+' XP)':'القمة! 🏆');
+  var nxTxt=nx?('القادم: م'+nx.l+' '+nx.t+' (باقي '+Math.max(0,nx.xp-myXP())+' XP)':'القمة! 🏆';
   document.getElementById('badges').innerHTML='<p class="text-xs text-slate-400" style="grid-column:1/-1">مستواك: <b class="text-amber-300">م'+cur.l+' '+cur.t+'</b> ('+myXP()+' XP) • '+nxTxt+'</p>'+
   LEVELS.map(function(L){
     var e=lvlEarned(L),on=e.ok;
