@@ -1,16 +1,16 @@
 /* site.js — التنقل الموحد + الوضع النهاري/الليلي (يعمل على كل الصفحات) */
 (function () {
   var PAGES = [
-    { h: 'index.html', t: 'الرئيسية', i: '⌂' },
-    { h: 'demo-teacher-studio.html', t: 'الاستوديو', i: '◉' },
-    { h: 'demo-skill-tree.html', t: 'الشجرة', i: '⑂' },
-    { h: 'demo-lesson.html', t: 'الدرس', i: '♪' },
-    { h: 'demo-time-attack.html', t: 'السرعة', i: '⚡' },
-    { h: 'demo-duel.html', t: 'النزال', i: '⚔' },
-    { h: 'demo-leaderboard.html', t: 'الصدارة', i: '★' }
+    { h: 'index.html?v=8', t: 'الرئيسية', i: '⌂' },
+    { h: 'demo-teacher-studio.html?v=8', t: 'الاستوديو', i: '◉' },
+    { h: 'demo-skill-tree.html?v=8', t: 'الشجرة', i: '⑂' },
+    { h: 'demo-lesson.html?v=8', t: 'الدرس', i: '♪' },
+    { h: 'demo-time-attack.html?v=8', t: 'السرعة', i: '⚡' },
+    { h: 'demo-duel.html?v=8', t: 'النزال', i: '⚔' },
+    { h: 'demo-leaderboard.html?v=8', t: 'الصدارة', i: '★' }
   ];
   function cur() {
-    var p = location.pathname.split('/').pop() || 'index.html';
+    var p = location.pathname.split('/').pop() || 'index.html?v=8';
     return p;
   }
   function theme() {
@@ -34,7 +34,7 @@
     bar.className = 'tabbar';
     var here = cur();
     bar.innerHTML = PAGES.map(function (p) {
-      var on = (here === p.h) ? ' on' : '';
+      var on = (here === p.h.split('?')[0]) ? ' on' : '';
       return '<a class="tab' + on + '" href="' + p.h + '"><span class="ti">' + p.i + '</span><span>' + p.t + '</span></a>';
     }).join('') + '<button class="tab theme" id="themeBtn" onclick="toggleTheme()">☀</button>';
     document.body.appendChild(bar);
