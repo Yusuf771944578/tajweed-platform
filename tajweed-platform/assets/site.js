@@ -19,7 +19,9 @@
   function apply(t) {
     document.documentElement.setAttribute('data-theme', t);
     var b = document.getElementById('themeBtn');
-    if (b) b.textContent = t === 'dark' ? '☀ نهاري' : '🌙 ليلي';
+    if (b) b.textContent = t === 'dark' ? '☀' : '🌙';
+    var L = document.querySelectorAll('.themeLbl');
+    for (var i = 0; i < L.length; i++) L[i].textContent = t === 'dark' ? '☀ نهاري' : '🌙 ليلي';
   }
   window.toggleTheme = function () {
     var n = theme() === 'dark' ? 'light' : 'dark';
@@ -34,7 +36,7 @@
     bar.innerHTML = PAGES.map(function (p) {
       var on = (here === p.h) ? ' on' : '';
       return '<a class="tab' + on + '" href="' + p.h + '"><span class="ti">' + p.i + '</span><span>' + p.t + '</span></a>';
-    }).join('') + '<button class="tab theme" id="themeBtn" onclick="toggleTheme()">☀ نهاري</button>';
+    }).join('') + '<button class="tab theme" id="themeBtn" onclick="toggleTheme()">☀</button>';
     document.body.appendChild(bar);
     apply(theme());
   }
