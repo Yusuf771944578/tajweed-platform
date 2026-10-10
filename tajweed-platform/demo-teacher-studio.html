@@ -205,7 +205,7 @@ function render(){
       var cls=cl.c>=0?(' '+COLORS[cl.c].c):'';
       var dk=cl.d?' dk':'';
       var t=cl.t===' '?'&nbsp;':cl.t;
-      return '<span class="lt'+cls+dk+'" data-w="'+wi+'" data-c="'+ci+'" title="'+(cl.d?'تشكيل — انقر للتلوين':'انقر للتلوين')+'">'+t+'</span>';
+      return '<span class="lt'+cls+dk+'" role="button" tabindex="0" data-w="'+wi+'" data-c="'+ci+'" title="'+(cl.d?'تشكيل — انقر للتلوين':'انقر للتلوين')+'">'+t+'</span>';
     }).join(ZWJ)+'</span>';
   }).join(' ');
   document.getElementById('board').innerHTML=html;
@@ -228,6 +228,11 @@ document.getElementById('board').addEventListener('click',function(e){
     }
     t=t.parentNode;tries++;
   }
+});
+document.getElementById('board').addEventListener('keydown',function(e){
+  if(e.key!=='Enter'&&e.key!==' ')return;
+  var t=e.target;
+  if(t&&t.getAttribute&&t.getAttribute('data-w')!==null){e.preventDefault();paint(+t.getAttribute('data-w'),+t.getAttribute('data-c'))}
 });
 document.getElementById('palette').addEventListener('click',function(e){
   var t=e.target,tries=0;
