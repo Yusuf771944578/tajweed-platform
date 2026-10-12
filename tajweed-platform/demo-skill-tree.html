@@ -68,7 +68,7 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 </div>
 
 <section class="mt-4 rounded-2xl border border-white/10 bg-white/[.03] p-5">
-<h2 class="font-extrabold">🏅 سلم الأوسمة والرتب <span class="text-xs text-slate-400">(من المستوى 10 إلى 1)</span></h2>
+<h2 class="font-extrabold">🏅 سلم الأوسمة والرتب <span class="text-xs text-slate-400">(من المرتبة العاشرة إلى الأولى)</span></h2>
 <div id="badges" class="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2"></div>
 </section>
 
@@ -151,16 +151,16 @@ tafkheem:{def:'حروف الاستعلاء (خص ضغط قظ) تُفخم دائ�
 makharij:{def:'مخارج الحروف سبعة عشر على مذهب الخليل: الجوف والحلق واللسان والشفتان والخيشوم.',rows:[['الجوف','حروف المد ا و ي'],['الحلق','ء هـ ع ح غ خ'],['اللسان','أكثر الحروف: ن ل ر س…'],['الشفتان','ب م و'],['الخيشوم','مخرج الغنة']],poem:['مَخَارِجُ الْحُرُوفِ سَبْعَةَ عَشَرْ','عَلَى الَّذِي يَخْتَارُهُ مَنِ اخْتَبَرْ'],ex:'مِنْ خَشْيَةِ'},
 waqf:{def:'قاعدة ذهبية: قِف حيث يتم المعنى، وابدأ بما يُفهِم. الوقف على رؤوس الآي سنة.',rows:[['مـ وقف لازم','لا تصل بعده'],['ج وقف جائز','قف أو صل'],['ممنوع','لا تقف وسط الكلمة']],poem:[],ex:'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ'}};
 var LEVELS=[
-{l:10,t:'القارئ المبتدئ',xp:0,i:'🔟',req:[]},
-{l:9,t:'طالب الترتيل',xp:100,i:'9️⃣',req:['b-ghunna']},
-{l:8,t:'فرس القلقلة',xp:200,i:'8️⃣',req:['b-qalq']},
-{l:7,t:'متقن المد الطبيعي',xp:350,i:'7️⃣',req:['b-maddtab']},
-{l:6,t:'حارس النون الساكنة',xp:500,i:'6️⃣',req:['m-izhar','m-idgham','m-iqlab','m-ikhfa']},
-{l:5,t:'خبير الميم الساكنة',xp:700,i:'5️⃣',req:['m-meem']},
-{l:4,t:'فارس المدود الفرعية',xp:950,i:'4️⃣',req:['a-madd']},
-{l:3,t:'متقن التفخيم والترقيق',xp:1200,i:'3️⃣',req:['a-tafkheem']},
-{l:2,t:'شيخ المخارج والصفات',xp:1500,i:'2️⃣',req:['a-makharij','a-waqf']},
-{l:1,t:'المقرئ المتقن',xp:2000,i:'🥇',req:['ALL']}];
+{l:10,t:'المرتبة العاشرة',xp:0,i:'🔟',req:[]},
+{l:9,t:'المرتبة التاسعة',xp:100,i:'9️⃣',req:['b-ghunna']},
+{l:8,t:'المرتبة الثامنة',xp:200,i:'8️⃣',req:['b-qalq']},
+{l:7,t:'المرتبة السابعة',xp:350,i:'7️⃣',req:['b-maddtab']},
+{l:6,t:'المرتبة السادسة',xp:500,i:'6️⃣',req:['m-izhar','m-idgham','m-iqlab','m-ikhfa']},
+{l:5,t:'المرتبة الخامسة',xp:700,i:'5️⃣',req:['m-meem']},
+{l:4,t:'المرتبة الرابعة',xp:950,i:'4️⃣',req:['a-madd']},
+{l:3,t:'المرتبة الثالثة',xp:1200,i:'3️⃣',req:['a-tafkheem']},
+{l:2,t:'المرتبة الثانية',xp:1500,i:'2️⃣',req:['a-makharij','a-waqf']},
+{l:1,t:'المرتبة الأولى',xp:2000,i:'🥇',req:['ALL']}];
 function lvlEarned(L){
   if(myXP()<L.xp)return {ok:false,need:L.xp-myXP()};
   if(L.req[0]==='ALL'){
@@ -479,7 +479,7 @@ function failCH(){
 
 /* ================= أوسمة + صندوق + معلم ================= */
 function checkBadges(){
-  var give=function(L){var id='L'+L.l;if(PROG.badges.indexOf(id)<0){PROG.badges.push(id);save('tajweed_tree_v2',PROG);toast('🏅 مستوى جديد: م'+L.l+' '+L.t+' '+L.i);boom(false)}};
+  var give=function(L){var id='L'+L.l;if(PROG.badges.indexOf(id)<0){PROG.badges.push(id);save('tajweed_tree_v2',PROG);toast('🏅 مرتبة جديدة: '+L.t+' '+L.i);boom(false)}};
   LEVELS.forEach(function(L){if(lvlEarned(L).ok)give(L)});
   try{
     if(XP.streak()>=7&&PROG.badges.indexOf('STREAK7')<0){PROG.badges.push('STREAK7');save('tajweed_tree_v2',PROG);toast('🔥 وسام المثابر: سلسلة 7 أيام')}
@@ -487,15 +487,15 @@ function checkBadges(){
 }
 function renderBadges(){
   var cur=curLevel(),nx=nextLevel();
-  try{document.getElementById('hrk').textContent='🎖 المستوى '+cur.l+' — '+cur.t;}catch(e){}
-  var nxTxt=nx?('القادم: م'+nx.l+' '+nx.t+' (باقي '+Math.max(0,nx.xp-myXP())+' XP)'):'القمة! 🏆';
-  document.getElementById('badges').innerHTML='<p class="text-xs text-slate-400" style="grid-column:1/-1">مستواك: <b class="text-amber-300">م'+cur.l+' '+cur.t+'</b> ('+myXP()+' XP) • '+nxTxt+'</p>'+
+  try{document.getElementById('hrk').textContent='🎖 '+cur.t;}catch(e){}
+  var nxTxt=nx?('القادم: '+nx.t+' (باقي '+Math.max(0,nx.xp-myXP())+' XP)'):'القمة! 🏆';
+  document.getElementById('badges').innerHTML='<p class="text-xs text-slate-400" style="grid-column:1/-1">مرتبتك: <b class="text-amber-300">'+cur.t+'</b> ('+myXP()+' XP) • '+nxTxt+'</p>'+
   LEVELS.map(function(L){
     var e=lvlEarned(L),on=e.ok;
     var sub=on?'✓ مفتوح':((e.need||0)>0?('🔒 باقي '+e.need+' XP'):'🔒 أكمل: '+(e.missing||[]).map(function(r){var d=NODES.find(function(x){return x.id===r});return d?d.t:r}).join('، '));
     var pc=L.xp?Math.min(100,Math.round(myXP()/L.xp*100)):100;
     return '<div class="badge '+(on?'':'off')+' rounded-xl border p-3 text-center '+(on?'border-amber-300/50 bg-amber-400/5':'border-white/10 bg-white/[.02]')+'">'+
-    '<div class="text-2xl">'+L.i+'</div><div class="mt-1 text-xs font-extrabold">م'+L.l+' '+L.t+'</div>'+
+    '<div class="text-2xl">'+L.i+'</div><div class="mt-1 text-xs font-extrabold">'+L.t+'</div>'+
     '<div class="text-[10px] text-slate-400">'+L.xp+' XP • '+sub+'</div>'+
     '<div class="mt-1 h-1 rounded-full bg-black/40 overflow-hidden"><div class="h-full bg-amber-400" style="width:'+pc+'%"></div></div></div>';
   }).join('');

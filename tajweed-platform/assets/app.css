@@ -155,6 +155,7 @@ body{padding-bottom:0!important}
 /* ---------- الوضع النهاري ---------- */
 [data-theme="light"] body{background:#eef2f7;color:#0f172a}
 [data-theme="light"] .bg-\[\#0B1020\]{background-color:#eef2f7}
+[data-theme="light"] .bg-\[\#141b31\]{background-color:#ffffff}
 [data-theme="light"] [class*="bg-white/"]{background-color:#ffffff}
 [data-theme="light"] .bg-black\/20,[data-theme="light"] .bg-black\/30,[data-theme="light"] .bg-black\/40{background-color:#f1f5f9}
 [data-theme="light"] [class*="border-white/"]{border-color:#e2e8f0}
