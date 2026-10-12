@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>شجرة الأحكام — خريطة الإتقان التفاعلية</title>
-<link rel="stylesheet" href="assets/app.css?v=10">
+<link rel="stylesheet" href="assets/app.css?v=11">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -62,7 +62,7 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 <button onclick="zoom(0.85)" class="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-sm font-bold">−</button>
 <button onclick="zoomReset()" class="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold">إعادة الضبط</button>
 </div>
-<div id="mapWrap"><div id="map"><svg id="links"></svg><div id="tiers"></div></div></div>
+<div id="mapWrap"><div id="map"><svg id="links"></svg><div id="tiers"><p class="text-sm text-slate-400" style="padding:1rem">⏳ جارٍ تحميل الدروس… إن بقيت هذه الرسالة حدّث الصفحة من الزر أسفلها.</p></div></div></div>
 </main>
 <aside class="lg:sticky lg:top-4 h-fit rounded-2xl border border-white/10 bg-white/[.04] p-5"><div id="detail"></div></aside>
 </div>
@@ -98,12 +98,13 @@ table.ruletbl th{background:rgba(255,255,255,.06)}
 <div id="modal"></div>
 <div id="toast" class="rounded-xl bg-emerald-500 text-white px-6 py-3 text-sm font-extrabold shadow-lg"></div>
 
-<script src="assets/xp.js?v=6"></script>
-<script src="assets/site.js?v=10"></script>
+<script src="assets/xp.js?v=7"></script>
+<script src="assets/site.js?v=11"></script>
 <script>
 /* ================= المنهج الجديد: 3 وحدات ================= */
-var BUILD='tree-v9-1010';
-function mark(s){try{var d=document.getElementById('dbg');if(d){d.style.display='block';d.innerHTML+='<div>'+s+'</div>'}}catch(e){}}
+var BUILD='tree-v10-1012';
+var DEBUGLOC=false;try{DEBUGLOC=location.search.indexOf('debug')>=0}catch(e){}
+function mark(s){if(!DEBUGLOC)return;try{var d=document.getElementById('dbg');if(d){d.style.display='block';d.innerHTML+='<div>'+s+'</div>'}}catch(e){}}
 function safe(fn,name){try{fn();mark('✓ '+name)}catch(e){mark('✗ '+name+': '+String((e&&e.message)||e).slice(0,90))}}
 window.onerror=function(m){try{var b=document.getElementById('errbox');if(b){b.style.display='block';b.innerHTML+='<div>⚠ خطأ: '+String(m).slice(0,140)+'</div>'}}catch(e){};return false};
 var NODES=[
@@ -228,6 +229,7 @@ var BDG={completed:'<span class="rounded-full bg-emerald-500/20 px-2 py-0.5 text
 var MODL={beg:'🌱 البراعم',mid:'⚙ المتوسطة',adv:'🎓 المتقدمة'};
 function modName(m){return MODL[m]||m}
 function render(){
+  try{document.getElementById('dbg').innerHTML=''}catch(e){}
   var done=NODES.filter(function(n){var s=nodeSt(n);return s==='completed'||s==='review'}).length;
   document.getElementById('sub').textContent='أتقن عقدة لتفتح ما بعدها — '+done+' من '+NODES.length+' مكتملة';
   document.getElementById('bar').style.width=Math.round(done/NODES.length*100)+'%';
@@ -543,6 +545,7 @@ function renderHW(){
 function copyHW(c){try{navigator.clipboard.writeText('واجب التجويد '+c)}catch(e){}toast('نُسخ الواجب '+c)}
 try{document.getElementById('bld').textContent=BUILD}catch(e){}
 try{render()}catch(e){var b=document.getElementById('errbox');if(b){b.style.display='block';b.textContent='⚠ تعذر تشغيل الصفحة: '+e.message}}
+try{var t=document.getElementById('tiers');if(t&&!t.querySelector('button')){var b2=document.getElementById('errbox');if(b2){b2.style.display='block';b2.innerHTML='⚠ لم تظهر الدروس — غالباً نسخة قديمة محفوظة في المتصفح. <button onclick="location.href=location.pathname+\'?v=\'+Date.now()" style="font-weight:800;color:#6ee7b7">↻ اضغط هنا للتحديث</button>'}}}catch(e){}
 </script>
 </body>
 </html>
