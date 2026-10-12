@@ -1,58 +1,161 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تحدي السرعة والإتقان — عرض عملي</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحدي السرعة (Time Attack) - منصة تعلم التجويد</title>
 <link rel="stylesheet" href="assets/app.css?v=11">
 <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
-<style>body{font-family:'IBM Plex Sans Arabic',sans-serif}.fq{font-family:'Amiri Quran',serif}.fade{animation:fd .25s ease both}@keyframes fd{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}</style>
+<style>
+  body{font-family:'IBM Plex Sans Arabic',sans-serif}
+  .fq{font-family:'Amiri Quran',serif}
+  .fade{animation:fd .25s ease both}
+  @keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
 </head>
-<body class="bg-[#0B1020] text-slate-100 min-h-screen">
-<div class="max-w-3xl mx-auto p-4 md:p-8" id="app"></div>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen p-4 md:p-8">
+<div class="max-w-3xl mx-auto" id="app"></div>
+
 <script src="assets/xp.js?v=6"></script>
 <script src="assets/site.js?v=10"></script>
 <script>
-const QS=[
-{p:'انقر كلمة الإظهار الحلقي',r:'البقرة 74',w:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]]},
-{p:'انقر الحرف المقلقَل (ساكن من قطب جد)',r:'مثال',w:[['يَقْطَعُونَ',1],['يَكْتُبُ',0]]},
-{p:'انقر كلمة الإخفاء',r:'البقرة 3',w:[['مِن',0],['فَضْلِ',1],['ٱللَّهِ',0]]},
-{p:'أين الإظهار؟ (تنوين + ح)',r:'النساء 57',w:[['عَلِيمًا',0],['حَكِيمًا',1]]},
-{p:'انقر كلمة الإدغام بغنة',r:'مثال',w:[['مَن',0],['يَقُولُ',1]]},
-{p:'انقر كلمة الإقلاب (نون + ب)',r:'مثال',w:[['مِن',0],['بَعْدِ',1],['مَا',0]]},
-{p:'أين الغنة؟ (نون + ف)',r:'البقرة 3',w:[['مِن',0],['فَضْلِ',1]]},
-{p:'انقر الكلمة ذات التنوين المظهر',r:'النساء 57',w:[['عَلِيمًا',0],['حَكِيمًا',1]]}];
-let T=12;let ph='intro',qi=0,tl=T,xp=0,combo=0,mx=0,ok=0,fl=null,timer=null,last=0;
-function render(){
-const el=document.getElementById('app');
-let head=`<div class="mb-4 flex justify-between items-center"><span class="text-xs font-bold text-slate-400">⚡ تحدي السرعة والإتقان</span>
-${ph==='play'?`<div class="flex gap-2 text-xs font-bold"><span class="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 text-amber-300">⚡ ${xp} XP</span>${combo>=2?`<span class="rounded-full bg-violet-500/15 border border-violet-500/40 px-3 py-1 text-violet-300">🔥 ×${combo}</span>`:''}<span class="rounded-full bg-white/5 px-3 py-1">${qi+1}/${QS.length}</span></div>`:''}</div>`;
-let body='';
-if(ph==='intro')body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center"><div class="text-5xl">⚡</div>
-<h1 class="text-3xl font-extrabold mt-2">تحدي السرعة <span class="text-amber-300">والإتقان</span></h1>
-<p class="text-sm text-slate-400 mt-2">${QS.length} آيات • ${T} ثوانٍ للسؤال • مكافأة سرعة + سلسلة حتى ×2</p>'+'<div class="mt-4 flex justify-center items-center gap-2 text-xs font-bold"><span class="text-slate-400">زمن السؤال:</span>'+[8,12,15].map(function(s){return '<button onclick="setT('+s+')" class="rounded-full px-4 py-2 '+(T===s?'bg-amber-400 text-black':'bg-white/5')+'">'+s+' ث</button>'}).join('')+'</div>'+`
-<button onclick="start()" class="mt-6 rounded-xl bg-amber-400 px-10 py-3.5 text-sm font-extrabold text-black">▶ ابدأ التحدي</button></div>`;
-if(ph==='play'){const q=QS[qi];
-body=`<div class="h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full ${tl<4?'bg-rose-500':'bg-gradient-to-l from-amber-300 to-emerald-400'}" style="width:${tl/T*100}%"></div></div>
-<div class="fade mt-4 rounded-2xl border p-6 text-center ${fl==='g'?'border-emerald-400 bg-emerald-500/10':fl==='b'?'border-rose-500 bg-rose-500/10':'border-white/10 bg-white/[.04]'}">
-<p class="text-sm font-bold">${q.p} <span class="text-slate-500">— ${q.r}</span></p><p class="text-xs text-slate-400 font-bold">${tl.toFixed(1)} ث</p>
-<div class="fq mt-4 text-4xl md:text-5xl leading-[2.2]">${q.w.map(x=>`<button onclick="pick(${x[1]})" class="mx-2 px-4 py-1 rounded-xl bg-black/30 border border-white/10 hover:border-amber-400/60">${x[0]}</button>`).join('')}</div>
-${fl==='g'?`<p class="text-emerald-300 font-extrabold mt-2">+${last} XP ✓</p>`:''}${fl==='b'?`<p class="text-rose-300 font-bold mt-2">✗ خطأ أو انتهى الوقت</p>`:''}</div>`}
-if(ph==='res'){const a=ok/QS.length;
-body=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center"><div class="text-5xl">${a>=.8?'🏆':a>=.5?'💪':'📖'}</div>
-<h2 class="text-2xl font-extrabold mt-2">${a>=.8?'أداء النخبة!':a>=.5?'جيد — واصل!':'راجع الشجرة وحاول مجدداً'}</h2>
-<div class="mx-auto mt-4 grid max-w-md grid-cols-3 gap-2"><div class="rounded-xl bg-amber-400/10 border border-amber-400/30 p-3"><div class="text-xl font-extrabold text-amber-300">+${xp}</div><div class="text-[11px] text-slate-400">XP</div></div>
-<div class="rounded-xl bg-black/30 p-3"><div class="text-xl font-extrabold">${ok}/${QS.length}</div><div class="text-[11px] text-slate-400">${Math.round(a*100)}%</div></div>
-<div class="rounded-xl bg-black/30 p-3"><div class="text-xl font-extrabold text-violet-300">×${mx}</div><div class="text-[11px] text-slate-400">أطول سلسلة</div></div></div>
-<p class="text-xs text-slate-400 mt-3">رصيدك الكلي على هذا الجهاز: ${XP.get()} XP • رتبتك: ${XP.rank()}</p><div class="mx-auto mt-4 flex max-w-md gap-2"><button onclick="restart()" class="flex-1 rounded-xl bg-amber-400 py-3 text-sm font-extrabold text-black">↻ إعادة</button></div></div>`}
-el.innerHTML=head+body}
-function setT(v){T=v;render()}
-function start(){ph='play';qi=0;xp=0;combo=0;mx=0;ok=0;tick()}
-function restart(){start()}
-function tick(){fl=null;tl=T;render();clearInterval(timer);timer=setInterval(()=>{tl=Math.round((tl-.1)*10)/10;
-if(tl<=0){clearInterval(timer);miss()}else{const b=document.querySelector('#app .h-2>div');if(b){b.style.width=tl/T*100+'%';b.className='h-full rounded-full '+(tl<4?'bg-rose-500':'bg-gradient-to-l from-amber-300 to-emerald-400')}const t=document.querySelectorAll('#app p')[1];if(t)t.textContent=tl.toFixed(1)+' ث'}},100)}
-function miss(){combo=0;fl='b';render();setTimeout(()=>{qi+1>=QS.length?end():{qi++;tick()}},450)}
-function pick(o){clearInterval(timer);if(o){const g=Math.round((20+tl/T*30)*(1+Math.min(combo,4)*.25));xp+=g;ok++;combo++;mx=Math.max(mx,combo);last=g;fl='g'}else{combo=0;fl='b'}render();setTimeout(()=>{qi+1>=QS.length?end():{qi++;tick()}},450)}
-function end(){try{XP.add(xp)}catch(e){}ph='res';render()}
+const QS = [
+  {p: 'اختر حكم الإظهار الحلقي من الأمثلة التالية:', r: 'من هاجر', w: [['مِنْ رَبِّهِمْ', 0],['مَنْ هَاجَرَ', 1],['مِنْ بَعْدِ', 0]]},
+  {p: 'اختر كلمة بها مد متمكين (أو مد طبيعي ثابت)', r: 'قالوا', w: [['قَالُوا', 1],['الْملاَئِكَةُ', 0]]},
+  {p: 'ما حكم النون في قوله تعالى: (مِنْ لَدُنْهُ)', r: 'إدغام بلا غنة', w: [['إخفاء', 0],['إدغام بلا غنة', 1],['إظهار', 0]]},
+  {p: 'اختر مثالاً على الإقلاب (الباء + م)', r: 'مِنْ بَعْدِ', w: [['مَنْ آمَنَ', 0],['مِنْ بَعْدِ', 1]]},
+  {p: 'ما هو المد اللازم الكلمي المثقل؟', r: 'حاقة', w: [['حَاقَّة', 1],['جَاءَ', 0]]}
+];
+
+let T = 12, ph = 'intro', qi = 0, tl = T, xp = 0, combo = 0, mx = 0, ok = 0, fl = null, timer = null, last = 0;
+
+function render() {
+  const el = document.getElementById('app');
+  let head = `<div class="mb-6 flex justify-between items-center">
+    <span class="text-xs font-bold text-slate-400">⚡ وضع تحدي السرعة في التجويد</span>
+    <a href="index.html" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold hover:bg-white/10">العودة للرئيسية</a>
+  </div>`;
+
+  if(ph === 'play') {
+    head += `<div class="flex gap-2 text-xs font-bold mb-4 justify-end">
+      <span class="rounded-full bg-amber-400/10 border border-amber-400/30 px-3 py-1 text-amber-300">⭐ ${xp} XP</span>
+      ${combo >= 2 ? `<span class="rounded-full bg-violet-500/15 border border-violet-500/40 px-3 py-1 text-violet-300">🔥 تتابع x${combo}</span>` : ''}
+      <span class="rounded-full bg-white/5 px-3 py-1">${qi + 1} / ${QS.length}</span>
+    </div>`;
+  }
+
+  let body = '';
+  if(ph === 'intro') {
+    body = `<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center">
+      <div class="text-5xl mb-3">⚡</div>
+      <h1 class="text-3xl font-extrabold mt-2">تحدي <span class="text-amber-300">السرعة الخاطف</span></h1>
+      <p class="text-sm text-slate-400 mt-2">أجب على ${QS.length} أسئلة بأسرع وقت ممكن لكسب نقاط مضاعفة ورفع رتبتك!</p>
+      
+      <div class="mt-6 flex justify-center items-center gap-3 text-xs font-bold">
+        <span class="text-slate-400">وقت السؤال:</span>
+        ${[8, 12, 15].map(s => `<button onclick="setT(${s})" class="rounded-xl px-4 py-2 ${T === s ? 'bg-amber-400 text-black' : 'bg-white/5 border border-white/10'}">${s} ثانية</button>`).join('')}
+      </div>
+
+      <button onclick="start()" class="mt-8 rounded-xl bg-amber-400 px-10 py-3.5 text-sm font-extrabold text-black hover:bg-amber-300">ابدأ التحدي الآن</button>
+    </div>`;
+  } else if(ph === 'play') {
+    const q = QS[qi];
+    body = `<div class="h-2 rounded-full bg-white/10 overflow-hidden mb-6">
+      <div class="h-full rounded-full ${tl < 4 ? 'bg-rose-500' : 'bg-gradient-to-l from-amber-300 to-emerald-400'}" style="width:${tl / T * 100}%"></div>
+    </div>
+    <div class="fade rounded-2xl border p-6 text-center ${fl === 'g' ? 'border-emerald-400 bg-emerald-500/10' : fl === 'b' ? 'border-rose-500 bg-rose-500/10' : 'border-white/10 bg-white/[.04]'}">
+      <div class="text-xs text-amber-300 font-bold mb-1">السؤال ${qi + 1} من ${QS.length}</div>
+      <p class="text-base font-bold mb-2">${q.p}</p>
+      <p class="text-xs text-slate-400 font-bold mb-6">الوقت المتبقي: ${tl.toFixed(1)} ثانية</p>
+      
+      <div class="grid gap-3 max-w-md mx-auto">
+        ${q.w.map(x => `<button onclick="pick(${x[1]})" class="w-full p-3 rounded-xl bg-black/40 border border-white/10 hover:border-amber-400/60 font-bold text-sm transition">${x[0]}</button>`).join('')}
+      </div>
+      
+      ${fl === 'g' ? `<p class="text-emerald-300 font-extrabold mt-4">+${last} XP ممتاز!</p>` : ''}
+      ${fl === 'b' ? `<p class="text-rose-300 font-bold mt-4">❌ خطأ أو انتهى الوقت!</p>` : ''}
+    </div>`;
+  } else if(ph === 'res') {
+    const a = ok / QS.length;
+    body = `<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center">
+      <div class="text-5xl mb-3">${a >= .8 ? '🏆' : a >= .5 ? '⭐' : '💪'}</div>
+      <h2 class="text-2xl font-extrabold mt-2">${a >= .8 ? 'أداء ممتاز ورائع!' : a >= .5 ? 'جيد جداً، استمر!' : 'حاول مرة أخرى لتحسين مستواك'}</h2>
+      
+      <div class="mx-auto mt-6 grid max-w-md grid-cols-3 gap-3">
+        <div class="rounded-xl bg-amber-400/10 border border-amber-400/30 p-3">
+          <div class="text-xl font-extrabold text-amber-300">+${xp}</div>
+          <div class="text-[11px] text-slate-400">النقاط المكتسبة</div>
+        </div>
+        <div class="rounded-xl bg-black/30 border border-white/10 p-3">
+          <div class="text-xl font-extrabold text-white">${ok}/${QS.length}</div>
+          <div class="text-[11px] text-slate-400">الإجابات الصحيحة</div>
+        </div>
+        <div class="rounded-xl bg-black/30 border border-white/10 p-3">
+          <div class="text-xl font-extrabold text-violet-300">x${mx}</div>
+          <div class="text-[11px] text-slate-400">أقصى تتابع</div>
+        </div>
+      </div>
+
+      <div class="mx-auto mt-6 flex max-w-md gap-3">
+        <button onclick="restart()" class="flex-1 rounded-xl bg-amber-400 py-3 text-sm font-extrabold text-black hover:bg-amber-300">إعادة التحدي</button>
+        <a href="index.html" class="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-bold hover:bg-white/10">الرئيسية</a>
+      </div>
+    </div>`;
+  }
+  el.innerHTML = head + body;
+}
+
+function setT(v) { T = v; render(); }
+function start() { ph = 'play'; qi = 0; xp = 0; combo = 0; mx = 0; ok = 0; tick(); }
+function restart() { start(); }
+
+function tick() {
+  fl = null; tl = T; render();
+  clearInterval(timer);
+  timer = setInterval(() => {
+    tl = Math.round((tl - 0.1) * 10) / 10;
+    if (tl <= 0) {
+      clearInterval(timer);
+      miss();
+    } else {
+      const b = document.querySelector('#app .h-2>div');
+      if (b) {
+        b.style.width = (tl / T * 100) + '%';
+        b.className = 'h-full rounded-full ' + (tl < 4 ? 'bg-rose-500' : 'bg-gradient-to-l from-amber-300 to-emerald-400');
+      }
+    }
+  }, 100);
+}
+
+function miss() {
+  combo = 0; fl = 'b'; render();
+  setTimeout(() => {
+    if (qi + 1 >= QS.length) end();
+    else { qi++; tick(); }
+  }, 700);
+}
+
+function pick(o) {
+  clearInterval(timer);
+  if (o) {
+    const g = Math.round((20 + (tl / T) * 30) * (1 + Math.min(combo, 4) * 0.25));
+    xp += g; ok++; combo++; mx = Math.max(mx, combo); last = g; fl = 'g';
+  } else {
+    combo = 0; fl = 'b';
+  }
+  render();
+  setTimeout(() => {
+    if (qi + 1 >= QS.length) end();
+    else { qi++; tick(); }
+  }, 700);
+}
+
+function end() {
+  try { XP.add(xp); } catch(e) {}
+  ph = 'res';
+  render();
+}
+
 render();
 </script>
 </body>
