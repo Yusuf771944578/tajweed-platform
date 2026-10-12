@@ -2,7 +2,7 @@
 (function () {
   var PAGES = [
     { h: 'index.html?v=8', t: 'الرئيسية', i: '⌂' },
-    { h: 'demo-teacher-studio.html?v=8', t: 'الاستوديو', i: '◉' },
+    { h: 'demo-teacher-studio.html?v=9', t: 'الاستوديو', i: '◉' },
     { h: 'demo-skill-tree.html?v=11', t: 'الشجرة', i: '⑂' },
     { h: 'demo-lesson.html?v=8', t: 'الدرس', i: '♪' },
     { h: 'demo-time-attack.html?v=8', t: 'السرعة', i: '⚡' },
