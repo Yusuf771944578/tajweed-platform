@@ -1,55 +1,235 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>غرفة النزال 1v1 — عرض عملي</title>
-<link rel="stylesheet" href="assets/app.css?v=11">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المبارزة الثنائية (1v1) - منصة تعلم التجويد</title>
+<link rel="stylesheet" href="assets/app.css?v=15">
 <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
-<style>body{font-family:'IBM Plex Sans Arabic',sans-serif}.fq{font-family:'Amiri Quran',serif}.fade{animation:fd .25s ease both}@keyframes fd{from{opacity:0}to{opacity:1}}</style>
+<style>
+  body{font-family:'IBM Plex Sans Arabic',sans-serif}
+  .fq{font-family:'Amiri Quran',serif}
+  .fade{animation:fd .25s ease both}
+  @keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
 </head>
-<body class="bg-[#0B1020] text-slate-100 min-h-screen">
-<div class="max-w-3xl mx-auto p-4 md:p-8" id="app"></div>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen p-4 md:p-8">
+<div class="max-w-3xl mx-auto" id="app"></div>
+
 <script src="assets/xp.js?v=6"></script>
-<script src="assets/site.js?v=10"></script>
+<script src="assets/site.js?v=16"></script>
 <script>
-const QS=[
-{p:'انقر كلمة الإظهار',r:'البقرة 74',w:[['مِنْ',0],['خَشْيَةِ',1]]},
-{p:'انقر الحرف المقلقَل',r:'مثال',w:[['يَطْمَعُونَ',1],['يَعْلَمُ',0]]},
-{p:'انقر كلمة الإخفاء',r:'البقرة 3',w:[['مِن',0],['فَضْلِ',1]]},
-{p:'انقر كلمة الإدغام',r:'مثال',w:[['مَن',0],['يَقُولُ',1]]}];
-const T=10;let ph='lobby',qi=0,tl=T,me=0,opp=0,ans=false,oppA=false,timer=null,botT=null,skill=0.7;
-function render(){
-const el=document.getElementById('app');
-let h=`<div class="mb-4 flex justify-between"><span class="text-xs font-bold text-slate-400">⚔️ غرفة 1v1 مباشرة</span><span class="rounded-full bg-rose-500/10 border border-rose-500/30 px-3 py-1 text-xs font-bold text-rose-300">● خصم محاكى</span></div>`;
-let b='';
-if(ph==='lobby')b=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center">
-<div class="flex justify-center gap-6 items-center"><div><div class="mx-auto h-16 w-16 rounded-2xl bg-emerald-500/15 text-2xl font-extrabold text-emerald-300 flex items-center justify-center">أ</div><p class="text-sm font-bold mt-2">أنت</p></div>
-<div class="text-3xl font-extrabold text-slate-500">VS</div>
-<div><div class="mx-auto h-16 w-16 rounded-2xl bg-violet-500/15 text-2xl font-extrabold text-violet-300 flex items-center justify-center">خ</div><p class="text-sm font-bold mt-2">منافس</p></div></div>
-<p class="text-xs text-slate-400 mt-4">${QS.length} جولات • الفائز +150 XP</p>'+'<div class="mt-4 flex justify-center items-center gap-2 text-xs font-bold"><span class="text-slate-400">مستوى الخصم:</span>'+[['سهل',0.45],['متوسط',0.7],['صعب',0.9]].map(function(x){return '<button onclick="setSkill('+x[1]+')" class="rounded-full px-4 py-2 '+(skill===x[1]?'bg-violet-500 text-white':'bg-white/5')+'">'+x[0]+'</button>'}).join('')+'</div>'+`
-<button onclick="go()" class="mt-5 rounded-xl bg-rose-500 px-10 py-3 text-sm font-extrabold">⚔️ ابدأ النزال</button></div>`;
-if(ph==='live'){const q=QS[qi];
-b=`<div class="grid grid-cols-2 gap-2"><div class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-center"><div class="text-xs font-bold text-emerald-300">أنت</div><div class="text-2xl font-extrabold">${me}</div></div>
-<div class="rounded-xl border border-violet-500/40 bg-violet-500/10 p-3 text-center"><div class="text-xs font-bold text-violet-300">الخصم</div><div class="text-2xl font-extrabold">${opp}</div></div></div>
-<div class="mt-2 h-2 rounded-full bg-white/10 overflow-hidden"><div id="tb" class="h-full bg-rose-500" style="width:100%"></div></div>
-<div class="fade mt-3 rounded-2xl border border-white/10 bg-white/[.04] p-6 text-center">
-<p class="text-sm font-bold">الجولة ${qi+1}/${QS.length} — ${q.p} <span class="text-slate-500">(${q.r})</span></p>
-<div class="fq mt-3 text-4xl leading-[2]">${q.w.map(x=>`<button ${ans?'disabled':''} onclick="pick(${x[1]})" class="mx-2 px-4 py-1 rounded-xl border border-white/10 bg-black/30 ${ans?'opacity-60':''}">${x[0]}</button>`).join('')}</div>
-${oppA?'<p class="text-[11px] text-violet-300 mt-2">الخصم أجاب هذه الجولة…</p>':''}</div>`}
-if(ph==='over'){const w=me>=opp?'أنت':'الخصم';
-b=`<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center"><div class="text-5xl">${w==='أنت'?'🏆':'🤝'}</div>
-<h2 class="text-2xl font-extrabold mt-2">الفائز: ${w}</h2><p class="text-sm text-slate-400">${me} — ${opp}</p>
-<button onclick="reset()" class="mt-4 rounded-xl bg-rose-500 px-8 py-3 text-sm font-extrabold">↻ نزال جديد</button></div>`}
-el.innerHTML=h+b}
-function setSkill(v){skill=v;render()}
-function go(){ph='live';qi=0;me=0;opp=0;round()}
-function reset(){go()}
-function round(){ans=false;oppA=false;tl=T;render();clearTimeout(botT);
-botT=setTimeout(()=>{if(ph!=='live')return;oppA=true;if(Math.random()<skill)opp+=100;render();const b=document.getElementById('tb');if(b)b.style.width=tl/T*100+'%'},2500+Math.random()*4000);
-clearInterval(timer);timer=setInterval(()=>{tl=Math.round((tl-.1)*10)/10;const b=document.getElementById('tb');if(b)b.style.width=Math.max(0,tl/T*100)+'%';
-if(tl<=0){clearInterval(timer);clearTimeout(botT);setTimeout(()=>{qi+1>=QS.length?over():{qi++;round()}},400)}},100)}
-function pick(o){if(ans)return;ans=true;clearInterval(timer);if(o)me+=100;render();setTimeout(()=>{qi+1>=QS.length?over():{qi++;round()}},600)}
-function over(){try{XP.add(me>=opp?150:40)}catch(e){}ph='over';clearInterval(timer);clearTimeout(botT);render()}
+const ALL_QS = [
+  // 1. الاستعاذة والبسملة
+  {cat: 'استعاذة وبسملة', p: 'ما حكم الاستعاذة عند قراءة القرآن الكريم؟', r: 'مستحبة وقيل وجيبة', w: [['واجبة قطعا', 0],['مستحبة باتفاق الجمهور', 1],['مكروهة', 0]]},
+  {cat: 'استعاذة وبسملة', p: 'ما هو حكم البسملة في أول سورة التوبة (براءة)؟', r: 'لا تبسمل فيها', w: [['سنة مؤكدة', 0],['ممنوعة (لا تُقْرَأ)', 1],['مستحبة', 0]]},
+  {cat: 'استعاذة وبسملة', p: 'هل تجوز الاستعاذة في أوسط السورة؟', r: 'نعم يجوز', w: [['نعم يجوز', 1],['لا يجوز مطلقا', 0]]},
+  
+  // 2. النون والميم الساكنتان
+  {cat: 'نون وميم ساكنتان', p: 'ما حكم النون الساكنة في قوله تعالى: (مِنْ رَبِّهِمْ)', r: 'إدغام بغنة', w: [['إظهار', 0],['إدغام بغنة', 1],['اقلاب', 0]]},
+  {cat: 'نون وميم ساكنتان', p: 'ما حكم الميم الساكنة إذا جاء بعدها حرف الباء (إخفاء شفوي):', r: 'ترمي بحجارة', w: [['تَرْمِيهِمْ بِحِجَارَةٍ', 1],['لَهُمْ مَغْفِرَةٌ', 0],['أَمْ لَمْ تُنذِرْهُمْ', 0]]},
+  {cat: 'نون وميم ساكنتان', p: 'ما حكم النون الساكنة في قوله تعالى: (مَنْ آمَنَ)', r: 'إظهار حلقي', w: [['إظهار حلقي', 1],['إدغام بغنة', 0],['إخفاء', 0]]},
+  {cat: 'نون وميم ساكنتان', p: 'ما حكم النون الساكنة في قوله تعالى: (مِنْ بَعْدِ)', r: 'إقلاب', w: [['إظهار', 0],['إقلاب', 1],['إدغام', 0]]},
+  {cat: 'نون وميم ساكنتان', p: 'ما حكم الميم الساكنة في قوله تعالى: (لَهُمْ مَغْفِرَةٌ)', r: 'إظهار شفوي', w: [['إظهار شفوي', 1],['إخفاء شفوي', 0],['إدغام', 0]]},
+  {cat: 'نون وميم ساكنتان', p: 'ما حكم النون الساكنة مع حرف الراء في (أن رءاه)', r: 'إدغام بغير غنة', w: [['إدغام بغير غنة', 1],['إظهار', 0]]},
+  {cat: 'نون وميم ساكنتان', p: 'كم عدد حروف الإظهار الحلقي؟', r: '6 حروف', w: [['4 حروف', 0],['6 حروف', 1],['15 حرفا', 0]]},
+
+  // 3. المدود
+  {cat: 'المدود', p: 'اختر كلمة بها مد لازم كلمي مثقل:', r: 'حاقة', w: [['حَاقَّة', 1],['جَاءَ', 0],['فِي', 0]]},
+  {cat: 'المدود', p: 'ما مقدار مد العارض للسكون جائز؟', r: '2 أو 4 أو 6 حركات', w: [['حركتان فقط', 0],['2 أو 4 أو 6 حركات', 1],['6 حركات لازمة', 0]]},
+  {cat: 'المدود', p: 'ما حكم المد المتصل عند حفص؟', r: 'واجب المد 4 أو 5 حركات', w: [['جائز القصر', 0],['واجب المد 4 أو 5 حركات', 1],['لازم 6 حركات', 0]]},
+  {cat: 'المدود', p: 'ما هو المد المنفصل؟', r: 'حرف المد في كلمة وهمزة في أخرى', w: [['حرف المد والهمزة في كلمة واحدة', 0],['حرف المد في كلمة والهمزة في بداية الكلمة التي تليها', 1]]},
+  {cat: 'المدود', p: 'ما مقدار مد الصلة الصغرى؟', r: 'حركتان', w: [['حركتان', 1],['4 حركات', 0],['6 حركات', 0]]},
+
+  // 4. التفخيم والترقيق
+  {cat: 'تفخيم وترقيق', p: 'ما حكم حرف الراء في كلمة (فِرْقٍ)؟', r: 'مرقق', w: [['مرقق', 1],['مفخم', 0]]},
+  {cat: 'تفخيم وترقيق', p: 'حروف الاستعلاء دائماً:', r: 'مفخمة', w: [['مفخمة', 1],['مرققة', 0]]},
+  {cat: 'تفخيم وترقيق', p: 'حرف الراء المضمومة يكون:', r: 'مفخما', w: [['مفخما', 1],['مرققا', 0]]},
+
+  // 5. الوقف والابتداء
+  {cat: 'الوقف والابتداء', p: 'ما حكم الوقف على رأس الآيات القرآنية؟', r: 'سنة', w: [['سنة مستحبة', 1],['مكروه', 0],['محرم', 0]]},
+  {cat: 'الوقف والابتداء', p: 'الوقف التام يكون على:', r: 'ما تم معناه ولم يتعلق بما بعده', w: [['ما تم معناه ولم يتعلق بما بعده لفظا ولا معنى', 1],['ما تعلق بما بعده', 0]]}
+];
+
+let T = 12, ph = 'lobby', qi = 0, tl = T, me = 0, opp = 0, ans = false, oppA = false, timer = null, botT = null, skill = 0.7, selectedCats = ['استعاذة وبسملة', 'نون وميم ساكنتان', 'المدود', 'تفخيم وترقيق', 'الوقف والابتداء'], activeQS = [];
+
+function getCats() {
+  var cats = [];
+  for (var i = 0; i < ALL_QS.length; i++) {
+    if (cats.indexOf(ALL_QS[i].cat) === -1) cats.push(ALL_QS[i].cat);
+  }
+  return cats;
+}
+
+function render() {
+  const el = document.getElementById('app');
+  let h = `<div class="mb-6 flex justify-between items-center">
+    <span class="text-xs font-bold text-slate-400">⚔️ مبارزة تجويدية حية (1v1)</span>
+    <span class="flex gap-2"><a href="demo-skill-tree.html" class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20">🌳 الشجرة</a><a href="index.html" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold hover:bg-white/10">العودة للرئيسية</a></span>
+  </div>`;
+
+  let b = '';
+  if (ph === 'lobby') {
+    var cats = getCats();
+    var allSelected = selectedCats.length === cats.length;
+    
+    b = `<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center">
+      <div class="flex justify-center gap-8 items-center mb-6">
+        <div>
+          <div class="mx-auto h-16 w-16 rounded-2xl bg-emerald-500/15 text-2xl font-extrabold text-emerald-300 flex items-center justify-center">أنت</div>
+          <p class="text-sm font-bold mt-2">المتحدي</p>
+        </div>
+        <div class="text-3xl font-extrabold text-slate-500">VS</div>
+        <div>
+          <div class="mx-auto h-16 w-16 rounded-2xl bg-violet-500/15 text-2xl font-extrabold text-violet-300 flex items-center justify-center">خصم</div>
+          <p class="text-sm font-bold mt-2">المنافس الآلي</p>
+        </div>
+      </div>
+      <p class="text-sm text-slate-400 mb-4">أبرز أسئلة التجويد • الفائز يحصل على +150 XP</p>
+      
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2 px-2">
+          <p class="text-xs font-bold text-slate-400">اختر الأقسام المطلوبة (يمكنك اختيار أكثر من قسم):</p>
+          <button onclick="toggleAllCats()" class="text-xs font-bold text-emerald-400 hover:underline">${allSelected ? 'إلغاء تحديد الكل' : 'تحديد الكل'}</button>
+        </div>
+        <div class="flex flex-wrap justify-center gap-2">
+          ${cats.map(c => {
+            var active = selectedCats.indexOf(c) !== -1;
+            return `<button onclick="toggleCat('${c}')" class="rounded-xl px-3 py-1.5 text-xs font-bold ${active ? 'bg-emerald-500 text-black shadow-lg' : 'bg-white/5 border border-white/10 text-slate-400'}">${c}</button>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="mb-6 flex justify-center items-center gap-2 text-xs font-bold">
+        <span class="text-slate-400">مستوى المنافس:</span>
+        ${[['سهل', 0.4], ['متوسط', 0.7], ['صعب', 0.9]].map(x => `<button onclick="setSkill(${x[1]})" class="rounded-xl px-4 py-2 ${skill === x[1] ? 'bg-violet-500 text-white' : 'bg-white/5 border border-white/10'}">${x[0]}</button>`).join('')}
+      </div>
+
+      <button onclick="go()" class="rounded-xl bg-rose-500 px-10 py-3.5 text-sm font-extrabold text-white hover:bg-rose-400">بدء البحث عن خصم ومبارزة</button>
+    </div>`;
+  } else if (ph === 'live') {
+    const q = activeQS[qi];
+    b = `<div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-center">
+        <div class="text-xs font-bold text-emerald-300">نقاطك</div>
+        <div class="text-2xl font-extrabold">${me}</div>
+      </div>
+      <div class="rounded-xl border border-violet-500/40 bg-violet-500/10 p-3 text-center">
+        <div class="text-xs font-bold text-violet-300">نقاط المنافس</div>
+        <div class="text-2xl font-extrabold">${opp}</div>
+      </div>
+    </div>
+    
+    <div class="h-2 rounded-full bg-white/10 overflow-hidden mb-6">
+      <div id="tb" class="h-full bg-rose-500 transition-all duration-100" style="width:100%"></div>
+    </div>
+
+    <div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-6 text-center">
+      <div class="text-xs text-amber-300 font-bold mb-1">السؤال ${qi + 1} من ${activeQS.length} (${q.cat})</div>
+      <p class="text-base font-bold mb-4">${q.p}</p>
+      
+      <div class="grid gap-3 max-w-md mx-auto">
+        ${q.w.map(x => `<button ${ans ? 'disabled' : ''} onclick="pick(${x[1]})" class="w-full p-3 rounded-xl border border-white/10 bg-black/40 hover:border-amber-400/60 font-bold text-sm ${ans ? 'opacity-60' : ''}">${x[0]}</button>`).join('')}
+      </div>
+
+      ${oppA ? '<p class="text-xs text-violet-300 mt-4 font-bold">⚡ المنافس أجاب على السؤال!</p>' : ''}
+    </div>`;
+  } else if (ph === 'over') {
+    const win = me >= opp;
+    b = `<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-8 text-center">
+      <div class="text-5xl mb-3">${win ? '🏆' : '🤝'}</div>
+      <h2 class="text-2xl font-extrabold mt-2">${win ? 'تهانينا، لقد فزت بالمبارزة!' : 'هاردلك، نافس مرة أخرى!'}</h2>
+      <p class="text-sm text-slate-400 mt-2">النتيجة النهائية: أنت (${me}) - المنافس (${opp})</p>
+      
+      <div class="mx-auto mt-6 flex max-w-md gap-3">
+        <button onclick="reset()" class="flex-1 rounded-xl bg-rose-500 py-3 text-sm font-extrabold text-white hover:bg-rose-400">إعادة المبارزة</button>
+        <a href="index.html" class="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-bold hover:bg-white/10">الرئيسية</a>
+      </div>
+    </div>`;
+  }
+  el.innerHTML = h + b;
+}
+
+function toggleCat(c) {
+  var idx = selectedCats.indexOf(c);
+  if (idx !== -1) {
+    if (selectedCats.length > 1) selectedCats.splice(idx, 1);
+  } else {
+    selectedCats.push(c);
+  }
+  render();
+}
+
+function toggleAllCats() {
+  var cats = getCats();
+  if (selectedCats.length === cats.length) {
+    selectedCats = [cats[0]]; // ابقِ على قسم واحد على الأقل
+  } else {
+    selectedCats = [...cats];
+  }
+  render();
+}
+
+function setSkill(v) { skill = v; render(); }
+
+function go() {
+  activeQS = ALL_QS.filter(q => selectedCats.indexOf(q.cat) !== -1);
+  if (activeQS.length === 0) {
+    alert('يرجى اختيار قسم واحد على الأقل!');
+    return;
+  }
+  activeQS.sort(() => Math.random() - 0.5);
+  ph = 'live'; qi = 0; me = 0; opp = 0; round();
+}
+
+function reset() { ph = 'lobby'; render(); }
+
+function round() {
+  ans = false; oppA = false; tl = T; render();
+  clearTimeout(botT);
+  botT = setTimeout(() => {
+    if (ph !== 'live') return;
+    oppA = true;
+    if (Math.random() < skill) opp += 100;
+    render();
+  }, 2000 + Math.random() * 3000);
+
+  clearInterval(timer);
+  timer = setInterval(() => {
+    tl = Math.round((tl - 0.1) * 10) / 10;
+    const b = document.getElementById('tb');
+    if (b) b.style.width = Math.max(0, (tl / T) * 100) + '%';
+    if (tl <= 0) {
+      clearInterval(timer);
+      clearTimeout(botT);
+      setTimeout(() => {
+        if (qi + 1 >= activeQS.length) over();
+        else { qi++; round(); }
+      }, 500);
+    }
+  }, 100);
+}
+
+function pick(o) {
+  if (ans) return;
+  ans = true;
+  clearInterval(timer);
+  if (o) me += 100;
+  render();
+  setTimeout(() => {
+    if (qi + 1 >= activeQS.length) over();
+    else { qi++; round(); }
+  }, 700);
+}
+
+function over() {
+  try { XP.add(me >= opp ? 150 : 40); } catch(e) {}
+  ph = 'over';
+  clearInterval(timer);
+  clearTimeout(botT);
+  render();
+}
+
 render();
 </script>
 </body>

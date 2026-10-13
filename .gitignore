@@ -10,3 +10,5 @@ Thumbs.db
 !.dev.vars.example
 .env*
 !.env.example
+# audio library (67MB) stays out of git; deployed directly to Cloudflare Pages
+tajweed-platform/audio/

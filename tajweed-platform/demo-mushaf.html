@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المصحف — القراءة مع معنى الكلمة بالضغط عليها</title>
+<meta name="description" content="مصحف المدينة خفيف: صفحة واحدة عند الطلب بالرسم العثماني مع تلوين التجويد، واضغط أي كلمة لعرض معناها مثل تطبيق سورة.">
+<link rel="stylesheet" href="assets/app.css?v=12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
+.mush{font-family:'Amiri Quran',serif;word-spacing:.12rem}
+.mline{text-align:justify;text-align-last:justify;line-height:2.8}
+.mline.center{text-align:center;text-align-last:center}
+.w{border-bottom:3px solid transparent;border-radius:.35em;padding:0 .12em;cursor:pointer;transition:background .15s}
+.w:hover{background:rgba(251,191,36,.15)}
+.w.sel{background:rgba(251,191,36,.28)}
+/* دليل التلوين - أحكام التجويد */
+.tj .tajweed-izhar{background-color:#E6F4EA;color:#059669;border-bottom:2px solid #10B981}
+.tj .tajweed-idgham{background-color:#FEF3C7;color:#D97706;border-bottom:2px solid #F59E0B}
+.tj .tajweed-iqlab{background-color:#F3E8FF;color:#7C3AED;border-bottom:2px solid #8B5CF6}
+.tj .tajweed-ikhfa{background-color:#E0F2FE;color:#0284C7;border-bottom:2px solid #0EA5E9}
+.tj .tajweed-qalqalah{background-color:#FFEDD5;color:#EA580C;border-bottom:2px solid #F97316}
+.tj .tajweed-mad-farai{background-color:#FCE7F3;color:#DB2777;border-bottom:2px solid #EC4899}
+.tj .tajweed-mad-lazim{background-color:#FEE2E2;color:#DC2626;border-bottom:2px solid #EF4444}
+.tj .tajweed-ghunnah{background-color:#FAE8FF;color:#C026D3;border-bottom:2px solid #D946EF}
+.tj .tajweed-silah-s{background-color:#CCFBF1;color:#0F766E;border-bottom:2px solid #14B8A6}
+.tj .tajweed-silah-k{background-color:#E0E7FF;color:#4338CA;border-bottom:2px solid #6366F1}
+.ay{font-size:.72em;white-space:nowrap}
+.surah-head{border:2px solid rgba(251,191,36,.5);background:rgba(251,191,36,.07);border-radius:1rem;padding:.6rem 1rem;margin:1rem auto;max-width:26rem;text-align:center;font-weight:800}
+.page-frame{border:2px solid rgba(251,191,36,.35);border-radius:1.25rem;background:rgba(255,255,255,.02);padding:1.5rem 1.25rem 1rem;margin-bottom:1.25rem}
+.page-num{text-align:center;margin-top:1rem;font-weight:800}
+.stbtn{display:inline-block;font-size:11px;line-height:1.6;color:#6ee7b7;background:rgba(16,185,129,.08);border:1px solid rgba(52,211,153,.5);border-radius:.55rem;padding:0 .4rem;cursor:pointer;opacity:.7;vertical-align:super}
+.stbtn:hover{opacity:1;background:rgba(16,185,129,.18)}
+select,input[type=number],input[type=text]{color-scheme:dark}
+[data-theme="light"] select,[data-theme="light"] input{color-scheme:light}
+/* نافذة معنى الكلمة */
+#sheet{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);padding:1rem}
+#sheet.open{display:flex}
+#sheetCard{width:100%;max-width:32rem;background:#111a30;border:1px solid rgba(255,255,255,.12);border-radius:1.25rem;padding:1.25rem;animation:up .22s ease}
+[data-theme="light"] #sheetCard{background:#fff;color:#0f172a}
+@keyframes up{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.kbd{font-size:11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:.4rem;padding:.1rem .5rem}
+</style>
+</head>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div class="max-w-4xl mx-auto p-4 md:p-8">
+<header class="text-center">
+<h1 class="text-2xl md:text-3xl font-extrabold">📖 المصحف <span class="text-emerald-400">— اضغط الكلمة لعرض معناها</span></h1>
+<p class="text-sm text-slate-400 mt-2 leading-7">مصحف المدينة (604 صفحات) بالرسم العثماني — تحميل صفحة واحدة فقط عند الطلب (خفيف). اضغط أي كلمة فيظهر معناها + حكم التجويد + زر الاستماع لنطقها.</p>
+<p id="locInfo" class="mt-2 text-xs font-bold text-amber-300"></p>
+</header>
+
+<section class="mt-4 rounded-2xl border border-white/10 bg-white/[.04] p-4">
+<div class="flex gap-2 flex-wrap items-center">
+<select id="surahSel" onchange="goSurah(this.value)" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm font-bold outline-none max-w-full"></select>
+<span class="flex gap-1 items-center">
+<button onclick="stepPage(-1)" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm font-bold">→ السابق</button>
+<input id="pageInp" type="number" min="1" max="604" value="1" onkeydown="if(event.key==='Enter')goPage(this.value)" class="w-16 rounded-xl border border-white/10 bg-black/30 px-2 py-2.5 text-sm font-bold text-center outline-none">
+<button onclick="goPage(document.getElementById('pageInp').value)" class="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-extrabold text-white">صفحة</button>
+<button onclick="stepPage(1)" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm font-bold">التالي ←</button>
+</span>
+</div>
+<div class="mt-3 flex gap-4 items-center flex-wrap text-xs font-bold text-slate-400">
+<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="tjChk" checked onchange="document.getElementById('mushaf').classList.toggle('tj',this.checked)" class="w-4 h-4 accent-emerald-500"> 🎨 تلوين التجويد</label>
+<label class="flex items-center gap-2">حجم الخط <input id="mfs" type="range" min="24" max="56" value="36" oninput="document.getElementById('mushaf').style.fontSize=this.value+'px'" class="w-28"></label>
+</div>
+<details class="mt-3 text-xs text-slate-400">
+<summary class="cursor-pointer font-bold text-slate-300">ℹ️ مصدر معاني الكلمات</summary>
+<div class="mt-2 rounded-xl bg-black/30 border border-white/10 p-3 leading-7">
+<p>المعنى العربي يظهر فوراً من حزمة <b>غريب القرآن</b> المحلية الخفيفة (بدون إنترنت إضافي)، فإن لم تكن الكلمة غريبة يُجلب معناها من <b>Quran.com API v4</b> مع التفسير المختصر للآية.</p>
+</div>
+</details>
+</section>
+
+<section class="mt-4 rounded-2xl border border-white/10 bg-white/[.02] p-5 md:p-8">
+<div id="mstate" class="text-center text-sm text-slate-400">⏳ جارٍ تحميل الصفحة…</div>
+<div id="mushaf" class="mush tj" style="font-size:36px"></div>
+<p class="mt-3 text-center text-xs text-slate-500">💡 اضغط أي كلمة لعرض معناها — مثل تطبيق سورة.</p>
+</section>
+
+<section class="tj mt-4 rounded-2xl border border-white/10 bg-white/[.03] p-4 text-xs leading-7 text-slate-400">
+<b class="text-slate-200">🎨 دليل التلوين:</b>
+<span class="w tajweed-izhar">إظهار</span> •
+<span class="w tajweed-idgham">إدغام</span> •
+<span class="w tajweed-iqlab">إقلاب</span> •
+<span class="w tajweed-ikhfa">إخفاء</span> •
+<span class="w tajweed-qalqalah">قلقلة</span> •
+<span class="w tajweed-mad-farai">مد فرعي</span> •
+<span class="w tajweed-mad-lazim">مد لازم</span> •
+<span class="w tajweed-ghunnah">غنة</span> •
+<span class="w tajweed-silah-s">صلة صغرى</span> •
+<span class="w tajweed-silah-k">صلة كبرى</span>
+</section>
+
+<section class="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+<h2 class="font-extrabold">🔍 استخراج الأحكام</h2>
+<p class="text-xs text-slate-400 mt-1 leading-6">اختر الحكم والنطاق — نستخرج لك كل مواضعه من السورة أو الصفحات أو الجزء. انقر أي نتيجة للانتقال إلى موضعها في المصحف.</p>
+<div class="mt-3 flex gap-2 flex-wrap items-center text-sm">
+<select id="exRule" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 font-bold outline-none">
+<option value="izhar">الإظهار الحلقي</option>
+<option value="idgham_g">الإدغام بغنة</option>
+<option value="idgham_ng">الإدغام بغير غنة</option>
+<option value="iqlab">الإقلاب</option>
+<option value="ikhfa">الإخفاء الحقيقي</option>
+<option value="qalq">القلقلة</option>
+<option value="mutasil">المد المتصل</option>
+<option value="munfasil">المد المنفصل</option>
+<option value="badal">مد البدل</option>
+<option value="lazim">المد اللازم</option>
+<option value="mikhfa">الإخفاء الشفوي</option>
+<option value="midgham">الإدغام الشفوي</option>
+<option value="ghunnah">الغنة (ن/م مشددة)</option>
+<option value="silah_s">الصلة الصغرى</option>
+<option value="silah_k">الصلة الكبرى</option>
+</select>
+<select id="exScope" onchange="exScopeUI()" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 font-bold outline-none">
+<option value="surah">من سورة</option>
+<option value="pages">من صفحات</option>
+<option value="juz">من جزء</option>
+</select>
+<span id="exScopeSurah"><select id="exSurah" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 font-bold outline-none max-w-full"></select></span>
+<span id="exScopePages" style="display:none">من <input id="exP1" type="number" min="1" max="604" value="1" class="w-16 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-sm font-bold text-center outline-none"> إلى <input id="exP2" type="number" min="1" max="604" value="2" class="w-16 rounded-xl border border-white/10 bg-black/30 px-2 py-2 text-sm font-bold text-center outline-none"> <span class="text-[11px] text-slate-500">(بحد أقصى 10 صفحات)</span></span>
+<span id="exScopeJuz" style="display:none"><select id="exJuz" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 font-bold outline-none"></select></span>
+<button onclick="runExtract()" class="rounded-xl bg-emerald-500 px-6 py-2.5 text-sm font-extrabold text-white">استخراج 🔍</button>
+</div>
+<p id="exProg" class="mt-2 text-xs font-bold text-amber-300"></p>
+<div id="exList" class="mt-2 grid gap-2"></div>
+</section>
+</div>
+
+<!-- نافذة معنى الكلمة -->
+<div id="sheet" onclick="if(event.target===this)closeSheet()">
+<div id="sheetCard">
+<div class="flex justify-between items-start gap-2">
+<div>
+<div id="shWord" class="font-quran text-4xl leading-[2]">—</div>
+<div id="shMeta" class="text-xs text-slate-400 font-bold mt-1">—</div>
+</div>
+<button onclick="closeSheet()" class="rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm font-bold">✕</button>
+</div>
+<div id="shRule" class="mt-2 text-sm font-bold text-emerald-300"></div>
+<div class="mt-3 grid gap-2 text-sm">
+<div class="rounded-xl bg-black/30 border border-white/10 p-3"><div class="text-[11px] text-slate-400 font-bold">المعنى الفوري (من صفحة المصحف)</div><div id="shEn" class="font-bold mt-1">—</div></div>
+<div class="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3"><div class="text-[11px] text-emerald-300 font-bold">المعنى بالعربية (Quran.com مباشرة)</div><div id="shAr" class="font-bold mt-1 leading-7">جارٍ الجلب…</div></div>
+<div class="rounded-xl bg-black/30 border border-white/10 p-3"><div class="text-[11px] text-slate-400 font-bold">تفسير الآية (المختصر في التفسير)</div><div id="shTafsir" class="text-xs leading-7 mt-1 text-slate-300">—</div></div>
+</div>
+<div class="mt-3 flex gap-2">
+<button id="shAudioBtn" onclick="playWordAudio()" class="flex-1 rounded-xl bg-amber-400 py-2.5 text-sm font-extrabold text-black">🔊 استماع لنطق الكلمة</button>
+<button onclick="copyWord()" class="rounded-xl bg-white/5 border border-white/10 px-5 py-2.5 text-sm font-bold">نسخ</button>
+</div>
+<button onclick="if(window.CUR)importAyah(CUR.rec.verse.verse_key)" class="mt-2 w-full rounded-xl bg-emerald-500 py-2.5 text-sm font-extrabold text-white">🎨 تحليل هذه الآية في استوديو المعلم</button>
+<audio id="wAudio" preload="none"></audio>
+</div>
+</div>
+
+<script src="assets/site.js?v=16"></script>
+<script>
+var API='https://api.quran.com/api/v4';
+var SURAHS=['الفاتحة','البقرة','آل عمران','النساء','المائدة','الأنعام','الأعراف','الأنفال','التوبة','يونس','هود','يوسف','الرعد','إبراهيم','الحجر','النحل','الإسراء','الكهف','مريم','طه','الأنبياء','الحج','المؤمنون','النور','الفرقان','الشعراء','النمل','القصص','العنكبوت','الروم','لقمان','السجدة','الأحزاب','سبأ','فاطر','يس','الصافات','ص','الزمر','غافر','فصلت','الشورى','الزخرف','الدخان','الجاثية','الأحقاف','محمد','الفتح','الحجرات','ق','الذاريات','الطور','النجم','القمر','الرحمن','الواقعة','الحديد','المجادلة','الحشر','الممتحنة','الصف','الجمعة','المنافقون','التغابن','الطلاق','التحريم','الملك','القلم','الحاقة','المعارج','نوح','الجن','المزمل','المدثر','القيامة','الإنسان','المرسلات','النبأ','النازعات','عبس','التكوير','الانفطار','المطففين','الانشقاق','البروج','الطارق','الأعلى','الغاشية','الفجر','البلد','الشمس','الليل','الضحى','الشرح','التين','العلق','القدر','البينة','الزلزلة','العاديات','القارعة','التكاثر','العصر','الهمزة','الفيل','قريش','الماعون','الكوثر','الكافرون','النصر','المسد','الإخلاص','الفلق','الناس'];
+var ST={mode:'page',page:1,surah:1};
+var CACHE={};
+var WORDS_BY_KEY={}; // verse_key -> words[]
+var VERSE_TEXT={};
+var CUR=null;
+function verseText(v){return (v.words||[]).filter(function(x){return x.char_type_name!=='end'}).map(function(x){return x.text_uthmani||''}).join(' ')}
+function arDigits(s){return String(s).replace(/[0-9]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[+d]})}
+function firstBase(w){return (w.replace(/[ً-ٰٟۡ]/g,'').replace(/[^ء-يی]/g,'').charAt(0)||'')}
+function noonRule(ch){
+  if(!ch)return{c:'tajweed-ikhfa',t:'الإخفاء الحقيقي'};
+  if('ءهعحغخأإآ'.indexOf(ch)>=0)return{c:'tajweed-izhar',t:'الإظهار الحلقي'};
+  if('ينمو'.indexOf(ch)>=0)return{c:'tajweed-idgham',t:'الإدغام بغنة'};
+  if(ch==='ل'||ch==='ر')return{c:'tajweed-idgham',t:'الإدغام بغير غنة'};
+  if(ch==='ب')return{c:'tajweed-iqlab',t:'الإقلاب'};
+  return{c:'tajweed-ikhfa',t:'الإخفاء الحقيقي'};
+}
+function maddType(w,nx){
+  var HAMZ='ءأإآؤئ';
+  var re=/([َ]ا|[ُ]و[ْۡ]?|[ِ][يی][ْۡ]?|آ)/g,mt;
+  while((mt=re.exec(w))){
+    var rest=w.slice(mt.index+mt[0].length);
+    var letter=mt[1].charAt(mt[1].length-1);
+    if((letter==='و'||letter==='ي'||letter==='ی')&&/^[ًٌٍَُِّ]/.test(rest))continue;
+    if(/^ّ/.test(rest.replace(/^[\u064B-\u0650\u0652-\u065F\u0670\u06E1]+/,'')))continue;
+    if(/ّ/.test(rest))return{c:'tajweed-mad-lazim',t:'المد اللازم (6 حركات)'};
+    if(/[ْۡ]/.test(rest))return{c:'tajweed-mad-lazim',t:'المد اللازم (6 حركات)'};
+    var badal=(mt[1]==='آ')||/[ءأإ][ً-ٰٟۡ]*$/.test(w.slice(0,mt.index));
+    if(badal)return{c:'tajweed-mad-farai',t:'مد البدل (حركتان)'};
+    if(new RegExp('['+HAMZ+']').test(rest))return{c:'tajweed-mad-farai',t:'المد الواجب المتصل (4-5 حركات)'};
+  }
+  if(new RegExp('([َ]ا|[ُ]و[ْۡ]?|[ِ][يی][ْۡ]?)[ً-ٰٟۡ]*$').test(w)&&nx&&HAMZ.indexOf(nx)>=0)
+    return{c:'tajweed-mad-farai',t:'المد الجائز المنفصل (4-5 حركات)',tw:true};
+  return null;
+}
+function silahType(w,next){
+  var HAMZ='ءأإآؤئ';
+  if(/يَرْضَهُ/.test(w))return null;
+  var m=w.match(/[َُِ]هُ|[َُِ]هِ/);
+  if(!m)return null;
+  if(/ل[ّْۡ]?ل[ً-ٰٟۡ]*$/.test(w.slice(0,m.index)))return null;
+  var rest=w.slice(m.index+m[0].length);
+  if(/ٓ/.test(rest))return{c:'tajweed-silah-k',t:'الصلة الكبرى (4-5 حركات)',tw:!!next};
+  var restB=rest.replace(/^[ً-ٰٟۡ]+/,'');
+  var fol=restB?restB.charAt(0):next;
+  if(!fol||'ْۡ'.indexOf(fol)>=0)return null;
+  if(fol==='ا')return null;
+  if(HAMZ.indexOf(fol)>=0)return{c:'tajweed-silah-k',t:'الصلة الكبرى (4-5 حركات)',tw:!restB&&!!next};
+  return{c:'tajweed-silah-s',t:'الصلة الصغرى (حركتان)',tw:!restB&&!!next};
+}
+function classify(w,next){
+  var mi=w.search(/ن[ْۡ]|ن(?![ً-ٰٟۡ])/),ti=w.search(/[ًٌٍ]/);
+  if(mi>=0||ti>=0){
+    var src=mi>=0?w.slice(mi+1).replace(/^[ْۡ]/,''):w.slice(ti+1);
+    var fb=firstBase(src);
+    if(mi<0&&fb==='\u0627')fb='';
+    var rn=noonRule(fb||next);
+    if(!fb&&next)rn.tw=true;
+    return rn;
+  }
+  var mm=w.search(/م[ْۡ]|م(?![ً-ٰٟۡ])/);
+  if(mm>=0){
+    var f2=firstBase(w.slice(mm+1).replace(/^[ْۡ]/,''));
+    var a2=f2||next,mo=null;
+    if(a2==='ب')mo={c:'tajweed-iqlab',t:'الإخفاء الشفوي'};
+    else if(a2==='م')mo={c:'tajweed-idgham',t:'الإدغام الشفوي'};
+    else return null;
+    if(!f2&&next)mo.tw=true;
+    return mo;
+  }
+  var sl=silahType(w,next);
+  if(sl)return sl;
+  if(/[نم]ّ/.test(w))return{c:'tajweed-ghunnah',t:'الغنة (نون/ميم مشددة)'};
+  if(/[قطبجد]([ْۡ]|(?![ً-ٰٟۡ]))/.test(w))return{c:'tajweed-qalqalah',t:'القلقلة'};
+  var md=maddType(w,next);
+  if(md)return md;
+  return null;
+}
+function saveLoc(){try{localStorage.setItem('tajweed_mushaf_loc',JSON.stringify(ST))}catch(e){}}
+function showState(msg){var s=document.getElementById('mstate');s.style.display=msg?'block':'none';s.innerHTML=msg||''}
+function setHash(){try{history.replaceState(null,'',ST.mode==='page'?'#p='+ST.page:'#s='+ST.surah)}catch(e){}}
+function loadJSON(url,ok,bad){
+  if(CACHE[url]){ok(CACHE[url]);return}
+  showState('⏳ جارٍ تحميل…');
+  fetch(url).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+    CACHE[url]=j;showState('');ok(j);
+  }).catch(function(){
+    showState('⚠ تعذّر التحميل — تحقق من الإنترنت ثم <button onclick="reload()" class="font-bold text-emerald-300">↻ حاول مجدداً</button>');
+    if(bad)bad();
+  });
+}
+function reload(){load()}
+function load(){
+  if(ST.mode==='page'){
+    document.getElementById('pageInp').value=ST.page;
+    loadJSON(API+'/verses/by_page/'+ST.page+'?words=true&word_fields=text_uthmani,line_number,translation,transliteration&fields=text_uthmani,chapter_id,verse_number,verse_key,page_number,juz_number&per_page=30',renderPage);
+  }else{
+    document.getElementById('surahSel').value=ST.surah;
+    loadJSON(API+'/verses/by_chapter/'+ST.surah+'?words=true&word_fields=text_uthmani,line_number,translation,transliteration&fields=text_uthmani,chapter_id,verse_number,verse_key,page_number,juz_number&per_page=300',renderSurah);
+  }
+  saveLoc();setHash();
+}
+function wordSpan(w,verse){
+  if(w.char_type_name==='end')return '';
+  var txt=w.text_uthmani||w.text||'';
+  return {txt:txt,w:w,verse:verse};
+}
+function verseWordsHTML(verse){
+  var list=(verse.words||[]).filter(function(x){return x.char_type_name!=='end'});
+  var rs=list.map(function(w,i){
+    var nxt=i+1<list.length?firstBase(list[i+1].text_uthmani||''):'' ;
+    return classify(w.text_uthmani||'',nxt);
+  });
+  return list.map(function(w,i){
+    var r=rs[i],cls='',rtxt='';
+    if(r){cls=' '+r.c;rtxt=r.t}
+    else if(i>0&&rs[i-1]&&rs[i-1].tw){cls=' '+rs[i-1].c;rtxt='حرف '+rs[i-1].t}
+    var key=verse.verse_key+'#'+w.position;
+    WORDS_BY_KEY[key]={w:w,verse:verse,rule:rtxt};
+    var esc=(w.text_uthmani||'').replace(/"/g,'&quot;');
+    return {line:(w.line_number||0),html:'<span class="w'+cls+'" data-k="'+key+'" title="'+esc+'">'+w.text_uthmani+'</span>'};
+  });
+}
+var BASMALA='بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ';
+function renderVerses(verses,noHead){
+  var html='',curLine=null,lastSurah=0;
+  function closeLine(){if(curLine!==null){html+='</div>';curLine=null}}
+  function openLine(ln){if(curLine!==ln){closeLine();html+='<div class="mline">';curLine=ln}}
+  verses.forEach(function(v){
+    var ch=v.chapter_id||parseInt((v.verse_key||'1:1').split(':')[0],10);
+    if(ch!==lastSurah){
+      lastSurah=ch;closeLine();
+      if(!noHead&&(v.verse_number===1||html===''))html+='<div class="surah-head">سورة '+SURAHS[ch-1]+'</div>';
+      if(v.verse_number===1&&ch!==1&&ch!==9)html+='<div class="mline center">'+BASMALA+'</div>';
+    }
+    VERSE_TEXT[v.verse_key]=verseText(v);
+    var arr=verseWordsHTML(v);
+    arr.forEach(function(o,i){
+      if(!o.line)o.line=curLine||0;
+      openLine(o.line);
+      html+=(i===0?'<button class="stbtn" data-vk="'+v.verse_key+'" title="تحليل هذه الآية في استوديو المعلم">🎨</button> ':'')+o.html+' ';
+    });
+    html+='<span class="ay text-amber-300">﴿'+arDigits(v.verse_number)+'﴾</span> ';
+  });
+  closeLine();
+  return {html:html,firstJuz:verses.length?(verses[0].juz_number||''):''};
+}
+function pageFrame(inner,p){return '<div class="page-frame"><div>'+inner+'</div><div class="page-num text-amber-300">— ﴿'+arDigits(p)+'﴾ —</div></div>'}
+function renderPage(j){
+  var verses=j.verses||[];
+  var r=renderVerses(verses,false);
+  document.getElementById('mushaf').innerHTML=pageFrame(r.html,ST.page);
+  document.getElementById('locInfo').textContent='الصفحة '+ST.page+' من 604 • الجزء '+r.firstJuz;
+  if(PENDING_HIT){var el=document.querySelector('#mushaf [data-k="'+PENDING_HIT+'"]');if(el){PENDING_HIT=null;try{el.scrollIntoView({block:'center'});el.classList.add('sel')}catch(e){}}}
+}
+function renderSurah(j){
+  var verses=j.verses||[];
+  var groups={},order=[];
+  verses.forEach(function(v){
+    VERSE_TEXT[v.verse_key]=verseText(v);
+    var p=v.page_number||0;
+    if(!groups[p]){groups[p]=[];order.push(p)}
+    groups[p].push(v);
+  });
+  var ch=ST.surah;
+  var html='<div class="surah-head">سورة '+SURAHS[ch-1]+' • '+verses.length+' آية</div>';
+  order.forEach(function(p){
+    html+=pageFrame(renderVerses(groups[p],true).html,p);
+  });
+  document.getElementById('mushaf').innerHTML=html;
+  document.getElementById('locInfo').textContent='سورة '+SURAHS[ch-1]+' • '+verses.length+' آية';
+}
+function matchRule(r,sel){
+  if(!r)return false;
+  switch(sel){
+    case 'izhar':return r.c==='tajweed-izhar';
+    case 'idgham_g':return r.c==='tajweed-idgham'&&r.t.indexOf('بغنة')>=0&&r.t.indexOf('بغير')<0;
+    case 'idgham_ng':return r.t.indexOf('بغير غنة')>=0;
+    case 'iqlab':return r.c==='tajweed-iqlab'&&r.t.indexOf('الإقلاب')>=0;
+    case 'ikhfa':return r.c==='tajweed-ikhfa';
+    case 'qalq':return r.c==='tajweed-qalqalah';
+    case 'mutasil':return r.t.indexOf('المتصل')>=0;
+    case 'munfasil':return r.t.indexOf('المنفصل')>=0;
+    case 'badal':return r.t.indexOf('البدل')>=0;
+    case 'lazim':return r.c==='tajweed-mad-lazim';
+    case 'mikhfa':return r.t==='الإخفاء الشفوي';
+    case 'midgham':return r.t==='الإدغام الشفوي';
+    case 'ghunnah':return r.c==='tajweed-ghunnah';
+    case 'silah_s':return r.t.indexOf('الصلة الصغرى')>=0;
+    case 'silah_k':return r.t.indexOf('الصلة الكبرى')>=0;
+  }
+  return false;
+}
+function collectHits(verses,sel){
+  var out=[];
+  verses.forEach(function(v){
+    var list=(v.words||[]).filter(function(x){return x.char_type_name!=='end'});
+    list.forEach(function(w,i){
+      var nxt=i+1<list.length?firstBase(list[i+1].text_uthmani||''):'' ;
+      var r=classify(w.text_uthmani||'',nxt);
+      if(matchRule(r,sel)){
+        var ch=parseInt((v.verse_key||'0:0').split(':')[0],10);
+        out.push({w:w.text_uthmani,w2:(r.tw&&i+1<list.length)?list[i+1].text_uthmani:'',c:r.c,t:r.t,vk:v.verse_key,pos:w.position,ch:ch,vn:v.verse_number,pg:(v.page_number||0)});
+      }
+    });
+  });
+  return out;
+}
+var EXC={};
+function fetchAll(base,prog,ok){
+  var verses=[],page=1;
+  function go(){
+    if(prog)prog(page);
+    fetch(base+'&page='+page+'&per_page=50').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+      verses=verses.concat(j.verses||[]);
+      var pg=j.pagination||{};
+      if(pg.next_page){page=pg.next_page;go()}else ok(verses);
+    }).catch(function(){ok(null)});
+  }
+  go();
+}
+function exScopeUI(){
+  var s=document.getElementById('exScope').value;
+  document.getElementById('exScopeSurah').style.display=s==='surah'?'':'none';
+  document.getElementById('exScopePages').style.display=s==='pages'?'':'none';
+  document.getElementById('exScopeJuz').style.display=s==='juz'?'':'none';
+}
+var PENDING_HIT=null;
+function gotoHit(pg,key){goPage(pg);PENDING_HIT=key}
+function runExtract(){
+  var sel=document.getElementById('exRule').value,scope=document.getElementById('exScope').value;
+  var ruleName=document.getElementById('exRule').options[document.getElementById('exRule').selectedIndex].text;
+  var progEl=document.getElementById('exProg'),listEl=document.getElementById('exList');
+  listEl.innerHTML='';
+  var jobs=[],scopeName='';
+  if(scope==='surah'){
+    var n=Math.max(1,Math.min(114,parseInt(document.getElementById('exSurah').value,10)||1));
+    scopeName='سورة '+SURAHS[n-1];
+    jobs.push({url:API+'/verses/by_chapter/'+n+'?words=true&word_fields=text_uthmani'});
+  }else if(scope==='pages'){
+    var p1=Math.max(1,Math.min(604,parseInt(document.getElementById('exP1').value,10)||1));
+    var p2=Math.max(1,Math.min(604,parseInt(document.getElementById('exP2').value,10)||1));
+    if(p2<p1){var t=p1;p1=p2;p2=t}
+    if(p2-p1>9){p2=p1+9}
+    scopeName='الصفحات '+p1+'–'+p2;
+    for(var p=p1;p<=p2;p++)jobs.push({url:API+'/verses/by_page/'+p+'?words=true&word_fields=text_uthmani'});
+  }else{
+    var j=Math.max(1,Math.min(30,parseInt(document.getElementById('exJuz').value,10)||1));
+    scopeName='الجزء '+j;
+    jobs.push({url:API+'/verses/by_juz/'+j+'?words=true&word_fields=text_uthmani'});
+  }
+  progEl.textContent='⏳ جارٍ الجلب من '+scopeName+'…';
+  var verses=[],ji=0;
+  function nextJob(){
+    if(ji>=jobs.length){finish();return}
+    var u=jobs[ji].url;
+    progEl.textContent='⏳ جارٍ الجلب ('+(ji+1)+' من '+jobs.length+')…';
+    if(EXC[u]){verses=verses.concat(EXC[u]);ji++;nextJob();return}
+    fetchAll(u,function(){},function(v){
+      if(v===null){progEl.textContent='⚠ تعذّر الجلب — تحقق من الإنترنت وحاول مجدداً.';return}
+      EXC[u]=v;verses=verses.concat(v);ji++;nextJob();
+    });
+  }
+  function finish(){
+    var hits=collectHits(verses,sel),cap=300;
+    if(!hits.length){progEl.textContent='لا مواضع لـ«'+ruleName+'» في '+scopeName+'.';return}
+    progEl.textContent='✓ وُجد '+hits.length+' موضعًا لـ«'+ruleName+'» في '+scopeName+(hits.length>cap?' (تُعرض أول '+cap+')':'')+' — انقر أي نتيجة للانتقال إليها:';
+    listEl.innerHTML=hits.slice(0,cap).map(function(h){
+      return '<button onclick="gotoHit('+h.pg+',\''+h.vk+'#'+h.pos+'\')" class="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3 text-right hover:border-emerald-400/60">'+
+      '<span class="w '+h.c+' font-quran" style="font-size:1.4em">'+h.w+'</span>'+(h.w2?'<span class="text-slate-400 text-xs font-bold">+</span><span class="w '+h.c+' font-quran" style="font-size:1.4em">'+h.w2+'</span>':'')+
+      '<span class="flex-1 text-xs"><b>'+h.t+'</b><br><span class="text-slate-400">سورة '+SURAHS[h.ch-1]+' • آية '+h.vn+' • ص '+h.pg+'</span></span>'+
+      '<span class="text-emerald-300 text-xs font-bold">← عرض</span></button>';
+    }).join('');
+  }
+  nextJob();
+}
+function goPage(p){PENDING_HIT=null;p=Math.max(1,Math.min(604,parseInt(p,10)||1));ST={mode:'page',page:p,surah:ST.surah};load()}
+function goSurah(n){PENDING_HIT=null;n=Math.max(1,Math.min(114,parseInt(n,10)||1));ST={mode:'surah',page:ST.page,surah:n};load()}
+function stepPage(d){if(ST.mode==='page')goPage(ST.page+d);else goSurah(ST.surah+d)}
+// ——— معنى الكلمة (Quran.com API v4 مباشرة، بدون خدمة خارجية) ———
+var AR_CACHE={};
+var GHARIB=null;
+fetch('assets/gharib.json').then(function(r){return r.json()}).then(function(j){
+  try{
+    var idx={};
+    for(var k in j){
+      var v=j[k];
+      var nk=normAr(k);
+      if(nk&&!idx[nk])idx[nk]=v;
+      var nk2=nk.replace(/ا/g,'');
+      if(nk2&&!idx[nk2])idx[nk2]=v;
+    }
+    GHARIB=idx;
+  }catch(e){GHARIB=j}
+}).catch(function(){GHARIB=null});
+function normAr(s){
+  return (s||'').replace(/[ً-ٰٟۡـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ة/g,'ه').replace(/[^ء-ي]/g,'').trim();
+}
+function findGharib(uthmani){
+  if(!GHARIB)return '';
+  var n=normAr(uthmani);
+  if(!n)return '';
+  var cands=[n,n.replace(/ا/g,'')];
+  for(var i=0;i<cands.length;i++){
+    var c=cands[i];
+    if(!c)continue;
+    if(GHARIB[c])return GHARIB[c];
+    // تجريد السوابق: و ف ب ك ل
+    if(c.length>3&&'وفبكل'.indexOf(c[0])>=0&&GHARIB[c.slice(1)])return GHARIB[c.slice(1)];
+    if(c.length>4&&c.slice(0,2)==='ال'){
+      var inner=c.slice(2);
+      if(GHARIB[inner])return GHARIB[inner];
+      var inner2=inner.replace(/ا/g,'');
+      if(GHARIB[inner2])return GHARIB[inner2];
+    }
+  }
+  return '';
+}
+async function getWordArabicMeaning(verseKey, wordPosition) {
+  var ck=verseKey+'#'+wordPosition;
+  if(AR_CACHE[ck])return AR_CACHE[ck];
+  try {
+    const response = await fetch(API+'/verses/by_key/'+verseKey+'?language=ar&words=true&word_fields=text_uthmani,translation');
+    const data = await response.json();
+    const words=(data.verse&&data.verse.words)||[];
+    const wordData = words.find(function(x){return x.position===wordPosition});
+    var out=wordData&&wordData.translation?{text:wordData.translation.text||'المعنى غير متوفر',lang:wordData.translation.language_name||'',uthmani:wordData.text_uthmani||''}:{text:'المعنى غير متوفر',lang:'',uthmani:''};
+    AR_CACHE[ck]=out;
+    return out;
+  } catch (error) {
+    return {text:'تعذر تحميل المعنى',lang:'',uthmani:''};
+  }
+}
+document.getElementById('mushaf').addEventListener('click',function(e){
+  var t=e.target;
+  while(t&&t!==this){
+    if(t.getAttribute&&t.getAttribute('data-vk')){importAyah(t.getAttribute('data-vk'));return}
+    if(t.className&&t.className.indexOf&&t.className.indexOf('w ')>=0&&t.getAttribute('data-k')){
+      openSheet(t.getAttribute('data-k'),t);
+      return;
+    }
+    t=t.parentNode;
+  }
+});
+function importAyah(vk){
+  var t=VERSE_TEXT[vk]||'';
+  if(!t)return;
+  try{localStorage.setItem('tajweed_studio_import',t);localStorage.setItem('tajweed_studio_import_vk',vk)}catch(e){}
+  location.href='demo-teacher-studio.html#import';
+}
+function openSheet(key,el){
+  var rec=WORDS_BY_KEY[key];if(!rec)return;
+  CUR={key:key,rec:rec};
+  try{document.querySelectorAll('#mushaf .w.sel').forEach(function(x){x.classList.remove('sel')})}catch(e){}
+  try{el.classList.add('sel')}catch(e){}
+  var w=rec.w,verse=rec.verse;
+  var ch=verse.chapter_id||parseInt(verse.verse_key.split(':')[0],10);
+  document.getElementById('shWord').textContent=w.text_uthmani;
+  document.getElementById('shMeta').textContent='سورة '+SURAHS[ch-1]+' • الآية '+verse.verse_number+' • '+verse.verse_key+' • الكلمة '+w.position;
+  document.getElementById('shRule').textContent=rec.rule?('🎨 حكم التجويد: '+rec.rule):'';
+  document.getElementById('shEn').textContent=(w.translation&&w.translation.text)||'—';
+  document.getElementById('shAr').textContent='جارٍ الجلب…';
+  document.getElementById('shTafsir').textContent='جارٍ الجلب…';
+  document.getElementById('sheet').classList.add('open');
+  // 1) التفسير المختصر للآية (عربي) — خفيف
+  fetch(API+'/verses/by_key/'+verse.verse_key+'?translations=131&fields=text_uthmani&language=ar').then(function(r){return r.json()}).then(function(j){
+    try{
+      var trs=j.verse&&j.verse.translations?j.verse.translations:[];
+      var t=trs.length?trs[0].text.replace(/<[^>]+>/g,''):'';
+      if(CUR&&CUR.key===key){document.getElementById('shTafsir').textContent=t||'—'}
+    }catch(e){}
+  }).catch(function(){if(CUR&&CUR.key===key)document.getElementById('shTafsir').textContent='تعذر الجلب.'});
+  // 2) المعنى: غريب القرآن محلياً أولاً (خفيف وفوري)، ثم Quran.com
+  var g=findGharib(w.text_uthmani);
+  if(g){
+    document.getElementById('shAr').textContent=g+' (غريب القرآن)';
+  }else{
+    getWordArabicMeaning(verse.verse_key,w.position).then(function(m){
+      if(CUR&&CUR.key===key){
+        document.getElementById('shAr').textContent=m.text||'المعنى غير متوفر';
+      }
+    });
+  }
+}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');try{document.getElementById('wAudio').pause()}catch(e){}}
+function playWordAudio(){
+  if(!CUR)return;
+  var w=CUR.rec.w;
+  var au=w.audio_url||'';
+  var src=au?(au.indexOf('http')===0?au:('https://verses.quran.com/'+au)):'';
+  if(!src){alert('لا يوجد صوت لهذه الكلمة');return}
+  var a=document.getElementById('wAudio');a.src=src;a.play();
+}
+function copyWord(){if(!CUR)return;try{navigator.clipboard.writeText(CUR.rec.w.text_uthmani)}catch(e){}}
+document.getElementById('surahSel').innerHTML=SURAHS.map(function(n,i){return '<option value="'+(i+1)+'">'+(i+1)+' — سورة '+n+'</option>'}).join('');
+document.getElementById('exSurah').innerHTML=SURAHS.map(function(n,i){return '<option value="'+(i+1)+'">'+(i+1)+' — سورة '+n+'</option>'}).join('');
+(function(){var jh='';for(var jj=1;jj<=30;jj++)jh+='<option value="'+jj+'">الجزء '+jj+'</option>';document.getElementById('exJuz').innerHTML=jh})();
+(function init(){
+  var h=(location.hash||'');
+  if(h.indexOf('#p=')===0){ST={mode:'page',page:Math.max(1,Math.min(604,parseInt(h.slice(3),10)||1)),surah:1}}
+  else if(h.indexOf('#s=')===0){ST={mode:'surah',page:1,surah:Math.max(1,Math.min(114,parseInt(h.slice(3),10)||1))}}
+  else{try{var s=JSON.parse(localStorage.getItem('tajweed_mushaf_loc')||'null');if(s&&(s.mode==='page'||s.mode==='surah'))ST=s}catch(e){}}
+  load();
+})();
+</script>
+</body>
+</html>

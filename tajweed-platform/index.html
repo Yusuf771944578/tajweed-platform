@@ -4,7 +4,10 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>منصة التجويد التفاعلية — تعلّم بأسلوب اللعب</title>
 <meta name="description" content="تعلّم أحكام التجويد والقرآن الكريم بأسلوب اللعب: شجرة مهارات، مختبر صوت، تحديات سرعة، نزالات مباشرة، ومواسم وبطولات.">
-<link rel="stylesheet" href="assets/app.css?v=11">
+<link rel="stylesheet" href="assets/app.css?v=12">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0B1020">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -25,7 +28,7 @@
 </nav>
 <div class="flex items-center gap-2">
 <button onclick="toggleTheme()" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold"><span class="themeLbl">☀ نهاري</span></button>
-<a href="demo-skill-tree.html?v=12" class="btn-primary" style="padding:.6rem 1.4rem">ابدأ الآن</a>
+<a href="demo-skill-tree.html?v=13" class="btn-primary" style="padding:.6rem 1.4rem">ابدأ الآن</a>
 </div>
 </div>
 </header>
@@ -36,11 +39,12 @@
 <div class="orb orb-b" style="top:40px;left:-80px"></div>
 <div class="max-w-6xl mx-auto p-4 md:p-10 grid gap-6 md:grid-cols-2 items-center relative">
 <div class="reveal in">
-<span class="inline-block rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-xs font-bold text-emerald-300">📖 منصة تفاعلية • 6 وحدات • 3 مراحل دراسية</span>
+<span class="inline-block rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-1 text-xs font-bold text-emerald-300">📖 منصة تفاعلية • 8 وحدات • 3 مراحل دراسية</span>
 <h1 class="display-fluid mt-4">أتقن <span class="hero-grad">أحكام التجويد</span><br>بأسلوب اللعب التنافسي</h1>
 <p class="mt-4 text-sm md:text-base text-slate-400 leading-7 max-w-xl">شجرة مهارات تفتح مستويات جديدة، مختبر صوت يحلل نطقك، تحديات سرعة ضد الوقت، نزالات مباشرة 1v1، ومواسم وبطولات — كل ذلك بالخط العثماني الرسمي، وبهوية شبابية رصينة بعيداً عن الطابع الطفولي.</p>
 <div class="mt-6 flex gap-2 flex-wrap">
-<a href="demo-skill-tree.html?v=12" class="btn-primary">🌳 ابدأ مسار التعلم</a>
+<a href="demo-skill-tree.html?v=13" class="btn-primary">🌳 ابدأ مسار التعلم</a>
+<a href="demo-quiz.html" class="rounded-xl border border-violet-500/40 bg-violet-500/10 px-8 py-3 text-sm font-bold">📊 حدد مستواك أولاً</a>
 <a href="#taste" class="rounded-xl border border-white/10 bg-white/5 px-8 py-3 text-sm font-bold">⚡ جرّب تحدياً سريعاً</a>
 </div>
 <div class="mt-6 flex gap-2 text-xs font-bold flex-wrap">
@@ -55,7 +59,7 @@
 <div class="font-quran text-3xl md:text-4xl leading-[2] mt-2">وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا</div>
 <div class="text-xs text-slate-500 mt-1">سورة المزمل — الآية 4</div>
 <div class="mt-5 grid grid-cols-3 gap-2 text-center">
-<div class="rounded-xl bg-black/30 border border-white/10 p-3"><div class="text-xl font-extrabold text-emerald-300">11</div><div class="text-[11px] text-slate-400">عقدة مهارات</div></div>
+<div class="rounded-xl bg-black/30 border border-white/10 p-3"><div class="text-xl font-extrabold text-emerald-300">16</div><div class="text-[11px] text-slate-400">عقدة مهارات</div></div>
 <div class="rounded-xl bg-black/30 border border-white/10 p-3"><div class="text-xl font-extrabold text-amber-300">8</div><div class="text-[11px] text-slate-400">أسئلة سرعة</div></div>
 <div class="rounded-xl bg-black/30 border border-white/10 p-3"><div class="text-xl font-extrabold text-violet-300">13</div><div class="text-[11px] text-slate-400">درساً تفاعلياً</div></div>
 </div>
@@ -71,45 +75,57 @@
 
 <!-- الوحدات -->
 <section id="units" class="max-w-6xl mx-auto p-4 md:p-10">
-<h2 class="text-xl md:text-2xl font-extrabold reveal">🧩 الوحدات التفاعلية الست</h2>
+<h2 class="text-xl md:text-2xl font-extrabold reveal">🧩 الوحدات التفاعلية الثمان</h2>
 <p class="text-sm text-slate-400 mt-1 reveal">اختر وحدتك — كل وحدة تعمل مباشرة وتحفظ نقاطك على جهازك.</p>
 <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-<a href="demo-teacher-studio.html?v=9" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<a href="demo-teacher-studio.html?v=10" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
 <div class="ico" style="background:rgba(16,185,129,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
 <h3 class="mt-3 font-extrabold text-center">استوديو المعلم</h3>
 <p class="text-xs text-slate-400 mt-1 leading-6 text-center">سبورة عثمانية متحركة: انقر الحكم فيتحرك ويتكبر وينفصل عن الكلمة، مع مستدعٍ فوري للأمثلة من القرآن.</p>
 <div class="mt-3 text-center text-xs font-bold text-emerald-300">ادخل الاستوديو ←</div></a>
 
-<a href="demo-skill-tree.html?v=12" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<a href="demo-skill-tree.html?v=13" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
 <div class="ico" style="background:rgba(56,189,248,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="18" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="M12 7v4m0 0l-5.5 5M12 11l5.5 5"/></svg></div>
 <h3 class="mt-3 font-extrabold text-center">شجرة الأحكام</h3>
 <p class="text-xs text-slate-400 mt-1 leading-6 text-center">مسار تعلم بأسلوب ألعاب المهارة: أتقن حكماً لتفتح التالي عبر 5 مستويات و3 مراحل دراسية.</p>
 <div class="mt-3 text-center text-xs font-bold text-emerald-300">ابدأ المسار ←</div></a>
 
-<a href="demo-lesson.html?v=8" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<a href="demo-lesson.html?v=9" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
 <div class="ico" style="background:rgba(244,63,94,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div>
 <h3 class="mt-3 font-extrabold text-center">الدرس + مختبر الصوت</h3>
 <p class="text-xs text-slate-400 mt-1 leading-6 text-center">شرح متحرك، ثم سجّل بصوتك (ميكروفون حقيقي وموجة حية أو وضع تجريبي)، ثم اختبار وXP.</p>
 <div class="mt-3 text-center text-xs font-bold text-emerald-300">ادخل الدرس ←</div></a>
 
-<a href="demo-time-attack.html?v=8" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<a href="demo-time-attack.html?v=9" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
 <div class="ico" style="background:rgba(251,191,36,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
 <h3 class="mt-3 font-extrabold text-center">تحدي السرعة والإتقان</h3>
 <p class="text-xs text-slate-400 mt-1 leading-6 text-center">انقر الكلمة الصحيحة قبل نفاد الوقت — اختر زمن السؤال، واجمع مكافأة السرعة والسلسلة.</p>
 <div class="mt-3 text-center text-xs font-bold text-emerald-300">اقبل التحدي ←</div></a>
 
-<a href="demo-duel.html?v=8" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<a href="demo-duel.html?v=9" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
 <div class="ico" style="background:rgba(139,92,246,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l7 7M4 11V4h7M20 4l-7 7M20 11V4h-7M4 20l7-7M20 20l-7-7"/></svg></div>
 <h3 class="mt-3 font-extrabold text-center">النزال المباشر 1v1</h3>
 <p class="text-xs text-slate-400 mt-1 leading-6 text-center">جولات متزامنة بنقاط حية ضد خصم بثلاثة مستويات — الفائز +150 XP ويُتوَّج.</p>
 <div class="mt-3 text-center text-xs font-bold text-emerald-300">ادخل النزال ←</div></a>
 
-<a href="demo-leaderboard.html?v=8" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<a href="demo-leaderboard.html?v=9" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
 <div class="ico" style="background:rgba(249,115,22,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/><path d="M7 6H4a1 1 0 00-1 1c0 2 1.5 3.5 4 3.5M17 6h3a1 1 0 011 1c0 2-1.5 3.5-4 3.5"/></svg></div>
 <h3 class="mt-3 font-extrabold text-center">المواسم والصدارة</h3>
 <p class="text-xs text-slate-400 mt-1 leading-6 text-center">منصة تتويج ولوحة صدارة وقوس بطولة — سجّل اسمك وشاهد رصيدك الحقيقي في الترتيب.</p>
 <div class="mt-3 text-center text-xs font-bold text-emerald-300">شاهد الصدارة ←</div></a>
+
+<a href="demo-mushaf.html?v=2" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<div class="ico" style="background:rgba(16,185,129,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2 0-4 1-6 3v9c2-2 4-3 6-3s4 1 6 3V9c-2-2-4-3-6-3z"/><path d="M12 6v12"/></svg></div>
+<h3 class="mt-3 font-extrabold text-center">المصحف</h3>
+<p class="text-xs text-slate-400 mt-1 leading-6 text-center">اقرأ من صفحات مصحف المدينة بالرسم العثماني مع تلوين أحكام التجويد — خفيف ويحفظ موضعك.</p>
+<div class="mt-3 text-center text-xs font-bold text-emerald-300">افتح المصحف ←</div></a>
+
+<a href="demo-mutun.html?v=1" class="card card-glow rounded-2xl border border-white/10 bg-white/[.04] p-6 block reveal">
+<div class="ico" style="background:rgba(251,191,36,.14)"><svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zm0 0a2 2 0 002 2h13"/></svg></div>
+<h3 class="mt-3 font-extrabold text-center">متون التجويد</h3>
+<p class="text-xs text-slate-400 mt-1 leading-6 text-center">تحفة الأطفال والجزرية بيتاً بيتاً: استماع بصوت متقن، تسميع، تكرار، وتتبع الحفظ.</p>
+<div class="mt-3 text-center text-xs font-bold text-emerald-300">افتح المتون ←</div></a>
 </div>
 </section>
 
@@ -117,7 +133,7 @@
 <section id="taste" class="border-y border-white/10 bg-white/[.02]">
 <div class="max-w-4xl mx-auto p-4 md:p-10 text-center">
 <h2 class="text-xl md:text-2xl font-extrabold reveal">⚡ جرّب بنفسك الآن — 10 ثوانٍ</h2>
-<p class="text-sm text-slate-400 mt-1 reveal">انقر الكلمة التي فيها <b id="tasteRule" class="text-amber-300">الإظهار الحلقي</b>:</p>
+<p class="text-sm text-slate-400 mt-1 reveal">انقر الكلمة التي فيها <b id="tasteRule" class="text-amber-300">حرف الإظهار الحلقي</b>:</p>
 <div id="tasteWords" class="font-quran mt-4 text-4xl leading-[2.2] reveal"></div>
 <p id="tasteMsg" class="mt-2 text-sm font-bold" style="min-height:1.5rem"></p>
 <button onclick="tasteNext()" class="mt-2 rounded-xl bg-white/5 border border-white/10 px-6 py-2.5 text-sm font-bold">سؤال جديد ↻</button>
@@ -128,9 +144,9 @@
 <section id="stages" class="max-w-6xl mx-auto p-4 md:p-10">
 <h2 class="text-xl md:text-2xl font-extrabold reveal">🎓 مسارك حسب مرحلتك الدراسية</h2>
 <div class="mt-4 grid gap-4 md:grid-cols-3">
-<div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 reveal card-glow"><div class="font-extrabold">📗 الإعدادية — التأسيس بالتحدي</div><p class="text-xs text-slate-400 mt-2 leading-6">مستويات مباشرة وتفكيك الأحكام: النون الساكنة، المخارج، الإظهار والإدغام — بأسلوب التحديات القصيرة.</p><a href="demo-skill-tree.html?v=12" class="inline-block mt-3 text-xs font-bold text-emerald-300">ابدأ من المستوى 1 ←</a></div>
-<div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 reveal card-glow"><div class="font-extrabold">📘 الثانوية — التنافس والامتحان</div><p class="text-xs text-slate-400 mt-2 leading-6">أوسمة ولوائح صدارة ووضع مراجعة سريعة قبل الامتحانات المدرسية واختبارات الحلقة.</p><a href="demo-time-attack.html?v=8" class="inline-block mt-3 text-xs font-bold text-emerald-300">اختبر سرعتك ←</a></div>
-<div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 reveal card-glow"><div class="font-extrabold">📕 الجامعية — الإتقان والتطبيق</div><p class="text-xs text-slate-400 mt-2 leading-6">ترتيل عملي وتحليل أخطاء صوتية: المدود والغنة والقلقلة مع التطبيق على كامل الأجزاء.</p><a href="demo-lesson.html?v=8" class="inline-block mt-3 text-xs font-bold text-emerald-300">ادخل المختبر ←</a></div>
+<div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 reveal card-glow"><div class="font-extrabold">📗 الإعدادية — التأسيس بالتحدي</div><p class="text-xs text-slate-400 mt-2 leading-6">مستويات مباشرة وتفكيك الأحكام: النون الساكنة، المخارج، الإظهار والإدغام — بأسلوب التحديات القصيرة.</p><a href="demo-skill-tree.html?v=13" class="inline-block mt-3 text-xs font-bold text-emerald-300">ابدأ من المستوى 1 ←</a></div>
+<div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 reveal card-glow"><div class="font-extrabold">📘 الثانوية — التنافس والامتحان</div><p class="text-xs text-slate-400 mt-2 leading-6">أوسمة ولوائح صدارة ووضع مراجعة سريعة قبل الامتحانات المدرسية واختبارات الحلقة.</p><a href="demo-time-attack.html?v=9" class="inline-block mt-3 text-xs font-bold text-emerald-300">اختبر سرعتك ←</a></div>
+<div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 reveal card-glow"><div class="font-extrabold">📕 الجامعية — الإتقان والتطبيق</div><p class="text-xs text-slate-400 mt-2 leading-6">ترتيل عملي وتحليل أخطاء صوتية: المدود والغنة والقلقلة مع التطبيق على كامل الأجزاء.</p><a href="demo-lesson.html?v=9" class="inline-block mt-3 text-xs font-bold text-emerald-300">ادخل المختبر ←</a></div>
 </div>
 </section>
 
@@ -162,8 +178,8 @@
 <h2 class="text-2xl font-extrabold">جاهز تبدأ رحلة الإتقان؟</h2>
 <p class="text-sm text-slate-400 mt-2">ثلاث دقائق في شجرة المهارات تكفي لتفتح أول عقدة وتجمع أول 50 XP.</p>
 <div class="mt-5 flex justify-center gap-2 flex-wrap">
-<a href="demo-skill-tree.html?v=12" class="btn-primary">🌳 ابدأ مجاناً الآن</a>
-<a href="demo-duel.html?v=8" class="rounded-xl border border-white/10 bg-white/5 px-8 py-3 text-sm font-bold">⚔️ أو تحدَّ صديقك</a>
+<a href="demo-skill-tree.html?v=13" class="btn-primary">🌳 ابدأ مجاناً الآن</a>
+<a href="demo-duel.html?v=9" class="rounded-xl border border-white/10 bg-white/5 px-8 py-3 text-sm font-bold">⚔️ أو تحدَّ صديقك</a>
 </div>
 </div>
 <footer class="mt-8 text-center text-[11px] text-slate-500 leading-6">
@@ -173,16 +189,33 @@
 </section>
 
 <script src="assets/xp.js?v=6"></script>
-<script src="assets/site.js?v=11"></script>
+<script src="assets/site.js?v=16"></script>
 <script>
 try{document.getElementById('totalXp').textContent=XP.get()+' XP';document.getElementById('myRank').textContent=XP.rank();document.getElementById('myStreak').textContent='🔥 سلسلة '+XP.streak()+' يوم';}catch(e){}
 /* شريط الأحكام المتحرك */
 (function(){var r=['الإظهار الحلقي','الإدغام بغنة','الإقلاب','الإخفاء الحقيقي','القلقلة','المد المتصل','المد المنفصل','الغنة','التفخيم والترقيق','أحكام الميم الساكنة'];var h=r.map(function(x){return '<span class="rounded-full border border-white/10 bg-white/5 px-4 py-1">'+x+'</span>'}).join('');document.getElementById('mq').innerHTML=h+h;})();
 /* لعبة التذوق المصغرة */
 var TASTE=[
-{rule:'الإظهار الحلقي',words:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]],ok:'✓ أحسنت! الخاء من حروف الحلق ← إظهار'},
+{rule:'حرف الإظهار الحلقي',words:[['مِنْ',0],['خَشْيَةِ',1],['ٱللَّهِ',0]],ok:'✓ أحسنت! الخاء حرف حلقي ← تُظهر النون'},
 {rule:'القلقلة',words:[['يَقْطَعُونَ',1],['يَكْتُبُ',0]],ok:'✓ صحيح! القاف ساكنة وسط الكلمة ← قلقلة صغرى'},
-{rule:'الإخفاء الحقيقي',words:[['مِن',0],['فَضْلِ',1],['ٱللَّهِ',0]],ok:'✓ ممتاز! النون + الفاء ← إخفاء بغنة'}];
+{rule:'الإخفاء الحقيقي',words:[['مِن',0],['فَضْلِ',1],['ٱللَّهِ',0]],ok:'✓ ممتاز! النون + الفاء ← إخفاء بغنة'},
+{rule:'الإدغام بغنة',words:[['مَن',0],['يَقُولُ',1]],ok:'✓ نون ساكنة + ياء ← إدغام بغنة'},
+{rule:'الإقلاب',words:[['مِن',0],['بَعْدِ',1]],ok:'✓ نون + باء ← تُقلب النون ميمًا مخفاة'},
+{rule:'الغنة الكاملة',words:[['إِنَّ',1],['مِن',0]],ok:'✓ النون المشددة تُغنّ أكمل ما تكون حركتين'},
+{rule:'المد الطبيعي',words:[['قَالُوا',1],['كَتَبَ',0]],ok:'✓ ألف ساكنة بعد فتح ← مد طبيعي حركتين'},
+{rule:'الإخفاء الشفوي',words:[['هُم',0],['بِهِ',1]],ok:'✓ ميم ساكنة + باء ← إخفاء شفوي بغنة'},
+{rule:'حرف مفخم',words:[['قَالَ',1],['مَالِكِ',0]],ok:'✓ القاف من حروف الاستعلاء (خص ضغط قظ)'},
+{rule:'المد المتصل',words:[['ٱلسَّمَآءَ',1],['قَالَ',0]],ok:'✓ المد والهمز في كلمة واحدة ← مد متصل'},
+{rule:'التنوين',words:[['كِتَابٌ',1],['ٱلْكِتَابِ',0]],ok:'✓ التنوين نون ساكنة تُنطق ولا تُكتب'},
+{rule:'النون المشددة',words:[['ٱلنَّاسِ',1],['ٱلْحَمْدُ',0]],ok:'✓ النون المشددة فيها غنة أكمل ما تكون'},
+{rule:'القلقلة الكبرى',words:[['ٱلْفَلَقْ',1],['يَعْلَمُ',0]],ok:'✓ القاف ساكنة بالوقف ← قلقلة كبرى'},
+{rule:'الإدغام بغير غنة',words:[['مِن',0],['لَّدُنْهُ',1]],ok:'✓ نون + لام ← إدغام كامل بغير غنة'},
+{rule:'الميم الساكنة',words:[['هُمْ',1],['فِيهَا',0]],ok:'✓ الميم في (هُمْ) ساكنة أصلية'},
+{rule:'مد البدل',words:[['ءَامَنُوا',1],['كَتَبَ',0]],ok:'✓ همزة ممدودة ← مد بدل'},
+{rule:'حرف حلقي',words:[['عَمَلٍ',1],['مَالٍ',0]],ok:'✓ العين تخرج من وسط الحلق'},
+{rule:'الغنة في الميم',words:[['ثُمَّ',1],['كَتَبَ',0]],ok:'✓ الميم المشددة تُغنّ حركتين'},
+{rule:'حرف القلقلة',words:[['إِبْرَاهِيمَ',1],['مُحَمَّدٌ',0]],ok:'✓ الباء ساكنة من حروف (قطب جد)'},
+{rule:'حروف الإدغام',words:[['يَرْمُلُونَ',1],['قُطْبُ',0]],ok:'✓ (يرملون) تجمع حروف الإدغام الستة'}];
 var _tq=0;
 function tasteRender(){var q=TASTE[_tq];document.getElementById('tasteRule').textContent=q.rule;
 document.getElementById('tasteWords').innerHTML=q.words.map(function(w,i){return '<span class="pick" id="tk'+i+'" onclick="tastePick('+i+','+w[1]+')">'+w[0]+'</span>'}).join(' ');
@@ -197,5 +230,6 @@ tasteRender();
 var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');o.unobserve(e.target)}})},{threshold:.12});
 document.querySelectorAll('.reveal:not(.in)').forEach(function(el){o.observe(el)});})();
 </script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){try{navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}})}</script>
 </body>
 </html>

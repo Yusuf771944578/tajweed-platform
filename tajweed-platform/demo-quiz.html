@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار تحديد المستوى — من أين تبدأ؟</title>
+<meta name="description" content="اختبار قصير من جميع دروس التجويد (اختيار متعدد وصح/خطأ) يحدد مستواك ويوجهك للعقدة المناسبة في شجرة الأحكام.">
+<link rel="stylesheet" href="assets/app.css?v=12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
+.fq{font-family:'Amiri Quran',serif}
+.opt{transition:all .15s}
+.pop{animation:pop .3s ease}@keyframes pop{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+.fade{animation:fd .3s ease both}@keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div class="max-w-2xl mx-auto p-4 md:p-8" id="app">
+<header class="text-center">
+<h1 class="text-2xl md:text-3xl font-extrabold">📊 اختبار تحديد المستوى</h1>
+<p class="text-sm text-slate-400 mt-2 leading-7">15 سؤالًا سريعًا من جميع الدروس (اختيار متعدد ✓ وصح/خطأ) — نصحح لك فورًا مع الشرح، ثم نحدد مرتبتك ونوجّهك للعقدة المناسبة.</p>
+</header>
+<div id="quiz"></div>
+<div class="mt-4 text-center text-[11px] text-slate-500">نتيجتك تُحفظ على جهازك ويقرأها الشجرة والدروس ليوجهاك.</div>
+</div>
+<script src="assets/xp.js?v=7"></script>
+<script src="assets/site.js?v=16"></script>
+<script>
+var QBANK=[
+{q:'أي كلمة فيها إظهار حلقي؟',t:'mcq',o:['مِنْ خَشْيَةِ','مَن يَقُولُ','مِن بَعْدِ'],c:0,e:'الخاء من حروف الحلق (ء هـ ع ح غ خ) فتُظهر النون.'},
+{q:'مَن يَقُولُ — ما الحكم؟',t:'mcq',o:['إدغام بغنة','إظهار حلقي','إقلاب'],c:0,e:'النون الساكنة + الياء (من يرملون) = إدغام بغنة حركتين.'},
+{q:'تُقلب النون الساكنة ميمًا مخفاة إذا جاء بعدها حرف الباء.',t:'tf',o:['صح','خطأ'],c:0,e:'هذا هو الإقلاب، ولا يكون إلا مع الباء.'},
+{q:'مِن فَضْلِ — ما الحكم؟',t:'mcq',o:['إخفاء حقيقي','إظهار حلقي','إدغام بغير غنة'],c:0,e:'النون + الفاء (من حروف الإخفاء الـ15) = إخفاء بغنة.'},
+{q:'مقدار الغنة في النون والميم المشددتين؟',t:'mcq',o:['حركتان','أربع حركات','ست حركات'],c:0,e:'الغنة في المشدد أكمل ما تكون: حركتان.'},
+{q:'حروف القلقلة خمسة مجموعة في (قطب جد).',t:'tf',o:['صح','خطأ'],c:0,e:'القاف والطاء والباء والجيم والدال — ولا تُقلقل إلا ساكنة.'},
+{q:'قَالُوا — ما نوع المد في الألف؟',t:'mcq',o:['مد طبيعي','مد متصل','مد لازم'],c:0,e:'ألف ساكنة بعد فتح بلا همز ولا سكون = طبيعي حركتين.'},
+{q:'التنوين نون ساكنة زائدة تُنطق ولا تُكتب.',t:'tf',o:['صح','خطأ'],c:0,e:'التنوين يأخذ أحكام النون الساكنة الأربعة.'},
+{q:'هُم بِهِ — ما حكم الميم؟',t:'mcq',o:['إخفاء شفوي','إظهار شفوي','إدغام شفوي'],c:0,e:'الميم الساكنة + الباء = إخفاء شفوي مع الغنة.'},
+{q:'جَآءَ — ما نوع المد؟',t:'mcq',o:['مد واجب متصل','مد جائز منفصل','مد طبيعي'],c:0,e:'المد والهمز في كلمة واحدة = متصل (4-5 حركات).'},
+{q:'أي حرف مفخم دائمًا؟',t:'mcq',o:['الخاء','الباء','الميم'],c:0,e:'الخاء من حروف الاستعلاء (خص ضغط قظ) فتُفخم دائمًا.'},
+{q:'ما مخرج حرف الخاء؟',t:'mcq',o:['أدنى الحلق','الشفتان','طرف اللسان'],c:0,e:'الخاء والغين يخرجان من أدنى الحلق.'},
+{q:'الوقف على رؤوس الآي سنة متبعة.',t:'tf',o:['صح','خطأ'],c:0,e:'يُسن الوقف على رأس الآية ولو تعلق بما بعده.'},
+{q:'الإدغام بغير غنة يكون مع:',t:'mcq',o:['اللام والراء','الياء والنون','الميم والواو'],c:0,e:'اللام والراء إدغام كامل بلا غنة.'},
+{q:'ما مقدار المد اللازم؟',t:'mcq',o:['6 حركات','حركتان','4 حركات'],c:0,e:'اللازم أقوى المدود: 6 حركات لزومًا.'}];
+var ORDS=['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة','الثامنة','التاسعة','العاشرة'];
+var QI=0,SCORE=0,PICKS=[];
+function qkind(t){return t==='tf'?'⚖️ صح / خطأ':'☑️ اختيار متعدد'}
+function renderQ(){
+  var q=QBANK[QI],box=document.getElementById('quiz');
+  box.innerHTML='<div class="pop mt-4 rounded-2xl border border-white/10 bg-white/[.04] p-5 md:p-6">'
+  +'<div class="flex justify-between items-center text-xs font-bold text-slate-400"><span>السؤال '+(QI+1)+' من '+QBANK.length+' • '+qkind(q.t)+'</span><span>✓ '+SCORE+'</span></div>'
+  +'<div class="mt-2 h-2 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-l from-violet-400 to-emerald-400" style="width:'+Math.round(QI/QBANK.length*100)+'%"></div></div>'
+  +'<p class="mt-4 text-base md:text-lg font-extrabold leading-8">'+q.q+'</p>'
+  +'<div class="mt-4 space-y-2">'+q.o.map(function(o,i){
+    return '<button id="qa'+i+'" onclick="answer('+i+')" class="opt w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-right text-sm font-bold hover:border-violet-400/60">'+o+'</button>'}).join('')+'</div>'
+  +'<div id="qfb" class="mt-3 text-sm font-bold leading-7" style="min-height:1.6rem"></div></div>';
+}
+function answer(i){
+  var q=QBANK[QI],ok=(i===q.c);
+  var btns=document.querySelectorAll('#quiz .opt');
+  for(var k=0;k<btns.length;k++){btns[k].disabled=true;if(k===q.c)btns[k].className+=' border-emerald-400 bg-emerald-500/15'}
+  if(!ok)document.getElementById('qa'+i).className+=' border-rose-500 bg-rose-500/10';
+  if(ok)SCORE++;
+  PICKS.push({i:QI,ok:ok,pick:i});
+  document.getElementById('qfb').innerHTML='<span class="'+(ok?'text-emerald-300':'text-rose-300')+'">'+(ok?'✓ أحسنت! ':'✗ الصواب: '+q.o[q.c]+' — ')+'</span><span class="text-slate-300">'+q.e+'</span>'
+  +'<div class="mt-3"><button onclick="nextQ()" class="w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white">'+(QI+1>=QBANK.length?'عرض النتيجة 🏁':'السؤال التالي ←')+'</button></div>';
+}
+function nextQ(){QI++;if(QI>=QBANK.length)finish();else renderQ()}
+function finish(){
+  var pct=Math.round(SCORE/QBANK.length*100);
+  var rank=Math.max(1,Math.min(10,10-Math.floor(pct/10)));
+  var node=pct<30?'b-ghunna':(pct<70?'m-noon':'a-madd');
+  var nodes={ 'b-ghunna':'النون والميم المشددتان','m-noon':'مدخل النون الساكنة والتنوين','a-madd':'المدود الفرعية'};
+  try{
+    localStorage.setItem('tajweed_placement',JSON.stringify({pct:pct,rank:rank,node:node,date:Date.now()}));
+    localStorage.setItem('tajweed_start_node',node);
+  }catch(e){}
+  try{
+    var P=JSON.parse(localStorage.getItem('tajweed_tree_v2')||'null')||{nodes:{},badges:[],mistakes:[],hw:[]};
+    P.nodes=P.nodes||{};
+    function master(id){P.nodes[id]={m:1,att:Math.max(1,(P.nodes[id]||{}).att||0),best:1}}
+    if(pct>=30){['b-ghunna','b-qalq','b-maddtab'].forEach(master)}
+    if(pct>=70){['m-noon','m-izhar','m-idgham','m-iqlab','m-ikhfa','m-meem'].forEach(master)}
+    localStorage.setItem('tajweed_tree_v2',JSON.stringify(P));
+  }catch(e){}
+  try{XP.add(15)}catch(e){}
+  var rows=PICKS.map(function(p){
+    var q=QBANK[p.i];
+    return '<div class="rounded-xl border border-white/10 bg-white/[.02] p-3 text-xs leading-7">'
+    +'<b class="'+(p.ok?'text-emerald-300':'text-rose-300')+'">'+(p.ok?'✓':'✗')+'</b> '+q.q
+    +'<br><span class="text-slate-400">إجابتك: '+q.o[p.pick]+' • الصواب: '+q.o[q.c]+'</span></div>';
+  }).join('');
+  document.getElementById('quiz').innerHTML='<div class="pop mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-6 md:p-8 text-center">'
+  +'<div class="text-5xl">'+(pct>=70?'🏆':pct>=40?'🎖':'🌱')+'</div>'
+  +'<h2 class="mt-2 text-2xl font-extrabold">نتيجتك: '+SCORE+'/'+QBANK.length+' ('+pct+'%)</h2>'
+  +'<p class="mt-2 text-sm text-slate-300 leading-7">مستواك: <b class="text-amber-300">المرتبة '+ORDS[rank-1]+'</b> • نوصي بأن تواصل من عقدة <b class="text-emerald-300">'+nodes[node]+'</b>'
+  +(pct>=30?' (فتحناها لك في الشجرة)':' (ابدأ من التأسيس)')+'</p>'
+  +'<div class="mt-4 grid gap-2">'
+  +'<a href="demo-skill-tree.html" class="rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-white">🌳 واصل من مستواك في الشجرة</a>'
+  +'<a href="demo-lesson.html?l='+node+'" class="rounded-xl bg-white/5 border border-white/10 py-3 text-sm font-bold">📖 ابدأ الدرس المقترح</a>'
+  +'<button onclick="QI=0;SCORE=0;PICKS=[];renderQ()" class="rounded-xl bg-white/5 border border-white/10 py-2.5 text-xs font-bold text-slate-400">↻ إعادة الاختبار</button>'
+  +'</div></div>'
+  +'<h3 class="mt-6 font-extrabold">📝 مراجعة إجاباتك</h3><div class="mt-2 space-y-2">'+rows+'</div>';
+}
+renderQ();
+</script>
+</body>
+</html>

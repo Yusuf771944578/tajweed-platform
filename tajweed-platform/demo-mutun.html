@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>واجهة المتون — تحفة الأطفال والجزرية بيتاً بيتاً</title>
+<meta name="description" content="احفظ متني التحفة والجزرية: كل بيت على حدة مع صوت قارئ متقن ووضع التسميع والتكرار.">
+<link rel="stylesheet" href="assets/app.css?v=12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
+.fq{font-family:'Amiri Quran',serif}
+.fade{animation:fd .3s ease both}@keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.bayt{transition:border-color .15s ease}
+.bayt.playing{border-color:#fbbf24!important;background:rgba(251,191,36,.06)}
+.bayt.done{border-color:rgba(52,211,153,.5)}
+.blurred span.bt{filter:blur(9px);user-select:none;-webkit-user-select:none}
+#player{position:fixed;bottom:76px;right:50%;transform:translateX(50%);z-index:60;width:min(94vw,34rem)}
+#toast{position:fixed;bottom:150px;right:50%;transform:translateX(50%) translateY(20px);opacity:0;transition:all .3s;z-index:70;pointer-events:none;max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(50%) translateY(0)}
+.chip{white-space:nowrap}
+@media (max-width:640px){.fq.by{font-size:1.25rem}}
+</style>
+</head>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div class="max-w-4xl mx-auto p-4 md:p-8 pb-48" id="app"></div>
+<div id="player" style="display:none"></div>
+<div id="toast" class="rounded-xl bg-rose-500 text-white px-6 py-3 text-sm font-extrabold shadow-lg"></div>
+<script src="assets/mutun.js?v=1"></script>
+<script src="assets/site.js?v=16"></script>
+<script>
+var MAT='tuhfa';try{var _m=new URLSearchParams(location.search).get('m');if(_m&&MUTUN[_m])MAT=_m}catch(e){}
+var FS=18;try{FS=parseInt(localStorage.getItem('mutun_fs')||'18',10)||18;if(FS<14)FS=14;if(FS>26)FS=26}catch(e){}
+var Q='';
+var HIDE=false;
+var AUTONEXT=true;
+var REP=3;
+var CUR=null,REPL=0,LOADING=null;
+var AU=new Audio();AU.preload='none';
+var TUHFA_REC=[
+{id:'t1',name:'عبدالقادر عثمان',base:'audio'},
+{id:'t2',name:'سعد الغامدي',base:'audio/reciter2'},
+{id:'t3',name:'أحمد النفيس',base:'audio/reciter3'},
+{id:'t4',name:'ياسر سلامة',base:'audio/reciter4'}];
+var JAZ_REC=[
+{id:'j1',name:'خالد الجهيم',base:'audio/audio/aljuhayyim'},
+{id:'j2',name:'أيمن سويد',base:'audio/audio/ayman'},
+{id:'j3',name:'سعد الغامدي',base:'audio/audio/saad'},
+{id:'j4',name:'طه الفهد',base:'audio/audio/taha'},
+{id:'j5',name:'ياسر سلامة',base:'audio/audio/yasser'}];
+var JAZ_SECBASE='audio/audio/sections';
+var JAZ_SECMAP={'باب مخارج الحروف':'باب مخارج الحروف','صفات الحروف':'باب صفات الحروف','باب معرفة التجويد':'باب التجويد','باب الترقيق':'باب التفخيم والترقيق','باب اللامات':'باب اللامات','باب الضاد والظاء':'باب الضاد والظاء','باب النون الساكنة والتنوين':'باب أحكام النون الساكنة والتنوين','باب الوقف على أواخر الكلم':'باب الوقف على آواخر الكلم','باب المقطوع والموصول':'باب المقطوع والموصول','باب هاء التأنيث':'باب التاءات','باب همز الوصل':'باب همز الوصل','الخاتمة':'الخاتمة'};
+var RECS={tuhfa:'t1',jazari:'j1'};
+try{
+  var _old=localStorage.getItem('mutun_reciter');
+  if(_old){var _mm={r1:'t1',r2:'t2',r3:'t3',r4:'t4'};if(_mm[_old])RECS.tuhfa=_mm[_old]}
+  var _sv=JSON.parse(localStorage.getItem('mutun_rec')||'{}');
+  if(_sv.tuhfa)RECS.tuhfa=_sv.tuhfa;
+  if(_sv.jazari)RECS.jazari=_sv.jazari;
+}catch(e){}
+var REC=RECS[MAT];
+function RECLIST(){return MAT==='tuhfa'?TUHFA_REC:JAZ_REC}
+var MISSING={t2:['s0','s9'],t3:['s0','s9',8],t4:['s0',4,7,31]};
+var SECCUR=null,ATT=0,ATK=0,BAD={},ATTEMPTS=[];
+function recBase(){var L=RECLIST();for(var i=0;i<L.length;i++)if(L[i].id===REC)return L[i].base;return L[0].base}
+function recName(){var L=RECLIST();for(var i=0;i<L.length;i++)if(L[i].id===REC)return L[i].name;return ''}
+function isMissing(key){if(MAT==='tuhfa'){var m=MISSING[REC];if(m&&m.indexOf(key)>=0)return true}try{if(BAD[REC+':'+MAT+':'+key])return true}catch(e){}return false}
+function markBad(key){try{BAD[REC+':'+MAT+':'+key]=1}catch(e){}}
+function setRec(v){REC=v;RECS[MAT]=v;try{localStorage.setItem('mutun_rec',JSON.stringify(RECS))}catch(e){}stopAu()}
+function recSel(){return '<label class="flex items-center gap-1 text-xs font-bold">🎙 القارئ:<select onchange="setRec(this.value)" class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-2 py-2 text-xs font-extrabold outline-none">'+RECLIST().map(function(r){return '<option value="'+r.id+'"'+(REC===r.id?' selected':'')+'>'+r.name+'</option>'}).join('')+'</select></label>'}
+var PAT='';try{PAT=localStorage.getItem('mutun_pat')||''}catch(e){}
+function pad(n){n=String(n);while(n.length<3)n='0'+n;return n}
+function flat(){var out=[],g=0;MUTUN[MAT].sections.forEach(function(s,si){s.v.forEach(function(v,vi){g++;out.push({gid:g,si:si,sn:vi+1,s:s.t,a:v[0],b:v[1]})})});return out}
+function total(){return flat().length}
+function getDone(){try{return JSON.parse(localStorage.getItem('mutun_done')||'{}')}catch(e){return {}}}
+function setDone(gid,v){try{var d=getDone();if(!d[MAT])d[MAT]={};if(v)d[MAT][gid]=1;else delete d[MAT][gid];localStorage.setItem('mutun_done',JSON.stringify(d))}catch(e){}}
+function isDone(gid){try{var d=getDone();return !!(d[MAT]&&d[MAT][gid])}catch(e){return false}}
+function doneCount(){var d=getDone(),o=d[MAT]||{},n=0;for(var k in o)n++;return n}
+function norm(s){return (s||'').replace(/[ً-ٰٟۡـ]/g,'').replace(/[أإآ]/g,'ا').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ة/g,'ه')}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove('show')},2600)}
+function urlFor(gid,ext){
+  if(PAT)return PAT.replace('{m}',MAT).replace('{n}',pad(gid)).replace('{ext}',ext||'mp3');
+  return recBase()+'/'+gid+'.'+(ext||'mp3');
+}
+function enc(u){try{return encodeURI(u)}catch(e){return u}}
+function secUrl(si,ext){
+  if(MAT==='jazari'){
+    var f=JAZ_SECMAP[MUTUN.jazari.sections[si].t];
+    if(!f)return null;
+    if(PAT)return PAT.replace('{m}',MAT).replace('{n}',f).replace('{ext}',ext||'mp3');
+    return JAZ_SECBASE+'/'+f+'.'+(ext||'mp3');
+  }
+  var f2=(si===0?'basmala':'section_'+(si+1));
+  if(PAT)return PAT.replace('{m}',MAT).replace('{n}',f2).replace('{ext}',ext||'mp3');
+  return recBase()+'/'+f2+'.'+(ext||'mp3');
+}
+function baytAttempts(gid){
+  if(PAT)return [PAT.replace('{m}',MAT).replace('{n}',pad(gid)).replace('{ext}','mp3')];
+  var b=recBase()+'/'+gid;
+  if(MAT==='jazari')return [b+'.mp3',recBase()+'/'+gid+' (2).mp3',b+'.m4a'];
+  return [b+'.mp3',b+'.m4a'];
+}
+function secAttempts(si){
+  var u0=secUrl(si,'mp3');if(!u0)return [];
+  if(PAT)return [u0];
+  return [u0,secUrl(si,'m4a')];
+}
+function playBayt(gid){
+  if(isMissing(gid)){toast('هذا البيت غير متوفر بصوت '+recName());return}
+  try{if(CUR===gid&&LOADING===null&&!AU.paused){stopAu();return}}catch(e){}
+  if(LOADING===gid){stopAu();return}
+  stopAu(false);
+  CUR=gid;SECCUR=null;ATTEMPTS=baytAttempts(gid);ATT=0;LOADING=gid;render();
+  tryPlay(ATTEMPTS[0]);
+}
+function playSection(si){
+  if(MAT==='tuhfa'&&isMissing('s'+si)){toast('هذا المقطع غير متوفر بصوت '+recName());return}
+  if(MAT==='jazari'&&!JAZ_SECMAP[MUTUN.jazari.sections[si].t]){toast('لا يوجد مقدمة صوتية لهذا الباب');return}
+  stopAu(false);
+  SECCUR=si;CUR=null;ATTEMPTS=secAttempts(si);ATT=0;
+  if(!ATTEMPTS.length){toast('لا يوجد مقدمة صوتية لهذا الباب');return}
+  LOADING='s'+si;render();
+  tryPlay(ATTEMPTS[0]);
+}
+function tryPlay(u){
+  AU.src=enc(u);
+  var my=++ATK,done=false;
+  function fail(){if(done)return;done=true;if(my!==ATK)return;nextAttempt()}
+  AU._fail=fail;
+  try{
+    var pr=AU.play();
+    if(pr&&pr.then){pr.then(function(){if(my!==ATK)return;LOADING=null;render()}).catch(fail)}
+    else{LOADING=null;render()}
+  }catch(e){fail()}
+}
+function nextAttempt(){
+  ATT++;
+  if(!PAT&&ATT<ATTEMPTS.length){tryPlay(ATTEMPTS[ATT]);return}
+  failAu();
+}
+function failAu(){
+  var key=(CUR===null&&SECCUR!==null)?('s'+SECCUR):CUR;
+  if(key!==null&&key!==undefined)markBad(key);
+  var wasSec=(CUR===null&&SECCUR!==null);
+  LOADING=null;CUR=null;SECCUR=null;render();
+  toast(wasSec?'هذا المقطع غير متوفر بصوت '+recName():'البيت غير متوفر بصوت '+recName());
+}
+function auReplay(){try{AU.currentTime=0;var pr=AU.play();if(pr&&pr.catch)pr.catch(function(){})}catch(e){}}
+function stopAu(r){try{AU.pause()}catch(e){}CUR=null;SECCUR=null;REPL=0;ATT=0;LOADING=null;if(r!==false)render()}
+AU.addEventListener('ended',function(){
+  if(CUR!==null){
+    if(REPL>0){REPL--;auReplay();render();return}
+    if(AUTONEXT){var n=CUR+1;while(n<=total()&&isMissing(n))n++;if(n<=total()){playBayt(n);return}}
+    CUR=null;render();return;
+  }
+  if(SECCUR!==null){SECCUR=null;render()}
+});
+AU.addEventListener('error',function(){try{if(AU._fail)AU._fail()}catch(e){}});
+function chFS(d){FS=Math.max(14,Math.min(26,FS+d));try{localStorage.setItem('mutun_fs',String(FS))}catch(e){}render()}
+function setMat(m){MAT=m;REC=RECS[MAT];CUR=null;SECCUR=null;LOADING=null;try{AU.pause()}catch(e){}Q='';try{var s=document.getElementById('mq');if(s)s.value=''}catch(e){}try{history.replaceState(null,'','demo-mutun.html?m='+m)}catch(e){}render()}
+function savePat(){try{var v=document.getElementById('patInp').value.trim();if(v){localStorage.setItem('mutun_pat',v);PAT=v;toast('تم حفظ رابط الصوت المخصص')}else{localStorage.removeItem('mutun_pat');PAT='';toast('تمت العودة للأصوات المحلية')}render()}catch(e){}}
+function render(){
+  var el=document.getElementById('app'),M=MUTUN[MAT],list=flat();
+  var shown=list;
+  if(Q){var nq=norm(Q);shown=list.filter(function(x){return norm(x.a+' '+x.b).indexOf(nq)>=0})}
+  var dn=doneCount(),pc=total()?Math.round(dn/total()*100):0;
+  var h='<div class="text-center"><h1 class="text-2xl md:text-3xl font-extrabold">📜 واجهة المتون <span class="text-emerald-400">— بيتاً بيتاً بصوت متقن</span></h1>'
+  +'<p class="text-sm text-slate-400 mt-2">احفظ وسمّع — أتقنت '+dn+' من '+total()+' بيتاً ('+pc+'%)</p>'
+  +'<div class="mt-2 h-2 rounded-full bg-white/10 overflow-hidden max-w-md mx-auto"><div class="h-full rounded-full bg-gradient-to-l from-emerald-400 to-sky-400" style="width:'+pc+'%"></div></div>'
+  +'<div class="mt-4 flex justify-center gap-2 flex-wrap">'
+  +'<button onclick="setMat(\'tuhfa\')" class="rounded-xl px-5 py-2.5 text-sm font-extrabold '+(MAT==='tuhfa'?'bg-emerald-500 text-white':'bg-white/5 border border-white/10')+'">📗 تحفة الأطفال (61)</button>'
+  +'<button onclick="setMat(\'jazari\')" class="rounded-xl px-5 py-2.5 text-sm font-extrabold '+(MAT==='jazari'?'bg-emerald-500 text-white':'bg-white/5 border border-white/10')+'">📕 الجزرية</button></div>'
+  +'<p class="mt-2 text-xs text-slate-500 font-bold">'+M.t+' — '+M.au+'</p>'
+  +'<div class="mt-3 flex justify-center gap-2 flex-wrap items-center">'
+  +'<input id="mq" value="'+Q.replace(/"/g,'&quot;')+'" oninput="Q=this.value;window._fq=1;render()" placeholder="🔍 ابحث في الأبيات..." class="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm outline-none w-56">'
+  +recSel()
+  +'<button onclick="HIDE=!HIDE;render()" class="rounded-xl px-4 py-2 text-xs font-bold '+(HIDE?'bg-violet-500 text-white':'bg-white/5 border border-white/10')+'">👁 وضع التسميع</button>'
+  +'<button onclick="chFS(-2)" class="rounded-lg bg-white/5 border border-white/10 px-2.5 py-2 text-xs font-bold">أ−</button>'
+  +'<button onclick="chFS(2)" class="rounded-lg bg-white/5 border border-white/10 px-2.5 py-2 text-xs font-bold">أ+</button></div>'
+  +'<p class="mt-2 text-center text-[11px] font-bold text-slate-400 leading-6">🎙 أصوات التحفة بأربعة قراء: عبدالقادر عثمان، سعد الغامدي، أحمد النفيس، ياسر سلامة<br>🎙 أصوات الجزرية بخمسة قراء: خالد الجهيم، أيمن سويد، سعد الغامدي، طه الفهد، ياسر سلامة — بدّل بينهم من قائمة (🎙 القارئ) بالأعلى</p>'
+  +'<div class="mt-3 flex justify-center gap-2 flex-wrap text-xs font-bold text-slate-300">'
+  +'<label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" '+(AUTONEXT?'checked':'')+' onchange="AUTONEXT=this.checked" class="accent-emerald-500"> تسميع متتابع</label>'
+  +'<label class="flex items-center gap-1">تكرار البيت <select onchange="REP=+this.value" class="rounded-lg border border-white/10 bg-black/30 px-2 py-1 outline-none">'+[1,3,5,10].map(function(r){return '<option value="'+r+'"'+(REP===r?' selected':'')+'>'+r+'</option>'}).join('')+'</select></label></div>'
+  +'<details class="mt-3 text-xs text-slate-400 max-w-xl mx-auto"><summary class="cursor-pointer font-bold text-slate-300">⚙️ القراء ومصدر الصوت</summary>'
+  +'<div class="mt-2 rounded-xl bg-black/30 border border-white/10 p-3 leading-7 text-right">'
+  +'<p>🎙 أصوات التحفة بأربعة قراء: <b>عبدالقادر عثمان، سعد الغامدي، أحمد النفيس، ياسر سلامة</b>.</p>'
+  +'<p class="mt-1">🎙 أصوات الجزرية بخمسة قراء: <b>خالد الجهيم، أيمن سويد، سعد الغامدي، طه الفهد، ياسر سلامة</b> — بدّل بينهم من الأعلى.</p>'
+  +'<div class="mt-2 flex gap-2"><input id="patInp" value="'+PAT.replace(/"/g,'&quot;')+'" placeholder="رابط مخصص (للمتقدمين)" class="flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs outline-none" dir="ltr"><button onclick="savePat()" class="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black">حفظ</button></div></div></details></div>';
+  if(!Q){
+    h+='<div class="mt-4 flex gap-2 flex-wrap">'+M.sections.map(function(s,i){return '<a href="#sec'+i+'" class="chip rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold">'+s.t+' ('+s.v.length+')</a>'}).join('')+'</div>';
+    M.sections.forEach(function(s,si){
+      h+='<h2 id="sec'+si+'" class="mt-6 font-extrabold flex items-center justify-center gap-2 flex-wrap text-center">📖 '+s.t+(secPlayable(si)?'<button onclick="playSection('+si+')" class="rounded-lg bg-white/5 border border-white/10 px-2.5 py-1 text-xs font-bold" title="استماع لمقدمة الباب">▶ الباب</button>':'')+'</h2><div class="mt-2 space-y-2">';
+      s.v.forEach(function(v,vi){h+=baytCard(baytOf(si,vi),si,vi)});
+      h+='</div>';
+    });
+  }else{
+    h+='<p class="mt-4 text-xs font-bold text-slate-400">نتائج البحث ('+shown.length+')</p><div class="mt-2 space-y-2">';
+    shown.forEach(function(x){h+=baytCard(x,x.si,x.sn-1)});
+    h+='</div>';
+  }
+  h+='<footer class="mt-8 text-center text-[11px] text-slate-500 leading-6">نصوص المتون عن ويكي مصدر (المكتبة الحرة) — للمراجعة والحفظ<br>🎙 التحفة: عبدالقادر عثمان • سعد الغامدي • أحمد النفيس • ياسر سلامة — الجزرية: خالد الجهيم • أيمن سويد • سعد الغامدي • طه الفهد • ياسر سلامة</footer>';
+  el.innerHTML=h;
+  try{if(window._fq){window._fq=0;var q=document.getElementById('mq');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}}catch(e){}
+  renderPlayer();
+}
+function baytOf(si,vi){var g=0;var S=MUTUN[MAT].sections;for(var i=0;i<si;i++)g+=S[i].v.length;g+=vi+1;return {gid:g,si:si,sn:vi+1,s:S[si].t,a:S[si].v[vi][0],b:S[si].v[vi][1]}}
+function secPlayable(si){if(MAT==='tuhfa')return !isMissing('s'+si);return !!JAZ_SECMAP[MUTUN.jazari.sections[si].t]}
+function baytCard(x,si,vi){
+  var playing=CUR===x.gid,loading=LOADING===x.gid,dn=isDone(x.gid);
+  var hide=HIDE;
+  return '<div class="bayt fade rounded-2xl border p-4 '+(playing?'playing':dn?'done':'border-white/10 bg-white/[.03]')+'">'
+  +'<div class="flex justify-between items-center gap-2"><span class="rounded-lg bg-white/5 border border-white/10 px-2.5 py-1 text-xs font-extrabold text-amber-300">'+x.gid+'</span>'
+  +'<span class="text-[11px] text-slate-500 font-bold">'+x.s+'</span></div>'
+  +'<div id="bayt'+x.gid+'" class="fq by text-center leading-[2.2] mt-2 '+(hide?'blurred':'')+'" style="font-size:'+FS+'px" '+(hide?'onclick="unhide(this)" title="انقر لإظهار البيت"':'')+'><span class="bt">'+x.a+' <span class="text-amber-400">✦</span> '+x.b+'</span></div>'
+  +'<div class="mt-3 flex justify-center gap-2 flex-wrap">'
+  +(isMissing(x.gid)
+    ?'<span class="rounded-xl px-5 py-2 text-xs font-bold text-slate-500 border border-white/10">غير متوفر لهذا القارئ</span>'
+    :'<button onclick="playBayt('+x.gid+')" class="rounded-xl px-5 py-2 text-xs font-extrabold '+(playing?'bg-rose-500 text-white':'bg-emerald-500 text-white')+'">'+(loading?'⏳...':playing?'⏸ إيقاف':'▶ استماع')+'</button>')
+  +'<button onclick="setDone('+x.gid+','+(dn?'false':'true')+');render()" class="rounded-xl px-4 py-2 text-xs font-bold '+(dn?'bg-emerald-500/20 border border-emerald-500/50 text-emerald-300':'bg-white/5 border border-white/10')+'">'+(dn?'✓ متقن':'حفظت؟')+'</button>'
+  +'</div></div>';
+}
+function unhide(el){try{el.classList.remove('blurred');el.removeAttribute('title')}catch(e){}}
+function renderPlayer(){
+  var p=document.getElementById('player');
+  if(CUR===null&&LOADING===null&&SECCUR===null){p.style.display='none';p.innerHTML='';return}
+  var list=flat(),cur=CUR!==null?list[CUR-1]:null;
+  var lbl,secMode=(CUR===null&&SECCUR!==null);
+  if(secMode){lbl='🎧 مقدمة: '+MUTUN[MAT].sections[SECCUR].t}
+  else lbl=(cur?('بيت '+cur.gid+' ('+recName()+'): '+cur.a):'...');
+  p.style.display='block';
+  p.innerHTML='<div class="rounded-2xl border border-amber-400/40 bg-[#141c33]/95 p-3 flex items-center gap-2 shadow-xl">'
+  +(secMode?'':'<button onclick="stepBayt(-1)" class="rounded-lg bg-white/10 border-2 border-white/30 px-3 py-2 text-sm font-extrabold shadow-lg">→</button>')
+  +'<button onclick="'+(LOADING!==null?'':'toggleAu()')+'" class="rounded-lg bg-amber-400 px-4 py-2 text-sm font-extrabold text-black">'+(LOADING!==null?'⏳':(function(){try{return AU.paused?'▶':'⏸'}catch(e){return '▶'}})())+'</button>'
+  +(secMode?'':'<button onclick="stepBayt(1)" class="rounded-lg bg-white/10 border-2 border-white/30 px-3 py-2 text-sm font-extrabold shadow-lg">←</button>')
+  +'<div class="flex-1 text-xs font-bold truncate">'+lbl+'</div>'
+  +'<button onclick="stopAu()" class="rounded-lg bg-white/10 border-2 border-white/30 px-3 py-2 text-sm font-extrabold shadow-lg">✕</button></div>';
+}
+function toggleAu(){try{if(AU.paused){var pr=AU.play();if(pr&&pr.catch)pr.catch(function(){})}else AU.pause()}catch(e){}renderPlayer()}
+function stepBayt(d){var n=(CUR||1)+d;while(n>=1&&n<=total()&&isMissing(n))n+=d;if(n<1||n>total()){toast('لا يوجد بيت تالٍ');return}playBayt(n);try{var el=document.getElementById('bayt'+n);if(el)el.scrollIntoView({block:'center'})}catch(e){}}
+render();
+</script>
+</body>
+</html>

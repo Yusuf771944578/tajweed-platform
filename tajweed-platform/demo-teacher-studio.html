@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>استوديو المعلم — لوّن الحروف واستنتج الحكم</title>
-<link rel="stylesheet" href="assets/app.css?v=11">
+<link rel="stylesheet" href="assets/app.css?v=12">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -20,14 +20,18 @@ body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
 .pc3{background:rgba(14,165,233,.16);color:#7dd3fc;border-color:rgba(56,189,248,.7)}
 .pc4{background:rgba(139,92,246,.18);color:#c4b5fd;border-color:rgba(167,139,250,.7)}
 .pc5{background:rgba(249,115,22,.16);color:#fdba74;border-color:rgba(251,146,60,.7)}
+.pc6{background:rgba(244,114,182,.18);color:#f9a8d4;border-color:rgba(244,114,182,.7)}
 [data-theme="light"] .pc0{color:#047857}[data-theme="light"] .pc1{color:#b45309}
 [data-theme="light"] .pc2{color:#be123c}[data-theme="light"] .pc3{color:#0369a1}
 [data-theme="light"] .pc4{color:#6d28d9}[data-theme="light"] .pc5{color:#c2410c}
+[data-theme="light"] .pc6{color:#be185d}
 [data-theme="light"] .lt:hover{border-color:rgba(15,23,42,.3)}
 .pal{display:flex;align-items:center;justify-content:center;gap:.3rem;min-width:56px;min-height:52px;padding:0 .7rem;border-radius:1rem;border:2px solid rgba(255,255,255,.12);cursor:pointer;font-weight:800;font-size:13px;touch-action:manipulation}
 .pal.sel{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
 [data-theme="light"] .pal.sel{border-color:#0f172a;box-shadow:0 0 0 3px rgba(15,23,42,.2)}
 .dot{display:inline-block;width:.85em;height:.85em;border-radius:9999px;margin-left:.3rem;vertical-align:baseline}
+.pendot{display:inline-block;width:26px;height:26px;border-radius:9999px;cursor:pointer;border:2px solid rgba(255,255,255,.25)}
+.pendot.sel{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.3)}
 .chip{display:inline-block;border-radius:1rem;padding:.3rem 1rem;margin:.25rem}
 .blurred{filter:blur(10px);user-select:none;-webkit-user-select:none;pointer-events:none}
 .fade{animation:fd .3s ease both}@keyframes fd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -42,7 +46,7 @@ body.theater .theaterExit{display:block}
 .no-print{display:none!important}
 body{background:#fff!important;color:#000!important}
 #board,#exp{background:#fff!important;color:#000!important;border:1px solid #999!important}
-.pc0,.pc1,.pc2,.pc3,.pc4,.pc5{color:#000!important;background:#eee!important;border-color:#000!important}
+.pc0,.pc1,.pc2,.pc3,.pc4,.pc5,.pc6{color:#000!important;background:#eee!important;border-color:#000!important}
 }
 </style>
 </head>
@@ -50,7 +54,7 @@ body{background:#fff!important;color:#000!important}
 <div class="max-w-5xl mx-auto p-4 md:p-8">
 <header class="text-center">
 <h1 class="text-2xl md:text-3xl font-extrabold">استوديو المعلم <span class="text-emerald-400">— لوّن الحروف واستنتج الحكم</span></h1>
-<p class="text-sm text-slate-400 mt-2 leading-7">أدخل كلمة أو كلمتين بالخط العثماني (يعمل دون إنترنت)، اختر لوناً ثم انقر أي حرف — بل يمكنك فصل التشكيل وتلوينه وحده. الاختصارات: <b>1-6</b> الألوان • <b>0</b> الممحاة • <b>Ctrl+Z</b> تراجع.</p>
+<p class="text-sm text-slate-400 mt-2 leading-7">أدخل كلمة أو كلمتين أو الصق آية كاملة بالخط العثماني (يعمل دون إنترنت)، اختر لوناً ثم انقر أي حرف — بل يمكنك فصل التشكيل وتلوينه وحده. الاختصارات: <b>1-7</b> الألوان • <b>0</b> الممحاة • <b>Ctrl+Z</b> تراجع.</p>
 </header>
 
 <!-- الإدخال -->
@@ -60,9 +64,16 @@ body{background:#fff!important;color:#000!important}
 <input id="w1" value="مِنْ" placeholder="الكلمة الأولى" class="font-quran rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-2xl text-center outline-none focus:border-emerald-500">
 <input id="w2" value="خَشْيَةِ" placeholder="الكلمة الثانية (اختياري)" class="font-quran rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-2xl text-center outline-none focus:border-emerald-500">
 </div>
+<textarea id="wlong" rows="2" placeholder="أو الصق آية كاملة هنا لتحليلها (تصل من المصحف بزر 🎨 استوديو)…" class="font-quran mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-xl text-center outline-none focus:border-emerald-500"></textarea>
+<div class="mt-1 flex gap-2">
+<button onclick="document.getElementById('wlong').value='';applyWords()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-1.5 text-xs font-bold">✕ مسح الآية</button>
+</div>
 <div class="mt-3 flex gap-2 items-center flex-wrap">
-<label class="text-xs font-bold text-slate-400">📚 مكتبة الأمثلة:</label>
+<label class="text-xs font-bold text-slate-400">📚 مكتبة الأمثلة <b id="libCount" class="text-emerald-300"></b>:</label>
+<select id="plibFilter" onchange="LIBFILTER=this.value;rebuildPlib()" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm font-bold outline-none max-w-full"></select>
 <select id="plib" onchange="loadPreset(this.value)" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm font-bold outline-none max-w-full"></select>
+<label class="flex items-center gap-2 text-xs font-bold cursor-pointer" title="عند إدخال كلمات جديدة يُعاد التلوين تلقائياً"><input type="checkbox" id="autoChk" checked onchange="applyWords()" class="w-4 h-4 accent-emerald-500"> 🤖 التحليل التلقائي الذكي</label>
+<div id="autoBox" class="flex gap-2 flex-wrap items-center text-xs w-full"></div>
 <button onclick="applyWords()" class="rounded-xl bg-emerald-500 px-8 py-2.5 text-sm font-extrabold text-white">عرض ←</button>
 <button onclick="copyWords()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm font-bold">📋 نسخ</button>
 </div>
@@ -82,11 +93,21 @@ body{background:#fff!important;color:#000!important}
 <button onclick="undo()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">↩ تراجع</button>
 <button onclick="redo()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">↪ إعادة</button>
 <button onclick="clearColors()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">مسح الألوان</button>
-<button onclick="speak()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">🔊 استماع للنطق</button>
+<button onclick="speak()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">🔊 استماع للتلاوة</button>
+<select id="recSel" onchange="setStRec(this.value)" title="صوت القارئ" class="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs font-bold outline-none"></select>
+</div>
+<div class="mt-3 flex gap-2 flex-wrap items-center">
+<button onclick="toggleDraw()" id="drawBtn" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">✏️ رسم يدوي</button>
+<span id="penBox" style="display:none" class="flex gap-1 items-center flex-wrap"></span>
+<button onclick="clearDraw()" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">🧽 مسح الرسم</button>
 </div>
 <p id="status" class="mt-2 text-xs font-bold text-slate-400"></p>
 </div>
+<div id="boardWrap" style="position:relative">
 <div id="board" class="qline mt-4 rounded-2xl bg-black/30 border border-white/10 p-6 text-center" style="font-size:48px;overflow-x:auto"></div>
+<canvas id="drawCv" style="position:absolute;inset:0;display:none;touch-action:none;cursor:crosshair"></canvas>
+</div>
+<audio id="recAudio" preload="none"></audio>
 <p class="mt-2 text-xs text-slate-400 text-center">الحروف متصلة بخط المصحف — انقر أي حرف فيتلوّن مع بقاء الاتصال • الممحاة لمسح لون حرف</p>
 </section>
 
@@ -102,6 +123,10 @@ body{background:#fff!important;color:#000!important}
 <option value="qalqalah">القلقلة</option>
 <option value="madd">المد</option>
 <option value="tafkheem">التفخيم والترقيق</option>
+<option value="m-ikhfa">الإخفاء الشفوي</option>
+<option value="m-idgham">الإدغام الشفوي</option>
+<option value="m-izhar">الإظهار الشفوي</option>
+<option value="ghunna">الغنة (ن/م مشددة)</option>
 </select>
 <button onclick="toggleQuiz()" id="quizBtn" class="no-print rounded-xl bg-violet-500/15 border border-violet-500/40 px-4 py-2.5 text-xs font-bold text-violet-300">🙈 وضع الاختبار: إخفاء الحكم</button>
 </div>
@@ -115,6 +140,7 @@ body{background:#fff!important;color:#000!important}
 <span class="dot" style="background:#38bdf8"></span> حروف القلقلة
 <span class="dot" style="background:#a78bfa"></span> إخفاء / إقلاب
 <span class="dot" style="background:#fb923c"></span> تفخيم
+<span class="dot" style="background:#f472b6"></span> غنة (ن/م مشددة)
 </div>
 </section>
 
@@ -132,7 +158,7 @@ body{background:#fff!important;color:#000!important}
 </section>
 </div>
 
-<script src="assets/site.js?v=10"></script>
+<script src="assets/site.js?v=16"></script>
 <script>
 var COLORS=[
 {n:'أخضر',f:'الخضراء',c:'pc0',dot:'#34d399'},
@@ -140,7 +166,8 @@ var COLORS=[
 {n:'أحمر',f:'الحمراء',c:'pc2',dot:'#fb7185'},
 {n:'أزرق',f:'الزرقاء',c:'pc3',dot:'#38bdf8'},
 {n:'بنفسجي',f:'البنفسجية',c:'pc4',dot:'#a78bfa'},
-{n:'برتقالي',f:'البرتقالية',c:'pc5',dot:'#fb923c'}];
+{n:'برتقالي',f:'البرتقالية',c:'pc5',dot:'#fb923c'},
+{n:'وردي',f:'الوردية',c:'pc6',dot:'#f472b6'}];
 var RULES={
 izhar:{t:'الإظهار الحلقي',w:'تباعد المخرجين — تُنطق النون واضحة'},
 idgham:{t:'الإدغام',w:'اندماج المخرجين — تدخل النون في الحرف التالي'},
@@ -148,18 +175,263 @@ iqlab:{t:'الإقلاب',w:'تُقلب النون ميماً مخفاة مع ا
 ikhfa:{t:'الإخفاء الحقيقي',w:'لا قرب ولا بعد — حالة وسط مع غنة حركتين'},
 qalqalah:{t:'القلقلة',w:'اهتزاز مخرج الحرف الساكن دون ميل لحركة'},
 madd:{t:'المد',w:'إطالة الصوت بحرف المد بمقدار حركتين أو أكثر'},
-tafkheem:{t:'التفخيم والترقيق',w:'امتلاء الفم بالصدى أو نحوله حسب الحرف'}};
+tafkheem:{t:'التفخيم والترقيق',w:'امتلاء الفم بالصدى أو نحوله حسب الحرف'},
+'m-ikhfa':{t:'الإخفاء الشفوي',w:'ميم ساكنة + باء مع الغنة'},
+'m-idgham':{t:'الإدغام الشفوي',w:'ميم + ميم (متماثلان) بغنة'},
+'m-izhar':{t:'الإظهار الشفوي',w:'الميم واضحة مع باقي الحروف'},
+ghunna:{t:'الغنة (نون/ميم مشددة)',w:'نون أو ميم مشددة — غنة أكمل ما تكون بمقدار حركتين'}};
 var PRESETS=[
-{g:'الإظهار الحلقي',a:'مِنْ',b:'خَشْيَةِ'},
-{g:'الإظهار الحلقي',a:'عَلِيمًا',b:'حَكِيمًا'},
-{g:'الإدغام',a:'مَن',b:'يَقُولُ'},
-{g:'الإقلاب',a:'مِن',b:'بَعْدِ'},
-{g:'الإخفاء',a:'مِن',b:'فَضْلِ'},
-{g:'الإخفاء',a:'كُنتُمْ',b:''},
-{g:'القلقلة',a:'يَقْطَعُونَ',b:''},
-{g:'المد',a:'قَالُوا',b:''},
-{g:'التفخيم',a:'خَالِدِينَ',b:''}];
+/* ===== الإظهار الحلقي: 6 حروف × 3 صور ===== */
+{c:'الإظهار الحلقي',s:'الهمزة • من كلمة',a:'يَنْأَوْنَ',b:''},
+{c:'الإظهار الحلقي',s:'الهمزة • من كلمتين',a:'مَنْ',b:'آمَنَ'},
+{c:'الإظهار الحلقي',s:'الهمزة • تنوين',a:'عَذَابٌ',b:'أَلِيمٌ'},
+{c:'الإظهار الحلقي',s:'الهاء • من كلمة',a:'يَنْهَوْنَ',b:''},
+{c:'الإظهار الحلقي',s:'الهاء • من كلمتين',a:'مِنْ',b:'هَادٍ'},
+{c:'الإظهار الحلقي',s:'الهاء • تنوين',a:'سَلَامٌ',b:'هِيَ'},
+{c:'الإظهار الحلقي',s:'العين • من كلمة',a:'أَنْعَمْتَ',b:''},
+{c:'الإظهار الحلقي',s:'العين • من كلمتين',a:'مِنْ',b:'عَلَقٍ'},
+{c:'الإظهار الحلقي',s:'العين • تنوين',a:'وَاسِعٌ',b:'عَلِيمٌ'},
+{c:'الإظهار الحلقي',s:'الحاء • من كلمة',a:'تَنْحِتُونَ',b:''},
+{c:'الإظهار الحلقي',s:'الحاء • من كلمتين',a:'مِنْ',b:'حَكِيمٍ'},
+{c:'الإظهار الحلقي',s:'الحاء • تنوين',a:'عَلِيمٌ',b:'حَكِيمٌ'},
+{c:'الإظهار الحلقي',s:'الغين • من كلمة',a:'فَسَيُنْغِضُونَ',b:''},
+{c:'الإظهار الحلقي',s:'الغين • من كلمتين',a:'مِنْ',b:'غِسْلِينٍ'},
+{c:'الإظهار الحلقي',s:'الغين • تنوين',a:'أَجْرٌ',b:'غَيْرُ'},
+{c:'الإظهار الحلقي',s:'الخاء • من كلمة',a:'وَالْمُنْخَنِقَةُ',b:''},
+{c:'الإظهار الحلقي',s:'الخاء • من كلمتين',a:'مِنْ',b:'خَيْرٍ'},
+{c:'الإظهار الحلقي',s:'الخاء • تنوين',a:'لَطِيفٌ',b:'خَبِيرٌ'},
+/* ===== الإدغام بغنة: 4 حروف ===== */
+{c:'الإدغام بغنة',s:'الياء • من كلمتين',a:'مَنْ',b:'يَقُولُ'},
+{c:'الإدغام بغنة',s:'الياء • تنوين',a:'خَيْرًا',b:'يَرَهُ'},
+{c:'الإدغام بغنة',s:'الياء • استثناء من كلمة (إظهار مطلق)',a:'الدُّنْيَا',b:''},
+{c:'الإدغام بغنة',s:'النون • من كلمتين',a:'مِنْ',b:'نِعْمَةٍ'},
+{c:'الإدغام بغنة',s:'النون • تنوين',a:'يَوْمَئِذٍ',b:'نَاعِمَةٌ'},
+{c:'الإدغام بغنة',s:'النون • من كلمتين (2)',a:'عَنْ',b:'نَفْسٍ'},
+{c:'الإدغام بغنة',s:'الميم • من كلمتين',a:'مِنْ',b:'مَالٍ'},
+{c:'الإدغام بغنة',s:'الميم • تنوين',a:'عَذَابٌ',b:'مُهِينٌ'},
+{c:'الإدغام بغنة',s:'الميم • من كلمتين (2)',a:'مِنْ',b:'مَسَدٍ'},
+{c:'الإدغام بغنة',s:'الواو • من كلمتين',a:'مِنْ',b:'وَاقٍ'},
+{c:'الإدغام بغنة',s:'الواو • تنوين',a:'رَحِيمٌ',b:'وَدُودٌ'},
+{c:'الإدغام بغنة',s:'الواو • استثناء من كلمة (إظهار مطلق)',a:'بُنْيَانٌ',b:''},
+/* ===== الإدغام بغير غنة ===== */
+{c:'الإدغام بغير غنة',s:'اللام • من كلمتين',a:'أَنْ',b:'لَنْ'},
+{c:'الإدغام بغير غنة',s:'اللام • تنوين',a:'هُدًى',b:'لِلْمُتَّقِينَ'},
+{c:'الإدغام بغير غنة',s:'اللام • من كلمتين (2)',a:'مِنْ',b:'لَدُنْكَ'},
+{c:'الإدغام بغير غنة',s:'الراء • من كلمتين',a:'مِنْ',b:'رَبِّهِمْ'},
+{c:'الإدغام بغير غنة',s:'الراء • تنوين',a:'غَفُورٌ',b:'رَحِيمٌ'},
+{c:'الإدغام بغير غنة',s:'الراء • من كلمتين (2)',a:'أَنْ',b:'رَآهُ'},
+/* ===== الإقلاب ===== */
+{c:'الإقلاب',s:'الباء • من كلمة',a:'لَيُنْبَذَنَّ',b:''},
+{c:'الإقلاب',s:'الباء • من كلمتين',a:'مِنْ',b:'بَعْدِ'},
+{c:'الإقلاب',s:'الباء • تنوين',a:'سَمِيعٌ',b:'بَصِيرٌ'},
+/* ===== الغنة: نون/ميم مشددة ===== */
+{c:'الغنة',s:'نون مشددة',a:'إِنَّ',b:''},
+{c:'الغنة',s:'ميم مشددة',a:'ثُمَّ',b:''},
+{c:'الغنة',s:'نون مشددة (2)',a:'الْجَنَّةَ',b:''},
+{c:'الغنة',s:'ميم مشددة (2)',a:'عَمَّ',b:''},
+/* ===== الإخفاء الحقيقي: 15 حرفاً × 3 صور ===== */
+{c:'الإخفاء الحقيقي',s:'التاء • من كلمة',a:'كُنتُمْ',b:''},
+{c:'الإخفاء الحقيقي',s:'التاء • من كلمتين',a:'مِنْ',b:'تَحْتِهَا'},
+{c:'الإخفاء الحقيقي',s:'التاء • تنوين',a:'جَنَّاتٍ',b:'تَجْرِي'},
+{c:'الإخفاء الحقيقي',s:'الثاء • من كلمة',a:'الْأُنثَى',b:''},
+{c:'الإخفاء الحقيقي',s:'الثاء • من كلمتين',a:'مِنْ',b:'ثَمَرَةٍ'},
+{c:'الإخفاء الحقيقي',s:'الثاء • تنوين',a:'قَوْلًا',b:'ثَقِيلًا'},
+{c:'الإخفاء الحقيقي',s:'الجيم • من كلمة',a:'فَأَنجَيْنَاهُ',b:''},
+{c:'الإخفاء الحقيقي',s:'الجيم • من كلمتين',a:'مِنْ',b:'جُوعٍ'},
+{c:'الإخفاء الحقيقي',s:'الجيم • تنوين',a:'خَلْقًا',b:'جَدِيدًا'},
+{c:'الإخفاء الحقيقي',s:'الدال • من كلمة',a:'عِندَ',b:''},
+{c:'الإخفاء الحقيقي',s:'الدال • من كلمتين',a:'مِنْ',b:'دَابَّةٍ'},
+{c:'الإخفاء الحقيقي',s:'الدال • تنوين',a:'قِنْوَانٌ',b:'دَانِيَةٌ'},
+{c:'الإخفاء الحقيقي',s:'الذال • من كلمة',a:'أَنذَرْتَهُمْ',b:''},
+{c:'الإخفاء الحقيقي',s:'الذال • من كلمتين',a:'مِنْ',b:'ذَهَبٍ'},
+{c:'الإخفاء الحقيقي',s:'الذال • تنوين',a:'عَزِيزٌ',b:'ذُو'},
+{c:'الإخفاء الحقيقي',s:'الزاي • من كلمة',a:'أُنزِلَ',b:''},
+{c:'الإخفاء الحقيقي',s:'الزاي • من كلمتين',a:'مِنْ',b:'زَوَالٍ'},
+{c:'الإخفاء الحقيقي',s:'الزاي • تنوين',a:'صَعِيدًا',b:'زَلَقًا'},
+{c:'الإخفاء الحقيقي',s:'السين • من كلمة',a:'الْإِنسَانُ',b:''},
+{c:'الإخفاء الحقيقي',s:'السين • من كلمتين',a:'مِنْ',b:'سُلَالَةٍ'},
+{c:'الإخفاء الحقيقي',s:'السين • تنوين',a:'بَشَرًا',b:'سَوِيًّا'},
+{c:'الإخفاء الحقيقي',s:'الشين • من كلمة',a:'أَنشَأَكُم',b:''},
+{c:'الإخفاء الحقيقي',s:'الشين • من كلمتين',a:'مِنْ',b:'شَرِّ'},
+{c:'الإخفاء الحقيقي',s:'الشين • تنوين',a:'غَفُورٌ',b:'شَكُورٌ'},
+{c:'الإخفاء الحقيقي',s:'الصاد • من كلمة',a:'يُنصَرُونَ',b:''},
+{c:'الإخفاء الحقيقي',s:'الصاد • من كلمتين',a:'أَنْ',b:'صَدُّوكُمْ'},
+{c:'الإخفاء الحقيقي',s:'الصاد • تنوين',a:'بِرِيحٍ',b:'صَرْصَرٍ'},
+{c:'الإخفاء الحقيقي',s:'الضاد • من كلمة',a:'مَنضُودٍ',b:''},
+{c:'الإخفاء الحقيقي',s:'الضاد • من كلمتين',a:'مِنْ',b:'ضَرِيعٍ'},
+{c:'الإخفاء الحقيقي',s:'الضاد • تنوين',a:'مَكَانًا',b:'ضَيِّقًا'},
+{c:'الإخفاء الحقيقي',s:'الطاء • من كلمة',a:'يَنطِقُ',b:''},
+{c:'الإخفاء الحقيقي',s:'الطاء • من كلمتين',a:'مِنْ',b:'طَيِّبَاتِ'},
+{c:'الإخفاء الحقيقي',s:'الطاء • تنوين',a:'صَعِيدًا',b:'طَيِّبًا'},
+{c:'الإخفاء الحقيقي',s:'الظاء • من كلمة',a:'يَنظُرُونَ',b:''},
+{c:'الإخفاء الحقيقي',s:'الظاء • من كلمتين',a:'مِنْ',b:'ظَهِيرٍ'},
+{c:'الإخفاء الحقيقي',s:'الظاء • تنوين',a:'ظِلًّا',b:'ظَلِيلًا'},
+{c:'الإخفاء الحقيقي',s:'الفاء • من كلمة',a:'الْأَنفَالُ',b:''},
+{c:'الإخفاء الحقيقي',s:'الفاء • من كلمتين',a:'مِنْ',b:'فَضْلِ'},
+{c:'الإخفاء الحقيقي',s:'الفاء • تنوين',a:'خَالِدًا',b:'فِيهَا'},
+{c:'الإخفاء الحقيقي',s:'القاف • من كلمة',a:'فَأَنقَذَكُم',b:''},
+{c:'الإخفاء الحقيقي',s:'القاف • من كلمتين',a:'مِنْ',b:'قَبْلِ'},
+{c:'الإخفاء الحقيقي',s:'القاف • تنوين',a:'سَمِيعٌ',b:'قَرِيبٌ'},
+{c:'الإخفاء الحقيقي',s:'الكاف • من كلمة',a:'مَنَاكِبِهَا',b:''},
+{c:'الإخفاء الحقيقي',s:'الكاف • من كلمتين',a:'مِنْ',b:'كُلِّ'},
+{c:'الإخفاء الحقيقي',s:'الكاف • تنوين',a:'وَأَجْرٍ',b:'كَرِيمٍ'},
+/* ===== الميم الساكنة ===== */
+{c:'الميم الساكنة',s:'الإخفاء الشفوي',a:'تَرْمِيهِمْ',b:'بِحِجَارَةٍ'},
+{c:'الميم الساكنة',s:'الإخفاء الشفوي (2)',a:'وَهُمْ',b:'بِالْآخِرَةِ'},
+{c:'الميم الساكنة',s:'الإخفاء الشفوي (3)',a:'رَبُّهُمْ',b:'بِهِمْ'},
+{c:'الميم الساكنة',s:'الإدغام الشفوي',a:'لَهُمْ',b:'مَغْفِرَةٌ'},
+{c:'الميم الساكنة',s:'الإدغام الشفوي (2)',a:'أَطْعَمَهُمْ',b:'مِنْ جُوعٍ'},
+{c:'الميم الساكنة',s:'الإدغام الشفوي (3)',a:'عَلَيْهِمْ',b:'مُؤْصَدَةٌ'},
+{c:'الميم الساكنة',s:'الإظهار: الهمزة',a:'لَهُمْ',b:'أَجْرُهُمْ'},
+{c:'الميم الساكنة',s:'الإظهار: التاء',a:'أَمْ',b:'تَقُولُونَ'},
+{c:'الميم الساكنة',s:'الإظهار: الثاء',a:'عَالِيَهُمْ',b:'ثِيَابُ'},
+{c:'الميم الساكنة',s:'الإظهار: الجيم',a:'لَهُمْ',b:'جَنَّاتُ'},
+{c:'الميم الساكنة',s:'الإظهار: الحاء',a:'أَمْ',b:'حَسِبْتُمْ'},
+{c:'الميم الساكنة',s:'الإظهار: الخاء',a:'هُمْ',b:'خَيْرُ'},
+{c:'الميم الساكنة',s:'الإظهار: الدال',a:'لَهُمْ',b:'دَرَجَاتٌ'},
+{c:'الميم الساكنة',s:'الإظهار: الذال',a:'جَاءَتْهُمْ',b:'ذِكْرَاهُمْ'},
+{c:'الميم الساكنة',s:'الإظهار: الراء',a:'وَلَهُمْ',b:'رِزْقُهُمْ'},
+{c:'الميم الساكنة',s:'الإظهار: الزاي',a:'بَيْنَهُمْ',b:'زُبُرًا'},
+{c:'الميم الساكنة',s:'الإظهار: السين',a:'لَهُمْ',b:'سُلَّمٌ'},
+{c:'الميم الساكنة',s:'الإظهار: الشين',a:'لَهُمْ',b:'شَرَابٌ'},
+{c:'الميم الساكنة',s:'الإظهار: الصاد',a:'وَهُمْ',b:'صَاغِرُونَ'},
+{c:'الميم الساكنة',s:'الإظهار: الضاد (من كلمة)',a:'رَمَضَانَ',b:''},
+{c:'الميم الساكنة',s:'الإظهار: الطاء',a:'عَلَيْهِمْ',b:'طَيْرًا'},
+{c:'الميم الساكنة',s:'الإظهار: الظاء',a:'فَوْقِهِمْ',b:'ظُلَلٌ'},
+{c:'الميم الساكنة',s:'الإظهار: العين',a:'وَفَضَّلْنَاهُمْ',b:'عَلَى'},
+{c:'الميم الساكنة',s:'الإظهار: الغين',a:'عَلَيْهِمْ',b:'غَيْرِ'},
+{c:'الميم الساكنة',s:'الإظهار: الفاء',a:'بِضَاعَتَهُمْ',b:'فِي'},
+{c:'الميم الساكنة',s:'الإظهار: القاف',a:'لَهُمْ',b:'قُلُوبٌ'},
+{c:'الميم الساكنة',s:'الإظهار: الكاف',a:'أَمْ',b:'كُنتُمْ'},
+{c:'الميم الساكنة',s:'الإظهار: اللام',a:'وَهُمْ',b:'لَا'},
+{c:'الميم الساكنة',s:'الإظهار: النون',a:'أَمْ',b:'نَجْعَلُ'},
+{c:'الميم الساكنة',s:'الإظهار: الهاء (من كلمة)',a:'يَمْهَدُونَ',b:''},
+{c:'الميم الساكنة',s:'الإظهار: الواو',a:'عَلَيْهِمْ',b:'وَلَا'},
+{c:'الميم الساكنة',s:'الإظهار: الياء',a:'لَمْ',b:'يَظْهَرُوا'},
+/* ===== المدود ===== */
+{c:'المدود',s:'المد الطبيعي (حركتان)',a:'قَالُوا',b:''},
+{c:'المدود',s:'مد البدل (حركتان)',a:'آمَنُوا',b:''},
+{c:'المدود',s:'الواجب المتصل (4-5 حركات)',a:'السَّمَاءُ',b:''},
+{c:'المدود',s:'الجائز المنفصل (4-5 حركات)',a:'يَا',b:'أَيُّهَا'},
+{c:'المدود',s:'اللازم الكلمي المثقل (6 حركات)',a:'الضَّالِّينَ',b:''},
+{c:'المدود',s:'اللازم الكلمي المخفف (6 حركات)',a:'آلْآنَ',b:''},
+{c:'المدود',s:'اللازم الحرفي (6 حركات)',a:'الم',b:''},
+{c:'المدود',s:'العارض للسكون وقفاً (2-4-6)',a:'الْعَالَمِينَ',b:''},
+{c:'المدود',s:'مد اللين',a:'قُرَيْشٍ',b:''},
+{c:'المدود',s:'الصلة الصغرى (حركتان)',a:'إِنَّهُ',b:'كَانَ'},
+{c:'المدود',s:'الصلة الكبرى (4-5 حركات)',a:'مَالَهُ',b:'أَخْلَدَهُ'},
+/* ===== القلقلة: 5 حروف × 3 مراتب ===== */
+{c:'القلقلة',s:'القاف • صغرى (وسط الكلام)',a:'يَقْطَعُونَ',b:''},
+{c:'القلقلة',s:'القاف • كبرى (وقفاً)',a:'الْفَلَقِ',b:''},
+{c:'القلقلة',s:'القاف • عظمى (مشدد موقوف)',a:'الْحَقُّ',b:''},
+{c:'القلقلة',s:'الطاء • صغرى',a:'قِطْمِيرٍ',b:''},
+{c:'القلقلة',s:'الطاء • كبرى (وقفاً)',a:'مُحِيطٌ',b:''},
+{c:'القلقلة',s:'الطاء • عظمى (وقفاً)',a:'شَطَطًا',b:''},
+{c:'القلقلة',s:'الباء • صغرى',a:'سُبْحَانَ',b:''},
+{c:'القلقلة',s:'الباء • كبرى (وقفاً)',a:'الْأَلْبَابِ',b:''},
+{c:'القلقلة',s:'الباء • عظمى (وقفاً)',a:'وَتَبَّ',b:''},
+{c:'القلقلة',s:'الجيم • صغرى',a:'الْأَجْدَاثِ',b:''},
+{c:'القلقلة',s:'الجيم • كبرى (وقفاً)',a:'الْمَعَارِجِ',b:''},
+{c:'القلقلة',s:'الجيم • عظمى (وقفاً)',a:'الْحَجِّ',b:''},
+{c:'القلقلة',s:'الدال • صغرى',a:'يَدْخُلُونَ',b:''},
+{c:'القلقلة',s:'الدال • كبرى (وقفاً)',a:'أَحَدٌ',b:''},
+{c:'القلقلة',s:'الدال • عظمى (وقفاً)',a:'يَوَدُّ',b:''}];
+/*PURE-START*/
+var DIAC='ًٌٍَُِّْٰ';
+var IZHAR_L='ءهعحغخأإآاؤئا', GHUNNA_L='ينمو', QALQ_L='قطبجد', HAMZA='ءأإآؤئ';
+function baseLetters(s){var o='';for(var i=0;i<s.length;i++){if(DIAC.indexOf(s[i])<0)o+=s[i]}return o}
+function nextBasePos(s,pos){for(var i=pos;i<s.length;i++){if(DIAC.indexOf(s[i])<0)return {ch:s[i],i:i}}return null}
+function noonRule(ch){
+  if(IZHAR_L.indexOf(ch)>=0)return {id:'izhar',t:'الإظهار الحلقي'};
+  if(GHUNNA_L.indexOf(ch)>=0)return {id:'idgham',t:'الإدغام بغنة'};
+  if(ch==='ل'||ch==='ر')return {id:'idgham',t:'الإدغام بغير غنة'};
+  if(ch==='ب')return {id:'iqlab',t:'الإقلاب'};
+  return {id:'ikhfa',t:'الإخفاء الحقيقي'};
+}
+function meemRule(ch){
+  if(ch==='ب')return {id:'m-ikhfa',t:'الإخفاء الشفوي'};
+  if(ch==='م')return {id:'m-idgham',t:'الإدغام الشفوي'};
+  return {id:'m-izhar',t:'الإظهار الشفوي'};
+}
+function detectWords(WS){
+  var out=[];
+  function scan(w,wi){
+    var i,nb,r;
+    var NW=WS[wi+1]||'';
+    for(i=0;i<w.length;i++){
+      if(w[i]==='ن'&&w[i+1]==='ْ'){
+        nb=nextBasePos(w,i+2);var tw=wi,tp=-1;
+        if(!nb){var bb=baseLetters(NW);if(bb){nb={ch:bb.charAt(0)};tw=wi+1;tp=NW.indexOf(bb.charAt(0))}}
+        else if(nb){tw=wi;tp=nb.i}
+        if(nb){r=noonRule(nb.ch);out.push({kind:'noon',txt:'نون ساكنة',wi:wi,pos:i,tw:tw,tpos:tp,rule:r.id,ruleT:r.t,nx:nb.ch})}
+      }
+    }
+    var tm=/[ًٌٍ]/.exec(w);
+    if(tm){
+      var from=tm.index+1;
+      if(w[from]==='ا')from++;
+      nb=nextBasePos(w,from);var tw2=wi,tp2=-1;
+      if(!nb){var bb2=baseLetters(NW);if(bb2){nb={ch:bb2.charAt(0)};tw2=wi+1;tp2=NW.indexOf(bb2.charAt(0))}}
+      else if(nb){tw2=wi;tp2=nb.i}
+      if(nb){r=noonRule(nb.ch);out.push({kind:'tanween',txt:'تنوين',wi:wi,pos:tm.index,tw:tw2,tpos:tp2,rule:r.id,ruleT:r.t,nx:nb.ch})}
+    }
+    for(i=0;i<w.length;i++){
+      if(w[i]==='م'&&w[i+1]==='ْ'){
+        nb=nextBasePos(w,i+2);var tw3=wi,tp3=-1;
+        if(!nb){var bb3=baseLetters(NW);if(bb3){nb={ch:bb3.charAt(0)};tw3=wi+1;tp3=NW.indexOf(bb3.charAt(0))}}
+        else if(nb){tw3=wi;tp3=nb.i}
+        if(nb){r=meemRule(nb.ch);out.push({kind:'meem',txt:'ميم ساكنة',wi:wi,pos:i,tw:tw3,tpos:tp3,rule:r.id,ruleT:r.t,nx:nb.ch})}
+      }
+    }
+    for(i=0;i<w.length;i++){
+      if((w[i]==='ن'||w[i]==='م')&&w[i+1]==='ّ'){
+        out.push({kind:'ghunna',txt:w[i]==='ن'?'نون مشددة':'ميم مشددة',wi:wi,pos:i,tw:-1,tpos:-1,rule:'ghunna',ruleT:'الغنة (نون/ميم مشددة)',nx:''});
+      }
+    }
+    for(i=0;i<w.length;i++){
+      if(QALQ_L.indexOf(w[i])>=0&&w[i+1]==='ْ'){
+        var rest=baseLetters(w.slice(i+2));
+        out.push({kind:'qalq',txt:'حرف مقلقل',wi:wi,pos:i,tw:-1,tpos:-1,rule:'qalqalah',ruleT:rest===''?'القلقلة الكبرى (وقفاً)':'القلقلة الصغرى',nx:''});
+      }
+    }
+    for(i=0;i<w.length;i++){
+      if(w[i]==='آ'){out.push({kind:'madd',txt:'مد بدل',wi:wi,pos:i,tw:-1,tpos:-1,rule:'madd',ruleT:'مد البدل',nx:''});continue}
+      var isM=false;
+      if(w[i]==='ا'&&i>=2&&w[i-1]==='َ')isM=true;
+      if(w[i]==='و'&&w[i+1]==='ْ'&&w[i-1]==='ُ')isM=true;
+      if(w[i]==='ي'&&w[i+1]==='ْ'&&w[i-1]==='ِ')isM=true;
+      if(isM){
+        var rs=i+(w[i]==='ا'?1:2);
+        var after=nextBasePos(w,rs);
+        var laterSuk=false,laterShad=false,k;
+        for(k=rs;k<w.length;k++){if(w[k]==='ّ')laterShad=true;else if(w[k]==='ْ')laterSuk=true}
+        var sub='',cause='',ctw=-1,ctp=-1;
+        if(after&&HAMZA.indexOf(after.ch)>=0){sub='المد الواجب المتصل';cause=after.ch;ctw=wi;ctp=after.i}
+        else if(!after&&NW&&HAMZA.indexOf(baseLetters(NW).charAt(0))>=0){sub='المد الجائز المنفصل';cause=baseLetters(NW).charAt(0);ctw=wi+1;ctp=NW.indexOf(cause)}
+        else if(laterShad){sub='المد اللازم'}
+        else if(laterSuk){sub='المد العارض للسكون عند الوقف'}
+        else{sub='المد الطبيعي'}
+        out.push({kind:'madd',txt:'حرف مد',wi:wi,pos:i,tw:ctw,tpos:ctp,rule:'madd',ruleT:sub,nx:cause});
+      }
+    }
+  }
+  WS.forEach(function(w,wi){scan(w,wi)});
+  return out;
+}
+function detectAll(a,b){
+  var WS=[];
+  if(a)WS.push(a);
+  if(b)WS.push(b);
+  return detectWords(WS);
+}
+/*PURE-END*/
 var sel=0, splitMode=false, quiz=false, words=[], hist=[], hi=-1;
+var ST_VK=null;
+var RECITERS=[['ar.alafasy','مشاري العفاسي'],['ar.husary','محمود خليل الحصري'],['ar.minshawi','محمد صديق المنشاوي']];
+var ST_REC='ar.alafasy';try{ST_REC=localStorage.getItem('tajweed_reciter')||'ar.alafasy'}catch(e){}
+var ST_AUDC={};
+function setStRec(v){ST_REC=v;try{localStorage.setItem('tajweed_reciter',v)}catch(e){}try{var a=document.getElementById('recAudio');if(a)a.pause()}catch(e){}}
+function renderRec(){try{document.getElementById('recSel').innerHTML=RECITERS.map(function(r){return '<option value="'+r[0]+'"'+(ST_REC===r[0]?' selected':'')+'>🎙 '+r[1]+'</option>'}).join('')}catch(e){}}
 var ZWJ=String.fromCharCode(8205);
 var TAT=String.fromCharCode(1600);
 var NOJOIN='اأإآءؤةىدذرزو';
@@ -198,16 +470,49 @@ function seg(s){
   if(!parts)parts=Array.from(s);
   return parts.map(function(ch){return {t:ch,c:-1,d:false}});
 }
-function applyWords(fromHist){
+function applyWords(fromHist,isImport){
   if(!fromHist){
-    var a=document.getElementById('w1').value.trim(),b=document.getElementById('w2').value.trim();
+    var L=document.getElementById('wlong').value.trim().replace(/ۡ/g,'ْ');
     words=[];
-    [a,b].forEach(function(w){if(w)words.push({clusters:seg(w)})});
+    if(L){L.split(/\s+/).forEach(function(w){if(w)words.push({clusters:seg(w)})});}
+    else{
+      var a=document.getElementById('w1').value.trim().replace(/ۡ/g,'ْ'),b=document.getElementById('w2').value.trim().replace(/ۡ/g,'ْ');
+      [a,b].forEach(function(w){if(w)words.push({clusters:seg(w)})});
+    }
     if(!words.length)words=[{clusters:seg('مِنْ')}];
+    clearDraw();
+    if(!isImport){ST_VK=null;try{localStorage.removeItem('tajweed_studio_import_vk')}catch(e){}}
   }
+  if(!fromHist&&autoOn())autoApply();
   render();
   if(!fromHist)pushHist();
 }
+function autoOn(){var c=document.getElementById('autoChk');return c&&c.checked}
+function clusterIndexForPos(clusters,pos){var acc=0;for(var i=0;i<clusters.length;i++){var L=clusters[i].t.length;if(pos>=acc&&pos<acc+L)return i;acc+=L}return -1}
+function autoApply(){
+  var WS=words.map(function(w){return w.clusters.map(function(cl){return cl.t}).join('')});
+  var dets=detectWords(WS);
+  words.forEach(function(w){w.clusters.forEach(function(cl){cl.c=-1})});
+  dets.forEach(function(d){
+    var W=words[d.wi];if(!W)return;
+    var ci=clusterIndexForPos(W.clusters,d.pos);
+    if(ci>=0)W.clusters[ci].c=(d.kind==='madd'?2:(d.kind==='qalq'?3:(d.kind==='ghunna'?6:0)));
+    if(d.tw>=0&&words[d.tw]&&d.tpos>=0){
+      var cj=clusterIndexForPos(words[d.tw].clusters,d.tpos);
+      if(cj>=0)words[d.tw].clusters[cj].c=1;
+    }
+  });
+  if(dets.length)setRule(dets[0].rule);
+  renderAuto(dets);
+}
+function renderAuto(dets){
+  var box=document.getElementById('autoBox');if(!box)return;
+  if(!dets.length){box.innerHTML='<span class="text-slate-400">اكتب كلمة فيها نون/ميم ساكنة أو تنوين أو حرف مقلقل أو مد… وسأكتشف الحكم تلقائياً.</span>';return}
+  box.innerHTML=dets.map(function(d){
+    return '<button onclick="setRule(\''+d.rule+'\')" class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold">🤖 '+d.txt+(d.nx?' + '+d.nx:'')+' ← '+d.ruleT+'</button>';
+  }).join('');
+}
+function setRule(id){var s=document.getElementById('rule');if(!s||!RULES[id])return;var ok=false;for(var i=0;i<s.options.length;i++)if(s.options[i].value===id)ok=true;if(ok){s.value=id;explain()}}
 function pushHist(){
   hist=hist.slice(0,hi+1);
   hist.push(JSON.stringify(words));
@@ -237,7 +542,7 @@ function render(){
   document.getElementById('board').innerHTML=html;
   var n=0;words.forEach(function(w){w.clusters.forEach(function(cl){if(cl.c>=0)n++})});
   document.getElementById('status').textContent=n?('✓ تم تلوين '+n+' حرفاً — اللون النشط: '+(sel>=0?COLORS[sel].n:'الممحاة')):'اختر لوناً من الأعلى ثم انقر أي حرف في الكلمات';
-  explain();renderBig();
+  explain();
 }
 function paint(wi,ci){
   var cl=words[wi]&&words[wi].clusters[ci];
@@ -280,35 +585,100 @@ function groups(){
 function explain(){
   var r=RULES[document.getElementById('rule').value],g=groups(),ks=Object.keys(g);
   var box=document.getElementById('exp');
-  if(!ks.length){box.innerHTML='لوّن حرفاً أو أكثر من الأعلى — ثم اختر الحكم المناسب من القائمة لتظهر الصياغة الجاهزة للشرح.';return}
+  if(!ks.length){box.innerHTML='لوّن حرفاً أو أكثر من الأعلى — ثم اختر الحكم المناسب من القائمة لتظهر الصياغة الجاهزة للشرح.';renderBig();return}
   var parts=ks.map(function(k){
     var c=COLORS[+k];
     return '<span class="dot" style="background:'+c.dot+'"></span> <b>الحروف '+c.f+':</b> <span class="font-quran" style="font-size:1.4em">'+g[k].join('، ')+'</span>';
   });
   box.innerHTML=parts.join('<br>')+'<br><b class="text-emerald-300">مواجهتها = '+r.t+':</b> '+r.w+'.';
+  renderBig();
 }
 function renderBig(){
-  var g=groups(),ks=Object.keys(g);
-  document.getElementById('big').innerHTML=ks.length?ks.map(function(k){
-    return '<span class="chip '+COLORS[+k].c+'">'+g[k].join(' ')+'</span>';
-  }).join('<span style="font-size:.5em;color:#64748b"> + </span>'):'<span style="font-size:1rem;color:#64748b">لوّن الحروف أعلاه لتظهر مكبّرة هنا</span>';
+  var html=words.map(function(w,wi){
+    var sh=shaped(w.clusters);
+    return '<span class="wd">'+sh.map(function(cl,ci){
+      var cls=cl.c>=0?(' '+COLORS[cl.c].c):'';
+      var dk=cl.d?' dk':'';
+      var t=cl.t===' '?'&nbsp;':(cl.pre+cl.t+cl.post);
+      return '<span class="lt'+cls+dk+'" style="cursor:default">'+t+'</span>';
+    }).join(ZWJ)+'</span>';
+  }).join(' ');
+  var r=RULES[document.getElementById('rule').value];
+  var ruleHtml=r?(quiz?'<div class="mt-3" style="font-size:.42em;line-height:1.8"><b>الحكم: ؟؟؟</b><br><span style="color:#94a3b8">خمّن الحكم قبل الكشف</span></div>'
+    :'<div class="mt-3" style="font-size:.42em;line-height:1.8"><b>الحكم: '+r.t+'</b><br><span style="color:#94a3b8">'+r.w+'</span></div>'):'';
+  document.getElementById('big').innerHTML=html+ruleHtml;
 }
 function clearColors(){words.forEach(function(w){w.clusters.forEach(function(cl){cl.c=-1})});render();pushHist()}
+var DRAWON=false,PENCOLOR='#fbbf24',HASDRAW=false;
+var PENCOLS=['#34d399','#fbbf24','#fb7185','#38bdf8','#a78bfa','#fb923c','#ffffff','#111111'];
+function renderPen(){try{document.getElementById('penBox').innerHTML=PENCOLS.map(function(c){return '<span class="pendot'+(PENCOLOR===c?' sel':'')+'" style="background:'+c+'" onclick="setPen(\''+c+'\')"></span>'}).join('')}catch(e){}}
+function setPen(c){PENCOLOR=c;renderPen()}
+function toggleDraw(){
+  DRAWON=!DRAWON;
+  var cv=document.getElementById('drawCv');
+  document.getElementById('drawBtn').textContent=DRAWON?'👆 عودة للتلوين':'✏️ رسم يدوي';
+  document.getElementById('penBox').style.display=DRAWON?'':'none';
+  if(DRAWON){renderPen();fitCanvas();cv.style.display='block'}
+  else{cv.style.display='none'}
+}
+function fitCanvas(){
+  try{
+    var b=document.getElementById('board'),cv=document.getElementById('drawCv');
+    var dpr=window.devicePixelRatio||1;
+    cv.width=Math.max(1,Math.round(b.clientWidth*dpr));
+    cv.height=Math.max(1,Math.round(b.clientHeight*dpr));
+  }catch(e){}
+}
+function clearDraw(){try{var cv=document.getElementById('drawCv'),cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height)}catch(e){}HASDRAW=false}
+(function(){
+  var on=false,lx=0,ly=0;
+  function pos(e,cv){var r=cv.getBoundingClientRect();var p=(e.touches&&e.touches[0])||e;return[(p.clientX-r.left)*(cv.width/Math.max(1,r.width)),(p.clientY-r.top)*(cv.height/Math.max(1,r.height))]}
+  function dn(e){if(!DRAWON)return;on=true;var cv=document.getElementById('drawCv'),q=pos(e,cv);lx=q[0];ly=q[1];try{e.preventDefault()}catch(x){}}
+  function mv(e){if(!on||!DRAWON)return;var cv=document.getElementById('drawCv'),q=pos(e,cv);try{var cx=cv.getContext('2d');cx.strokeStyle=PENCOLOR;cx.lineWidth=5*(window.devicePixelRatio||1);cx.lineCap='round';cx.lineJoin='round';cx.beginPath();cx.moveTo(lx,ly);cx.lineTo(q[0],q[1]);cx.stroke();lx=q[0];ly=q[1];HASDRAW=true}catch(x){}}
+  function up(){on=false}
+  try{
+    var cv=document.getElementById('drawCv');
+    cv.addEventListener('pointerdown',dn);cv.addEventListener('touchstart',dn,{passive:false});
+    window.addEventListener('pointermove',mv);window.addEventListener('touchmove',mv,{passive:true});
+    window.addEventListener('pointerup',up);window.addEventListener('touchend',up);
+    window.addEventListener('resize',function(){if(DRAWON)fitCanvas()});
+  }catch(e){}
+})();
 function setSize(v){document.getElementById('fsV').textContent=v;document.getElementById('board').style.fontSize=v+'px'}
 function setGap(v){document.getElementById('gapV').textContent=v;document.getElementById('board').style.setProperty('--cg',v+'px')}
 function copyWords(){var t=words.map(function(w){return w.clusters.map(function(c){return c.t}).join('')}).join(' ');try{navigator.clipboard.writeText(t)}catch(e){}}
 function wordsText(){return words.map(function(w){return w.clusters.map(function(c){return c.t}).join('')}).join(' ')}
 function speak(){
+  if(ST_VK){playStReciter();return}
+  speakTTS();
+}
+function speakTTS(){
+  try{var a=document.getElementById('recAudio');if(a)a.pause()}catch(e){}
   try{
     var u=new SpeechSynthesisUtterance(wordsText()+' . '+RULES[document.getElementById('rule').value].t);
     u.lang='ar-SA';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);
   }catch(e){}
+}
+function playStReciter(){
+  try{
+    try{speechSynthesis.cancel()}catch(e){}
+    var a=document.getElementById('recAudio');
+    if(a&&!a.paused&&a.getAttribute('data-vk')===ST_VK){a.pause();return}
+    var ck=ST_REC+':'+ST_VK;
+    if(ST_AUDC[ck]){if(a){a.setAttribute('data-vk',ST_VK);a.src=ST_AUDC[ck];a.play().catch(function(){});}return}
+    fetch('https://api.alquran.cloud/v1/ayah/'+ST_VK+'/'+ST_REC).then(function(r){return r.json()}).then(function(j){
+      var u=j&&j.data&&j.data.audio;
+      if(u){ST_AUDC[ck]=u;if(ST_VK){var b=document.getElementById('recAudio');if(b){b.setAttribute('data-vk',ST_VK);b.src=u;b.play().catch(function(){})}}}
+      else speakTTS();
+    }).catch(function(){speakTTS()});
+  }catch(e){speakTTS()}
 }
 function toggleQuiz(){
   quiz=!quiz;
   document.getElementById('exp').classList.toggle('blurred',quiz);
   try{document.getElementById('legBox').classList.toggle('blurred',quiz)}catch(e){}
   document.getElementById('quizBtn').textContent=quiz?'👁 كشف الحكم والدليل':'🙈 وضع الاختبار: إخفاء الحكم';
+  renderBig();
 }
 function goFull(){
   var el=document.getElementById('bigSec');
@@ -333,10 +703,15 @@ async function exportPNG(){
     ".wd{white-space:nowrap;margin:0 10px}.lt{display:inline-block;padding:4px 12px;margin:4px;border-radius:14px;border:3px solid transparent;vertical-align:middle}"+
     ".pc0{background:#d1fae5;color:#065f46;border-color:#10b981}.pc1{background:#fef3c7;color:#92400e;border-color:#f59e0b}"+
     ".pc2{background:#ffe4e6;color:#9f1239;border-color:#f43f5e}.pc3{background:#e0f2fe;color:#0c4a6e;border-color:#0ea5e9}"+
-    ".pc4{background:#ede9fe;color:#5b21b6;border-color:#8b5cf6}.pc5{background:#ffedd5;color:#9a3412;border-color:#f97316}";
+    ".pc4{background:#ede9fe;color:#5b21b6;border-color:#8b5cf6}.pc5{background:#ffedd5;color:#9a3412;border-color:#f97316}"+
+".pc6{background:#fce7f3;color:#9d174d;border-color:#ec4899}";
     var clone=document.getElementById('board').cloneNode(true);
     clone.removeAttribute('id');clone.removeAttribute('style');
-    clone.setAttribute('style','font-size:46px;background:#ffffff;color:#111827;padding:30px;border-radius:8px;');
+    clone.setAttribute('style','font-size:46px;background:#ffffff;color:#111827;padding:30px;border-radius:8px;position:relative;');
+    try{
+      var dcv=document.getElementById('drawCv');
+      if(dcv&&HASDRAW){var dimg=document.createElement('img');dimg.src=dcv.toDataURL();dimg.setAttribute('style','position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none');clone.appendChild(dimg);}
+    }catch(e){}
     var W=1200,H=860;
     var inner=new XMLSerializer().serializeToString(clone);
     var expTxt=document.getElementById('exp').innerText||'';
@@ -369,6 +744,19 @@ function shareLink(){
     alert('نُسخ رابط اللوحة — شاركه مع الطلاب');
   }catch(e){alert('تعذّر إنشاء الرابط')}
 }
+function loadImport(){
+  try{
+    if((location.hash||'')!=='#import')return false;
+    var t=localStorage.getItem('tajweed_studio_import')||'';
+    if(!t)return false;
+    try{ST_VK=localStorage.getItem('tajweed_studio_import_vk')||null}catch(e){ST_VK=null}
+    document.getElementById('wlong').value=t;
+    document.getElementById('w1').value='';
+    document.getElementById('w2').value='';
+    applyWords(false,true);
+    return true;
+  }catch(e){return false}
+}
 function loadHash(){
   try{
     if(location.hash.indexOf('#s=')!==0)return false;
@@ -383,11 +771,29 @@ function loadPreset(v){
   var i=+v;if(isNaN(i))return;
   document.getElementById('w1').value=PRESETS[i].a;
   document.getElementById('w2').value=PRESETS[i].b;
+  document.getElementById('wlong').value='';
   applyWords();
 }
-document.getElementById('plib').innerHTML='<option value="">— اختر مثالاً جاهزاً —</option>'+PRESETS.map(function(p,i){
-  return '<option value="'+i+'">'+p.g+': '+p.a+(p.b?' '+p.b:'')+'</option>';
-}).join('');
+var LIBFILTER='';
+function currentIdx(){var r=[];PRESETS.forEach(function(p,i){if(!LIBFILTER||p.c===LIBFILTER)r.push(i)});return r}
+function rebuildPlib(){
+  var idx=currentIdx(),groups={},order=[];
+  idx.forEach(function(i){var p=PRESETS[i];if(!groups[p.c]){groups[p.c]=[];order.push(p.c)}groups[p.c].push(i)});
+  var h='<option value="">— اختر مثالاً جاهزاً ('+idx.length+') —</option>';
+  order.forEach(function(c){
+    h+='<optgroup label="'+c+'">'+groups[c].map(function(i){
+      var p=PRESETS[i];
+      return '<option value="'+i+'">'+p.s+': '+p.a+(p.b?' '+p.b:'')+'</option>';
+    }).join('')+'</optgroup>';
+  });
+  document.getElementById('plib').innerHTML=h;
+  document.getElementById('libCount').textContent='('+PRESETS.length+' مثالاً قرآنياً)';
+}
+document.getElementById('plibFilter').innerHTML='<option value="">كل الأحكام</option>'+(function(){
+  var seen={},out=[];
+  PRESETS.forEach(function(p){if(!seen[p.c]){seen[p.c]=1;out.push(p.c)}});
+  return out.map(function(c){return '<option value="'+c+'">'+c+'</option>'}).join('');
+})();
 document.addEventListener('keydown',function(e){
   var tag=(e.target&&e.target.tagName)||'';
   if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
@@ -396,9 +802,11 @@ document.addEventListener('keydown',function(e){
     else if(e.key==='y'){e.preventDefault();redo()}
     return;
   }
-  if(e.key>='0'&&e.key<='6'){sel=e.key==='0'?-1:(+e.key)-1;renderPalette()}
+  if(e.key>='0'&&e.key<='7'){sel=e.key==='0'?-1:(+e.key)-1;renderPalette()}
 });
-if(!loadHash())applyWords();
+rebuildPlib();
+renderRec();
+if(!loadImport()&&!loadHash())applyWords();
 </script>
 </body>
 </html>

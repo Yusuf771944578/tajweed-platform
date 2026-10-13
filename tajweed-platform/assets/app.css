@@ -210,3 +210,10 @@ body{padding-bottom:70px}
 [data-theme="light"] .text-violet-300{color:#6d28d9}
 [data-theme="light"] .text-rose-300{color:#be123c}
 [data-theme="light"] .text-orange-300{color:#c2410c}
+/* شريط الحقوق الموحد أسفل كل الواجهات */
+.credit{max-width:72rem;margin:2.5rem auto 0;padding:1.1rem 1rem 1.4rem;text-align:center;font-size:12px;font-weight:700;color:#94a3b8;border-top:1px solid rgba(255,255,255,.1);line-height:2.4}
+.credit a{color:#34d399;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;font-weight:800;white-space:nowrap}
+.credit a:hover{text-decoration:underline}
+.credit svg{width:15px;height:15px;flex:none}
+[data-theme="light"] .credit{color:#64748b;border-top-color:#e2e8f0}
+[data-theme="light"] .credit a{color:#059669}
