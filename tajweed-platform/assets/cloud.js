@@ -5,7 +5,7 @@
    (يُحفظ في جهازك فقط. مفتاح anon عام بطبيعته، والحماية عبر RLS في السيرفر) */
 window.CLOUD = (function () {
   var LS_CFG = 'tajweed_cloud_cfg', LS_OUT = 'tajweed_outbox', LS_DEV = 'tajweed_device', LS_SYN = 'tajweed_synced';
-  var cfg = { url: '', key: '' };
+  var cfg = { url: 'https://uiduazvdpkrizwrqegka.supabase.co', key: 'sb_publishable_6fLZj6z11HmnTg9GBRzd8g_V8HYYfis' };
   try {
     var saved = JSON.parse(localStorage.getItem(LS_CFG) || 'null');
     if (saved && saved.url) cfg = saved;
