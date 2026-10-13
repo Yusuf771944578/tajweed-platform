@@ -6,8 +6,9 @@
     { h: 'demo-skill-tree.html?v=13', t: 'الشجرة', i: '⑂' },
     { h: 'demo-lesson.html?v=13', t: 'الدرس', i: '♪' },
     { h: 'demo-mushaf.html?v=2', t: 'المصحف', i: '📖' },
-    { h: 'demo-mutun.html?v=1', t: 'المتون', i: '📜' }
-  ];
+    { h: 'demo-mutun.html?v=1', t: 'المتون', i: '📜' },
+    { h: 'demo-teacher-board.html?v=1', t: 'اللوحة', i: '◍' },
+];
   function cur() {
     var p = location.pathname.split('/').pop() || 'index.html?v=13';
     return p;

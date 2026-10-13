@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة المعلم — متابعة حية</title>
+<link rel="stylesheet" href="assets/app.css?v=11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
+.fade{animation:fd .3s ease both}@keyframes fd{from{opacity:0}to{opacity:1}}
+@media print{
+.tabbar,#dbg,.no-print{display:none!important}
+body{background:#fff!important;color:#000!important}
+.print-card{border:1px solid #999!important;background:#fff!important}
+}
+</style>
+</head>
+<body class="bg-[#0B1020] text-slate-100 min-h-screen">
+<div class="max-w-6xl mx-auto p-4 md:p-8" id="app">
+<header class="flex flex-wrap justify-between items-center gap-3">
+<div>
+<h1 class="text-2xl font-extrabold">لوحة المعلم <span class="text-emerald-400">— بيانات حية</span></h1>
+<p class="text-xs text-slate-400 mt-1">تُقرأ مباشرة من قاعدة البيانات • تحديث تلقائي كل دقيقة</p>
+</div>
+<div class="flex gap-2 no-print">
+<button onclick="load(true)" class="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-xs font-bold">↻ تحديث</button>
+<button onclick="window.print()" class="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-white">🖨 طباعة / PDF</button>
+</div>
+</header>
+<div id="err" class="mt-3 text-xs font-bold text-rose-300"></div>
+
+<section class="mt-4 grid gap-3 grid-cols-2 lg:grid-cols-4" id="stats"></section>
+
+<section class="mt-4 rounded-2xl border border-white/10 bg-white/[.03] p-5 print-card">
+<h2 class="font-extrabold">👥 الطلاب / الأجهزة</h2>
+<div id="roster" class="mt-3 space-y-2"></div>
+</section>
+
+<div class="mt-4 grid gap-4 md:grid-cols-2">
+<section class="rounded-2xl border border-white/10 bg-white/[.03] p-5 print-card">
+<h2 class="font-extrabold">🎯 العقد الأكثر تعثراً</h2>
+<div id="weak" class="mt-3 space-y-2"></div>
+</section>
+<section class="rounded-2xl border border-white/10 bg-white/[.03] p-5 print-card">
+<h2 class="font-extrabold">❓ الأسئلة الأكثر خطأً</h2>
+<div id="mist" class="mt-3 space-y-2"></div>
+</section>
+</div>
+<p class="mt-4 text-center text-[11px] text-slate-500">تُحفظ البيانات مجهولة الهوية برقم جهاز فقط — بلا أسماء حقيقية في هذه المرحلة</p>
+</div>
+<script src="assets/xp.js?v=7"></script>
+<script src="assets/site.js?v=16"></script>
+<script>
+var SB_URL='https://uiduazvdpkrizwrqegka.supabase.co';
+var SB_KEY='sb_publishable_6fLZj6z11HmnTg9GBRzd8g_V8HYYfis';
+var NAMES={'b-ghunna':'النون والميم المشددتان','b-qalq':'القلقلة','b-maddtab':'المد الطبيعي','m-noon':'مدخل النون الساكنة','m-izhar':'الإظهار الحلقي','m-idgham':'الإدغام','m-iqlab':'الإقلاب','m-ikhfa':'الإخفاء','m-meem':'الميم الساكنة','a-madd':'المدود الفرعية','a-tafkheem':'التفخيم والترقيق','a-makharij':'المخارج والصفات','a-waqf':'الوقف والابتداء'};
+function H(){return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}
+function get(path){
+  return fetch(SB_URL+'/rest/v1/'+path,{headers:H()}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  });
+}
+function dayStart(){var d=new Date();d.setHours(0,0,0,0);return d.getTime()}
+function esc(s){return String(s==null?'':s).replace(/</g,'‹')}
+function load(manual){
+  var err=document.getElementById('err');
+  err.textContent=manual?'⏳ جارٍ التحديث…':'⏳ جارٍ التحميل…';
+  Promise.all([
+    get('profiles?select=device_id,xp_total,streak,rank,updated_at&limit=1000').catch(function(){return null}),
+    get('progress?select=device_id,node_id,mastery,attempts&limit=2000').catch(function(){return null}),
+    get('mistakes?select=question,answer&order=created_at.desc&limit=200').catch(function(){return null}),
+    get('xp_events?select=amount,created_at&order=created_at.desc&limit=500').catch(function(){return null})
+  ]).then(function(r){
+    if(!r[0]&&!r[1]){err.textContent='⚠ تعذر الاتصال بالقاعدة — تحقق من الإنترنت والمفاتيح';return}
+    err.textContent='';
+    render(r[0]||[],r[1]||[],r[2]||[],r[3]||[]);
+  });
+}
+function render(profiles,progress,mistakes,events){
+  var ds=dayStart();
+  var totalXP=profiles.reduce(function(s,p){return s+(+p.xp_total||0)},0);
+  var avgM=progress.length?progress.reduce(function(s,p){return s+(+p.mastery||0)},0)/progress.length:0;
+  var todayXP=events.filter(function(e){return new Date(e.created_at).getTime()>=ds}).reduce(function(s,e){return s+(+e.amount||0)},0);
+  var active=profiles.filter(function(p){try{return new Date(p.updated_at).getTime()>=ds-86400000}catch(e){return false}}).length;
+  var cards=[
+    ['📱 الأجهزة',profiles.length],['⚡ إجمالي XP',totalXP],
+    ['📊 متوسط الإتقان',Math.round(avgM*100)+'%'],['🔥 نشاط اليوم',active+' جهاز • +'+todayXP+' XP']
+  ];
+  document.getElementById('stats').innerHTML=cards.map(function(c){
+    return '<div class="fade rounded-2xl border border-white/10 bg-white/[.04] p-4 text-center print-card"><div class="text-[11px] text-slate-400 font-bold">'+c[0]+'</div><div class="text-2xl font-extrabold mt-1">'+c[1]+'</div></div>';
+  }).join('');
+  var byDev={};
+  progress.forEach(function(p){
+    var d=byDev[p.device_id]=byDev[p.device_id]||{n:0,m:0,att:0};
+    d.n++;d.m+=+p.mastery||0;d.att+=+p.attempts||0;
+  });
+  var rows=profiles.slice().sort(function(a,b){return (b.xp_total||0)-(a.xp_total||0)});
+  document.getElementById('roster').innerHTML=rows.length?rows.map(function(p,i){
+    var d=byDev[p.device_id]||{n:0,m:0,att:0};
+    var avg=d.n?Math.round(d.m/d.n*100):0,short=esc(String(p.device_id)).slice(0,10)+'…';
+    return '<div class="fade flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.02] p-3 text-sm flex-wrap">'+
+    '<span class="font-extrabold text-slate-400 w-6">#'+(i+1)+'</span>'+
+    '<div class="flex-1 min-w-[140px]"><div class="font-bold">'+short+'</div>'+
+    '<div class="mt-1 h-1.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full bg-emerald-400" style="width:'+avg+'%"></div></div></div>'+
+    '<span class="text-xs font-bold text-amber-300">⚡ '+(p.xp_total||0)+'</span>'+
+    '<span class="text-xs text-slate-400">🔥 '+(p.streak||0)+' • '+(p.rank||'—')+'</span></div>';
+  }).join(''):'<p class="text-sm text-slate-500">لا أجهزة بعد — افتح التطبيق من جوال والعب ليظهر هنا.</p>';
+  var byNode={};
+  progress.forEach(function(p){
+    var n=byNode[p.node_id]=byNode[p.node_id]||{m:0,att:0,n:0};
+    n.m+=+p.mastery||0;n.att+=+p.attempts||0;n.n++;
+  });
+  var weak=Object.keys(byNode).map(function(k){
+    return {id:k,avg:byNode[k].m/byNode[k].n,att:byNode[k].att};
+  }).filter(function(x){return x.att>0}).sort(function(a,b){return a.avg-b.avg}).slice(0,5);
+  document.getElementById('weak').innerHTML=weak.length?weak.map(function(w){
+    return '<div class="fade rounded-xl bg-black/20 border border-white/10 p-3 text-xs"><div class="flex justify-between font-bold"><span>'+(NAMES[w.id]||w.id)+'</span><span class="text-orange-300">'+Math.round(w.avg*100)+'% • '+w.att+' محاولات</span></div>'+
+    '<div class="mt-1 h-1.5 rounded-full bg-white/10 overflow-hidden"><div class="h-full bg-orange-400" style="width:'+Math.round(w.avg*100)+'%"></div></div></div>';
+  }).join(''):'<p class="text-sm text-slate-500">لا بيانات كافية بعد.</p>';
+  var counts={};
+  mistakes.forEach(function(m){
+    var k=(m.question||'—').slice(0,80);
+    counts[k]=counts[k]||{c:0,ok:m.answer||''};
+    counts[k].c++;
+  });
+  var top=Object.keys(counts).map(function(k){return {q:k,c:counts[k].c,ok:counts[k].ok}}).sort(function(a,b){return b.c-a.c}).slice(0,8);
+  document.getElementById('mist').innerHTML=top.length?top.map(function(t){
+    return '<div class="fade rounded-xl bg-black/20 border border-white/10 p-3 text-xs"><div>✗ '+esc(t.q)+' <b class="text-slate-400">×'+t.c+'</b></div><div class="text-emerald-300 mt-1">✓ '+esc(t.ok)+'</div></div>';
+  }).join(''):'<p class="text-sm text-slate-500">لا أخطاء مسجلة — ممتاز!</p>';
+}
+load(false);
+setInterval(function(){load(false)},60000);
+</script>
+</body>
+</html>
