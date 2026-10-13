@@ -1,15 +1,15 @@
 /* site.js — التنقل الموحد + الوضع النهاري/الليلي (يعمل على كل الصفحات) */
 (function () {
   var PAGES = [
-    { h: 'index.html?v=8', t: 'الرئيسية', i: '⌂' },
+    { h: 'index.html?v=13', t: 'الرئيسية', i: '⌂' },
     { h: 'demo-teacher-studio.html?v=10', t: 'الاستوديو', i: '◉' },
     { h: 'demo-skill-tree.html?v=13', t: 'الشجرة', i: '⑂' },
-    { h: 'demo-lesson.html?v=9', t: 'الدرس', i: '♪' },
+    { h: 'demo-lesson.html?v=13', t: 'الدرس', i: '♪' },
     { h: 'demo-mushaf.html?v=2', t: 'المصحف', i: '📖' },
     { h: 'demo-mutun.html?v=1', t: 'المتون', i: '📜' }
   ];
   function cur() {
-    var p = location.pathname.split('/').pop() || 'index.html?v=8';
+    var p = location.pathname.split('/').pop() || 'index.html?v=13';
     return p;
   }
   function theme() {
