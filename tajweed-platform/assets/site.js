@@ -8,6 +8,7 @@
     { h: 'demo-mushaf.html?v=2', t: 'المصحف', i: '📖' },
     { h: 'demo-mutun.html?v=1', t: 'المتون', i: '📜' },
     { h: 'demo-teacher-board.html?v=1', t: 'اللوحة', i: '◍' },
+    { h: 'demo-feedback.html?v=1', t: 'رأيك', i: '✎' },
 ];
   function cur() {
     var p = location.pathname.split('/').pop() || 'index.html?v=13';
