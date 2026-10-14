@@ -113,6 +113,7 @@ function playBayt(gid){
   stopAu(false);
   CUR=gid;SECCUR=null;ATTEMPTS=baytAttempts(gid);ATT=0;LOADING=gid;render();
   tryPlay(ATTEMPTS[0]);
+  try{if(!isNaN(+gid)){if(!window._PA)window._PA=new Audio();window._PA.preload='auto';window._PA.src=enc(recBase()+'/'+(+gid+1)+'.mp3')}}catch(e){}
 }
 function playSection(si){
   if(MAT==='tuhfa'&&isMissing('s'+si)){toast('هذا المقطع غير متوفر بصوت '+recName());return}
@@ -126,11 +127,13 @@ function playSection(si){
 function tryPlay(u){
   AU.src=enc(u);
   var my=++ATK,done=false;
-  function fail(){if(done)return;done=true;if(my!==ATK)return;nextAttempt()}
+  function fail(){if(done)return;done=true;try{clearTimeout(window._auTO)}catch(e){}if(my!==ATK)return;nextAttempt()}
   AU._fail=fail;
+  try{clearTimeout(window._auTO)}catch(e){}
+  window._auTO=setTimeout(function(){fail()},9000);
   try{
     var pr=AU.play();
-    if(pr&&pr.then){pr.then(function(){if(my!==ATK)return;LOADING=null;render()}).catch(fail)}
+    if(pr&&pr.then){pr.then(function(){if(my!==ATK)return;try{clearTimeout(window._auTO)}catch(e){}LOADING=null;render()}).catch(fail)}
     else{LOADING=null;render()}
   }catch(e){fail()}
 }
